@@ -1,48 +1,53 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { Key, Shield, CreditCard, FolderUp } from "lucide-react";
 
 export default function Home() {
   const { data: session } = useSession();
 
   return (
-    <div className="flex-grow flex flex-col items-center justify-center p-6 sm:p-10 bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
-      <div className="max-w-3xl w-full bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 p-8 sm:p-12 text-center relative overflow-hidden">
-        {/* Decorative background gradient blob */}
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-indigo-100/40 to-violet-100/30 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-gradient-to-tr from-emerald-100/30 to-teal-100/20 rounded-full blur-2xl pointer-events-none" />
-
+    <div className="flex-grow flex flex-col items-center justify-center p-6 sm:p-10 bg-[var(--background)]">
+      <div className="max-w-3xl w-full bg-white rounded-xl shadow-sm border border-[var(--border)] p-8 sm:p-12 text-center relative overflow-hidden">
         <div className="relative">
-          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100/60 mb-5 uppercase tracking-widest">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-[var(--accent-light)] text-[var(--accent)] border border-indigo-100/60 mb-5 uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
             TrustLance Workspace
           </span>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
-            Welcome back, <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">{session?.user?.name || "User"}</span>!
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] tracking-tight mb-3">
+            Welcome back, <span className="text-[var(--accent)]">{session?.user?.name || "User"}</span>!
           </h1>
-          <p className="text-base text-slate-500 max-w-lg mx-auto mb-10 leading-relaxed">
-            You are currently signed in as a <span className="font-bold text-indigo-600">{session?.user?.role || "user without role"}</span>.
+          <p className="text-sm text-[var(--text-secondary)] max-w-lg mx-auto mb-8 leading-relaxed">
+            You are currently signed in as a <span className="font-semibold text-[var(--accent)] uppercase text-xs bg-[var(--accent-light)] px-2 py-0.5 rounded-md border border-indigo-100">{session?.user?.role || "user"}</span>.
             Use the dashboard menu to navigate the escrow workflows.
           </p>
 
-          <div className="border-t border-slate-100 pt-8">
-            <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-5">Platform Capabilities</h2>
+          <div className="border-t border-[var(--border-subtle)] pt-8">
+            <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-5">Platform Capabilities</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-xl mx-auto">
-              <div className="group p-4 bg-gradient-to-br from-indigo-50/80 to-indigo-50/30 rounded-xl border border-indigo-100/50 hover:shadow-md hover:shadow-indigo-100/50 hover:border-indigo-200/60 transition-all duration-200">
-                <span className="font-semibold text-indigo-900 block mb-1.5 text-sm">🔑 Google OAuth</span>
-                <span className="text-xs text-indigo-600/80 leading-relaxed">Seamless sign-in utilizing secure Google Cloud identity provider.</span>
+              <div className="group p-4 bg-slate-50 rounded-xl border border-[var(--border)] hover:shadow-md hover:border-slate-300 transition-all duration-150">
+                <span className="font-semibold text-[var(--text-primary)] block mb-1.5 text-sm flex items-center gap-1.5">
+                  <Key className="w-4 h-4 text-[var(--accent)]" /> Google OAuth
+                </span>
+                <span className="text-xs text-[var(--text-secondary)] leading-relaxed">Seamless sign-in utilizing secure Google Cloud identity provider.</span>
               </div>
-              <div className="group p-4 bg-gradient-to-br from-emerald-50/80 to-emerald-50/30 rounded-xl border border-emerald-100/50 hover:shadow-md hover:shadow-emerald-100/50 hover:border-emerald-200/60 transition-all duration-200">
-                <span className="font-semibold text-emerald-900 block mb-1.5 text-sm">🛡️ Role-Based RBAC</span>
-                <span className="text-xs text-emerald-600/80 leading-relaxed">Automatic email role mapping or selective onboarding for client/freelancer roles.</span>
+              <div className="group p-4 bg-slate-50 rounded-xl border border-[var(--border)] hover:shadow-md hover:border-slate-300 transition-all duration-150">
+                <span className="font-semibold text-[var(--text-primary)] block mb-1.5 text-sm flex items-center gap-1.5">
+                  <Shield className="w-4 h-4 text-emerald-600" /> Role-Based RBAC
+                </span>
+                <span className="text-xs text-[var(--text-secondary)] leading-relaxed">Automatic email role mapping or selective onboarding for client/freelancer roles.</span>
               </div>
-              <div className="group p-4 bg-gradient-to-br from-amber-50/80 to-amber-50/30 rounded-xl border border-amber-100/50 hover:shadow-md hover:shadow-amber-100/50 hover:border-amber-200/60 transition-all duration-200">
-                <span className="font-semibold text-amber-900 block mb-1.5 text-sm">💳 Razorpay Escrow</span>
-                <span className="text-xs text-amber-600/80 leading-relaxed">Application-level escrow with full state machine for payment lifecycle.</span>
+              <div className="group p-4 bg-slate-50 rounded-xl border border-[var(--border)] hover:shadow-md hover:border-slate-300 transition-all duration-150">
+                <span className="font-semibold text-[var(--text-primary)] block mb-1.5 text-sm flex items-center gap-1.5">
+                  <CreditCard className="w-4 h-4 text-amber-600" /> Razorpay Escrow
+                </span>
+                <span className="text-xs text-[var(--text-secondary)] leading-relaxed">Application-level escrow with full state machine for payment lifecycle.</span>
               </div>
-              <div className="group p-4 bg-gradient-to-br from-violet-50/80 to-violet-50/30 rounded-xl border border-violet-100/50 hover:shadow-md hover:shadow-violet-100/50 hover:border-violet-200/60 transition-all duration-200">
-                <span className="font-semibold text-violet-900 block mb-1.5 text-sm">📦 S3 Submissions</span>
-                <span className="text-xs text-violet-600/80 leading-relaxed">Direct presigned uploads to AWS S3 with work review and dispute workflows.</span>
+              <div className="group p-4 bg-slate-50 rounded-xl border border-[var(--border)] hover:shadow-md hover:border-slate-300 transition-all duration-150">
+                <span className="font-semibold text-[var(--text-primary)] block mb-1.5 text-sm flex items-center gap-1.5">
+                  <FolderUp className="w-4 h-4 text-violet-600" /> S3 Submissions
+                </span>
+                <span className="text-xs text-[var(--text-secondary)] leading-relaxed">Direct presigned uploads to AWS S3 with work review and dispute workflows.</span>
               </div>
             </div>
           </div>

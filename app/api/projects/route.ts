@@ -81,6 +81,7 @@ export async function GET(request: Request) {
       deadlineAfter: deadlineAfter && !isNaN(deadlineAfter.getTime()) ? deadlineAfter : undefined,
       page,
       limit,
+      currentUserId: session.user.id,
     });
 
     return NextResponse.json(result);

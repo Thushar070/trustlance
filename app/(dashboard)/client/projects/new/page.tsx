@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SKILL_GROUPS } from "@/lib/constants/skills";
+import { Plus, IndianRupee, Calendar, Briefcase, AlertCircle, ArrowLeft } from "lucide-react";
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -67,63 +68,64 @@ export default function NewProjectPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-100 p-6 sm:p-10 relative overflow-hidden">
-        {/* Decorative background gradient blob */}
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-indigo-100/30 to-violet-100/20 rounded-full blur-3xl pointer-events-none" />
-        
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-10 relative overflow-hidden">
         <div className="relative">
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">Post a New Project</h1>
-          <p className="text-sm text-slate-500 mb-8 leading-relaxed">
+          <div className="flex items-center gap-2 mb-2">
+            <Briefcase className="w-5 h-5 text-[var(--accent)]" />
+            <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">Post a New Project</h1>
+          </div>
+          <p className="text-sm text-[var(--text-secondary)] mb-8 leading-relaxed">
             Provide clear details to attract the best freelancers. Escrow funding is required upon assignment.
           </p>
 
           {errorMsg && (
-            <div className="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
-              <p className="text-sm text-red-700 font-medium">{errorMsg}</p>
+            <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-[var(--status-negative-text)] font-medium">{errorMsg}</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Project Title */}
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Project Title</label>
+              <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Title</label>
               <input
                 type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Build a secure escrow payment module for Next.js app"
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all"
+                className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all"
               />
               {errors.title && (
-                <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.title[0]}</p>
+                <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{errors.title[0]}</p>
               )}
             </div>
 
             {/* Project Description */}
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Project Description</label>
+              <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Description</label>
               <textarea
                 required
                 rows={6}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Provide a detailed description of the tasks, project scope, and deliverables..."
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all leading-relaxed"
+                className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed"
               />
               {errors.description && (
-                <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.description[0]}</p>
+                <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{errors.description[0]}</p>
               )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Project Budget */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Project Budget (INR)</label>
-                <div className="relative rounded-xl shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                    <span className="text-slate-400 text-sm">₹</span>
+                <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Budget (INR)</label>
+                <div className="relative rounded-lg shadow-sm">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <IndianRupee className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                   <input
                     type="number"
@@ -132,42 +134,47 @@ export default function NewProjectPage() {
                     value={budget}
                     onChange={(e) => setBudget(e.target.value)}
                     placeholder="5000"
-                    className="w-full pl-8 pr-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all"
+                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all"
                   />
                 </div>
                 {errors.budget && (
-                  <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.budget[0]}</p>
+                  <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{errors.budget[0]}</p>
                 )}
               </div>
 
               {/* Project Deadline */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Project Deadline</label>
-                <input
-                  type="date"
-                  required
-                  value={deadline}
-                  onChange={(e) => setDeadline(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all text-slate-700"
-                />
+                <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Deadline</label>
+                <div className="relative rounded-lg shadow-sm">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  </div>
+                  <input
+                    type="date"
+                    required
+                    value={deadline}
+                    onChange={(e) => setDeadline(e.target.value)}
+                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all text-slate-700"
+                  />
+                </div>
                 {errors.deadline && (
-                  <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.deadline[0]}</p>
+                  <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{errors.deadline[0]}</p>
                 )}
               </div>
             </div>
 
             {/* Skill Selection */}
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Skills Required</label>
-              <p className="text-[11px] text-slate-450 mb-3">Select at least one skill representing the tech stack required.</p>
+              <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5">Skills Required</label>
+              <p className="text-[11px] text-[var(--text-muted)] mb-3 font-medium">Select at least one skill representing the tech stack required.</p>
               {errors.skills && (
-                <p className="mb-3 text-xs text-red-600 font-medium">{errors.skills[0]}</p>
+                <p className="mb-3 text-xs text-[var(--status-negative-text)] font-medium">{errors.skills[0]}</p>
               )}
 
-              <div className="space-y-5 border border-slate-100 rounded-2xl p-4.5 bg-slate-50/50 max-h-80 overflow-y-auto">
+              <div className="space-y-4 border border-[var(--border)] rounded-lg p-4 bg-slate-50/50 max-h-80 overflow-y-auto">
                 {SKILL_GROUPS.map((group) => (
                   <div key={group.category}>
-                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{group.category}</h3>
+                    <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">{group.category}</h3>
                     <div className="flex flex-wrap gap-1.5">
                       {group.skills.map((skill) => {
                         const isSelected = selectedSkills.includes(skill);
@@ -176,10 +183,10 @@ export default function NewProjectPage() {
                             key={skill}
                             type="button"
                             onClick={() => toggleSkill(skill)}
-                            className={`text-[11px] px-3 py-1.5 rounded-lg border font-semibold cursor-pointer transition-all duration-150 ${
+                            className={`text-[10px] px-2.5 py-1 rounded-md border font-medium cursor-pointer transition-all duration-150 ${
                               isSelected
-                                ? "bg-indigo-650 border-indigo-650 text-white shadow-sm shadow-indigo-100/50"
-                                : "bg-white border-slate-200 text-slate-500 hover:bg-slate-150 hover:border-slate-300"
+                                ? "bg-[var(--accent-light)] border-[var(--accent)] text-[var(--accent)] font-bold shadow-sm"
+                                : "bg-white border-[var(--border)] text-slate-500 hover:bg-slate-50 hover:border-slate-300"
                             }`}
                           >
                             {skill}
@@ -193,19 +200,21 @@ export default function NewProjectPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-end space-x-4 border-t border-slate-100 pt-6">
+            <div className="flex justify-end space-x-3 border-t border-[var(--border-subtle)] pt-6">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors"
+                className="inline-flex items-center gap-1 px-4 py-2.5 border border-[var(--border)] rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors"
               >
+                <ArrowLeft className="w-3.5 h-3.5" />
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-sm shadow-indigo-200/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 cursor-pointer transition-all duration-200"
+                className="inline-flex items-center gap-1 px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-sm disabled:opacity-50 cursor-pointer transition-colors"
               >
+                <Plus className="w-3.5 h-3.5" />
                 {loading ? "Posting Project..." : "Post Project"}
               </button>
             </div>

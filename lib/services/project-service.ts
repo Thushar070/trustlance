@@ -91,6 +91,7 @@ export class ProjectService {
     deadlineAfter?: Date;
     page?: number;
     limit?: number;
+    currentUserId?: string;
   }) {
     const page = Math.max(1, filters.page || 1);
     const limit = Math.max(1, filters.limit || 10);
@@ -98,12 +99,35 @@ export class ProjectService {
 
     const where: Prisma.ProjectWhereInput = {};
 
+    const currentUserId = filters.currentUserId;
+    const isQueryingOwnClient = !!(filters.clientId && currentUserId && filters.clientId === currentUserId);
+
     if (filters.status) {
       where.status = filters.status;
-    }
-
-    if (filters.clientId) {
-      where.clientId = filters.clientId;
+      // If status is not OPEN, restrict visibility to client owner or assigned freelancer
+      if (filters.status !== ProjectStatus.OPEN) {
+        if (currentUserId) {
+          where.AND = [
+            {
+              OR: [
+                { clientId: currentUserId },
+                { freelancerId: currentUserId }
+              ]
+            }
+          ];
+        } else {
+          where.id = "none";
+        }
+      }
+    } else {
+      // By default (if status is not explicitly passed), only return OPEN projects.
+      // However, if the client is querying their own projects (e.g. from the client dashboard),
+      // we allow returning their own projects across all statuses.
+      if (isQueryingOwnClient) {
+        where.clientId = filters.clientId;
+      } else {
+        where.status = ProjectStatus.OPEN;
+      }
     }
 
     if (filters.skills && filters.skills.length > 0) {

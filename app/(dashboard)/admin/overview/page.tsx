@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ProjectStatus } from "@prisma/client";
+import { Shield, IndianRupee, AlertTriangle, Cpu, ArrowRight } from "lucide-react";
 
 interface OverviewStats {
   projectsByStatus: Record<ProjectStatus, number>;
@@ -37,72 +38,93 @@ export default function AdminOverviewPage() {
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case "OPEN":
-        return "bg-sky-50 text-sky-700 border-sky-200";
+        return "bg-[var(--status-open-bg)] text-[var(--status-open-text)] border-[var(--status-open-border)]";
       case "ASSIGNED":
-        return "bg-amber-50 text-amber-700 border-amber-200";
       case "IN_PROGRESS":
-        return "bg-violet-50 text-violet-700 border-violet-200";
+        return "bg-[var(--status-progress-bg)] text-[var(--status-progress-text)] border-[var(--status-progress-border)]";
       case "UNDER_REVIEW":
-        return "bg-indigo-50 text-indigo-700 border-indigo-200";
+        return "bg-[var(--status-review-bg)] text-[var(--status-review-text)] border-[var(--status-review-border)]";
       case "COMPLETED":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-[var(--status-success-bg)] text-[var(--status-success-text)] border-[var(--status-success-border)]";
       case "CANCELLED":
-        return "bg-red-50 text-red-700 border-red-200";
+        return "bg-[var(--status-negative-bg)] text-[var(--status-negative-text)] border-[var(--status-negative-border)]";
       case "CLOSED":
-        return "bg-slate-100 text-slate-600 border-slate-200";
+        return "bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)] border-[var(--status-neutral-border)]";
       default:
-        return "bg-slate-100 text-slate-600 border-slate-200";
+        return "bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)] border-[var(--status-neutral-border)]";
     }
   };
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-mono">
-        <div className="text-sm text-slate-400 italic animate-pulse">Loading platform metrics...</div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
+          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-[var(--accent)] animate-spin" />
+          <p className="text-slate-400 text-sm font-medium">Loading platform metrics...</p>
+        </div>
       </div>
     );
   }
 
   if (errorMsg || !stats) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-mono">
-        <div className="text-sm text-red-600">Error: {errorMsg || "Failed to load stats"}</div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg flex items-start gap-3">
+          <AlertTriangle className="w-4.5 h-4.5 text-[var(--status-negative-text)] flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-[var(--status-negative-text)] font-semibold">Error: {errorMsg || "Failed to load stats"}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-mono text-xs text-slate-600">
-      <div className="mb-8 pb-4 border-b border-slate-200">
-        <h1 className="text-lg font-bold text-slate-900 uppercase tracking-wider">Platform Administration Overview</h1>
-        <p className="text-slate-400 mt-1">Operational status logs and platform metrics summary.</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-8 border-b border-[var(--border)] pb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <Shield className="w-5 h-5 text-[var(--accent)]" />
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Platform Administration</h1>
+        </div>
+        <p className="text-sm text-[var(--text-secondary)] mt-1">Operational status logs and platform metrics summary.</p>
       </div>
 
       {/* Overview Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Metric 1 */}
-        <div className="bg-white p-5 border border-slate-200 rounded-xl shadow-sm">
-          <div className="text-slate-400 uppercase font-bold tracking-wider mb-2">Total Financial Volume</div>
-          <div className="text-2xl font-black text-slate-900">₹{stats.totalPaymentVolume.toLocaleString()}</div>
-          <div className="text-[10px] text-slate-400 mt-1">Sum of all successfully captured payments.</div>
+        <div className="bg-white p-6 border border-[var(--border)] rounded-xl shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="text-[var(--text-muted)] uppercase text-[10px] font-bold tracking-wider mb-2 flex items-center gap-1.5">
+              <IndianRupee className="w-3.5 h-3.5 text-slate-400" />
+              Total Financial Volume
+            </div>
+            <div className="text-2xl font-bold text-[var(--text-primary)]">₹{stats.totalPaymentVolume.toLocaleString()}</div>
+          </div>
+          <div className="text-[11px] text-[var(--text-muted)] mt-4 font-medium">Sum of all successfully captured payments.</div>
         </div>
 
         {/* Metric 2 */}
-        <div className="bg-white p-5 border border-slate-200 rounded-xl shadow-sm">
-          <div className="text-slate-400 uppercase font-bold tracking-wider mb-2">Active Dispute Tickets</div>
-          <div className="text-2xl font-black text-red-600">{stats.openDisputesCount}</div>
-          <div className="text-[10px] text-slate-400 mt-1">
-            <Link href="/admin/disputes" className="text-indigo-600 hover:underline">
-              Resolve disputes page →
+        <div className="bg-white p-6 border border-[var(--border)] rounded-xl shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="text-[var(--text-muted)] uppercase text-[10px] font-bold tracking-wider mb-2 flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5 text-slate-400" />
+              Active Dispute Tickets
+            </div>
+            <div className="text-2xl font-bold text-[var(--status-negative-text)]">{stats.openDisputesCount}</div>
+          </div>
+          <div className="text-[11px] text-[var(--text-muted)] mt-4 font-medium">
+            <Link href="/admin/disputes" className="text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold flex items-center gap-1">
+              Resolve disputes page <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
         </div>
 
         {/* Metric 3: Actions */}
-        <div className="bg-white p-5 border border-slate-200 rounded-xl shadow-sm flex flex-col justify-between">
+        <div className="bg-white p-6 border border-[var(--border)] rounded-xl shadow-sm flex flex-col justify-between">
           <div>
-            <div className="text-slate-400 uppercase font-bold tracking-wider mb-2">Cron Maintenance</div>
-            <div className="text-[10px] text-slate-400">Trigger standard auto-release cron cycles manually.</div>
+            <div className="text-[var(--text-muted)] uppercase text-[10px] font-bold tracking-wider mb-2 flex items-center gap-1.5">
+              <Cpu className="w-3.5 h-3.5 text-slate-400" />
+              Cron Maintenance
+            </div>
+            <p className="text-[11px] text-[var(--text-muted)] font-medium leading-relaxed">Trigger standard auto-release cron cycles manually.</p>
           </div>
           <button
             onClick={async () => {
@@ -118,7 +140,7 @@ export default function AdminOverviewPage() {
                 }
               }
             }}
-            className="mt-3 px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded font-bold uppercase tracking-wider text-center text-[10px] cursor-pointer transition-colors"
+            className="mt-4 w-full inline-flex justify-center items-center py-2 px-3 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-primary)] bg-white hover:bg-slate-50 hover:border-slate-300 transition-colors cursor-pointer"
           >
             Trigger Auto-Release
           </button>
@@ -126,15 +148,15 @@ export default function AdminOverviewPage() {
       </div>
 
       {/* Projects status distribution */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
-        <h2 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-4">Project Status Distribution</h2>
-        <div className="divide-y divide-slate-150">
+      <div className="bg-white border border-[var(--border)] rounded-xl shadow-sm p-6 max-w-2xl">
+        <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Project Status Distribution</h2>
+        <div className="divide-y divide-[var(--border-subtle)] text-sm">
           {Object.entries(stats.projectsByStatus).map(([status, count]) => (
-            <div key={status} className="flex justify-between items-center py-2.5">
-              <span className={`inline-flex items-center px-2 py-0.5 rounded border text-[10px] font-bold uppercase tracking-wider ${getStatusBadgeClass(status)}`}>
+            <div key={status} className="flex justify-between items-center py-3">
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${getStatusBadgeClass(status)}`}>
                 {status.replace("_", " ")}
               </span>
-              <span className="font-bold text-slate-900 text-sm">{count}</span>
+              <span className="font-bold text-[var(--text-primary)]">{count}</span>
             </div>
           ))}
         </div>

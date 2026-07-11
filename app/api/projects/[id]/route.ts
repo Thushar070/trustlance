@@ -3,7 +3,7 @@ import { requireRole } from "@/lib/auth/require-role";
 import { getServerSession } from "@/lib/auth/get-server-session";
 import { updateProjectSchema } from "@/lib/validators/project";
 import { ProjectService } from "@/lib/services/project-service";
-import { Role } from "@prisma/client";
+import { Role, ProjectStatus } from "@prisma/client";
 
 export async function GET(
   request: Request,
@@ -20,6 +20,17 @@ export async function GET(
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    // Visibility boundary: Non-OPEN projects are restricted
+    if (project.status !== ProjectStatus.OPEN) {
+      const isClientOwner = project.clientId === session.user.id;
+      const isFreelancerAssigned = project.freelancerId === session.user.id;
+      const isAdmin = session.user.role === Role.ADMIN;
+
+      if (!isClientOwner && !isFreelancerAssigned && !isAdmin) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
     }
 
     // If the logged-in user is a freelancer, attach their own proposal if it exists

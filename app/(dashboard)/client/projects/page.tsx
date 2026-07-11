@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { ProjectStatus } from "@prisma/client";
+import { Plus, Briefcase, Calendar, AlertCircle } from "lucide-react";
 
 interface ProjectItem {
   id: string;
@@ -15,6 +16,27 @@ interface ProjectItem {
   skills: string[];
   createdAt: string;
 }
+
+const getStatusBadgeClass = (status: ProjectStatus) => {
+  switch (status) {
+    case ProjectStatus.OPEN:
+      return "bg-[var(--status-open-bg)] text-[var(--status-open-text)] border-[var(--status-open-border)]";
+    case ProjectStatus.ASSIGNED:
+      return "bg-[var(--status-progress-bg)] text-[var(--status-progress-text)] border-[var(--status-progress-border)]";
+    case ProjectStatus.IN_PROGRESS:
+      return "bg-[var(--status-progress-bg)] text-[var(--status-progress-text)] border-[var(--status-progress-border)]";
+    case ProjectStatus.UNDER_REVIEW:
+      return "bg-[var(--status-review-bg)] text-[var(--status-review-text)] border-[var(--status-review-border)]";
+    case ProjectStatus.COMPLETED:
+      return "bg-[var(--status-success-bg)] text-[var(--status-success-text)] border-[var(--status-success-border)]";
+    case ProjectStatus.CANCELLED:
+      return "bg-[var(--status-negative-bg)] text-[var(--status-negative-text)] border-[var(--status-negative-border)]";
+    case ProjectStatus.CLOSED:
+      return "bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)] border-[var(--status-neutral-border)]";
+    default:
+      return "bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)] border-[var(--status-neutral-border)]";
+  }
+};
 
 export default function ClientProjectsPage() {
   const { data: session } = useSession();
@@ -65,32 +87,11 @@ export default function ClientProjectsPage() {
     }
   };
 
-  const getStatusBadgeClass = (status: ProjectStatus) => {
-    switch (status) {
-      case ProjectStatus.OPEN:
-        return "bg-sky-50 text-sky-700 border-sky-200";
-      case ProjectStatus.ASSIGNED:
-        return "bg-amber-50 text-amber-700 border-amber-200";
-      case ProjectStatus.IN_PROGRESS:
-        return "bg-violet-50 text-violet-700 border-violet-200";
-      case ProjectStatus.UNDER_REVIEW:
-        return "bg-indigo-50 text-indigo-700 border-indigo-200";
-      case ProjectStatus.COMPLETED:
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case ProjectStatus.CANCELLED:
-        return "bg-red-50 text-red-700 border-red-200";
-      case ProjectStatus.CLOSED:
-        return "bg-slate-100 text-slate-600 border-slate-200";
-      default:
-        return "bg-slate-100 text-slate-600 border-slate-200";
-    }
-  };
-
   if (loading) {
     return (
-      <div className="flex-grow flex items-center justify-center">
+      <div className="flex-grow flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-indigo-500 animate-spin" />
+          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-[var(--accent)] animate-spin" />
           <p className="text-slate-400 text-sm">Loading your projects...</p>
         </div>
       </div>
@@ -98,89 +99,95 @@ export default function ClientProjectsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="flex justify-between items-center mb-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex justify-between items-center mb-8 gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Your Posted Projects</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage and track your project escrow lifecycles.</p>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Your Posted Projects</h1>
+          <p className="text-sm text-[var(--text-secondary)] mt-1">Manage and track your project escrow lifecycles.</p>
         </div>
         <Link
           href="/client/projects/new"
-          className="inline-flex items-center px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-sm shadow-indigo-200/50 hover:shadow-md transition-all duration-200 cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold rounded-lg text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-sm cursor-pointer transition-colors"
         >
-          + Post a Project
+          <Plus className="w-4 h-4" />
+          Post a Project
         </Link>
       </div>
 
       {errorMsg && (
-        <div className="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
-          <p className="text-sm text-red-700 font-medium">{errorMsg}</p>
+        <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg flex items-start gap-3">
+          <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
+          <p className="text-sm text-[var(--status-negative-text)] font-medium">{errorMsg}</p>
         </div>
       )}
 
       {projects.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/40 p-16 text-center">
-          <span className="text-4xl mb-4 block">💼</span>
-          <h2 className="text-lg font-bold text-slate-900 mb-1">No Projects Found</h2>
-          <p className="text-sm text-slate-500 max-w-sm mx-auto mb-6">
+        <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+            <Briefcase className="w-6 h-6 text-slate-400" />
+          </div>
+          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">No Projects Found</h2>
+          <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto mb-6">
             You haven&apos;t posted any freelance project listings yet. Click below to create your first.
           </p>
           <Link
             href="/client/projects/new"
-            className="inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-sm shadow-indigo-200/50 hover:shadow-md transition-all duration-200"
+            className="inline-flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold rounded-lg text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-sm transition-colors"
           >
+            <Plus className="w-4 h-4" />
             Post Your First Project
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/40 overflow-hidden">
-          <ul className="divide-y divide-slate-100">
+        <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm overflow-hidden">
+          <ul className="divide-y divide-[var(--border-subtle)]">
             {projects.map((project) => (
               <li key={project.id} className="group p-6 hover:bg-slate-50/50 transition-colors duration-150">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex-grow min-w-0">
                     <div className="flex flex-wrap items-center gap-2.5 mb-2">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-widest ${getStatusBadgeClass(project.status)}`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadgeClass(project.status)}`}>
                         {project.status.replace("_", " ")}
                       </span>
-                      <span className="text-xs text-slate-400">
+                      <span className="text-xs text-[var(--text-muted)] font-medium flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
                         Posted {new Date(project.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                     <Link
                       href={`/projects/${project.id}`}
-                      className="text-base font-bold text-slate-900 hover:text-indigo-600 transition-colors block mb-1.5 truncate"
+                      className="text-base font-semibold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors block mb-1.5 truncate"
                     >
                       {project.title}
                     </Link>
-                    <p className="text-sm text-slate-500 line-clamp-2 mb-3 max-w-3xl leading-relaxed">
+                    <p className="text-sm text-[var(--text-secondary)] line-clamp-2 mb-3 max-w-3xl leading-relaxed">
                       {project.description}
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {project.skills.map((s) => (
-                        <span key={s} className="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded-md font-semibold">
+                        <span key={s} className="bg-slate-100 text-[var(--text-secondary)] text-[10px] px-2 py-0.5 rounded-md font-semibold">
                           {s}
                         </span>
                       ))}
                     </div>
                   </div>
 
-                  <div className="flex sm:flex-col items-start sm:items-end justify-between sm:justify-center gap-2 border-t sm:border-t-0 border-slate-100 pt-4 sm:pt-0 flex-shrink-0 sm:min-w-[120px]">
+                  <div className="flex sm:flex-col items-start sm:items-end justify-between sm:justify-center gap-2 border-t sm:border-t-0 border-[var(--border-subtle)] pt-4 sm:pt-0 flex-shrink-0 sm:min-w-[120px]">
                     <div className="text-right sm:mb-3">
-                      <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-widest mb-0.5">Budget</span>
-                      <span className="text-lg font-black text-slate-900">₹{project.budget.toLocaleString()}</span>
+                      <span className="text-[10px] text-[var(--text-muted)] block uppercase font-medium tracking-wider mb-0.5">Budget</span>
+                      <span className="text-lg font-bold text-[var(--text-primary)]">₹{project.budget.toLocaleString()}</span>
                     </div>
                     <div className="flex gap-2">
                       <Link
                         href={`/projects/${project.id}`}
-                        className="px-4 py-1.5 border border-slate-200 hover:border-indigo-400 text-xs font-semibold rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/30 transition-all duration-200 group-hover:border-indigo-300"
+                        className="px-3.5 py-1.5 border border-[var(--border)] hover:border-[var(--accent)] text-xs font-semibold rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-[var(--accent-light)] transition-colors"
                       >
                         View Details →
                       </Link>
                       {project.status === ProjectStatus.OPEN && (
                         <button
                           onClick={() => handleCancelProject(project.id)}
-                          className="px-3 py-1.5 border border-red-200 hover:border-red-400 text-xs font-semibold rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 cursor-pointer"
+                          className="px-3 py-1.5 border border-[var(--border)] hover:border-[var(--status-negative-text)] text-xs font-semibold rounded-lg text-slate-500 hover:text-[var(--status-negative-text)] hover:bg-[var(--status-negative-bg)] transition-colors cursor-pointer"
                         >
                           Cancel
                         </button>

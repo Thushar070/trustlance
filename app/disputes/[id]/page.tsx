@@ -5,6 +5,15 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { DisputeStatus, EscrowStatus } from "@prisma/client";
 import AuditHistory from "@/components/AuditHistory";
+import {
+  FileText,
+  Link2,
+  AlertTriangle,
+  Lock,
+  CheckCircle,
+  XCircle,
+  Upload,
+} from "lucide-react";
 
 interface EvidenceItem {
   id: string;
@@ -216,19 +225,19 @@ export default function DisputeDetailPage() {
   const getStatusBadge = (status: DisputeStatus, escrowStatus?: EscrowStatus) => {
     if (status === DisputeStatus.RESOLVED) {
       return escrowStatus === EscrowStatus.RELEASED
-        ? "bg-emerald-50 text-emerald-700 border-emerald-250"
-        : "bg-red-50 text-red-700 border-red-250";
+        ? "bg-[var(--status-success-bg)] text-[var(--status-success-text)] border-[var(--status-success-border)]"
+        : "bg-[var(--status-negative-bg)] text-[var(--status-negative-text)] border-[var(--status-negative-border)]";
     }
     return status === DisputeStatus.OPEN
-      ? "bg-amber-50 text-amber-700 border-amber-250"
-      : "bg-slate-100 text-slate-600 border-slate-250";
+      ? "bg-[var(--status-open-bg)] text-[var(--status-open-text)] border-[var(--status-open-border)]"
+      : "bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)] border-[var(--status-neutral-border)]";
   };
 
   if (loading) {
     return (
       <div className="flex-grow flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-indigo-500 animate-spin" />
+          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-[var(--accent)] animate-spin" />
           <p className="text-slate-400 text-sm">Loading case file...</p>
         </div>
       </div>
@@ -238,11 +247,11 @@ export default function DisputeDetailPage() {
   if (errorMsg || !dispute) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-12 text-center">
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
-          <p className="text-sm text-red-700 font-semibold mb-3">{errorMsg || "Dispute not found"}</p>
+        <div className="bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-6 rounded-xl shadow-sm">
+          <p className="text-sm text-[var(--status-negative-text)] font-semibold mb-3">{errorMsg || "Dispute not found"}</p>
           <button
             onClick={() => router.push("/projects")}
-            className="text-xs px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-lg transition-colors cursor-pointer"
+            className="text-xs px-4 py-2 bg-white hover:bg-slate-50 text-[var(--status-negative-text)] font-bold rounded-lg border border-red-200 transition-colors cursor-pointer"
           >
             Back to dashboard
           </button>
@@ -266,17 +275,17 @@ export default function DisputeDetailPage() {
   const hasReachedLimit = userEvidenceCount >= 10;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Dispute Header Case File branding */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-200/80 pb-6 mb-8 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-[var(--border)] pb-6 mb-8 gap-4">
         <div>
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
             Escrow Case File #{dispute.id.slice(-6).toUpperCase()}
           </span>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
             {project.title}
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-[var(--text-secondary)] mt-1">
             Reviewing escrow dispute for ₹{project.budget.toLocaleString()} contract budget.
           </p>
         </div>
@@ -289,17 +298,17 @@ export default function DisputeDetailPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Case Details (Columns client vs freelancer) */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6">
           {/* Dispute details reason */}
-          <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-100 p-6 sm:p-8">
-            <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Initial Dispute Reason</h2>
-            <div className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap bg-slate-50 border border-slate-100 rounded-xl p-5">
-              <span className="font-bold text-slate-900 block mb-1">
+          <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
+            <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Initial Dispute Reason</h2>
+            <div className="text-[var(--text-secondary)] text-sm leading-relaxed whitespace-pre-wrap bg-slate-50 border border-slate-100 rounded-lg p-5">
+              <span className="font-bold text-[var(--text-primary)] block mb-2 text-xs uppercase tracking-wider">
                 Raised by {dispute.raisedBy === project.clientId ? "Client" : "Freelancer"} on {new Date(dispute.createdAt).toLocaleString()}
               </span>
-              &ldquo;{dispute.reason}&rdquo;
+              <p className="italic text-slate-650 leading-relaxed">&ldquo;{dispute.reason}&rdquo;</p>
             </div>
           </div>
 
@@ -307,31 +316,33 @@ export default function DisputeDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Client Column */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Client&apos;s Evidence</h3>
-                <span className="text-xs font-semibold text-slate-400">{clientEvidence.length} items</span>
+              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
+                <h3 className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Client&apos;s Evidence</h3>
+                <span className="text-xs font-semibold text-[var(--text-muted)]">{clientEvidence.length} items</span>
               </div>
-              
+
               {clientEvidence.length === 0 ? (
-                <div className="bg-slate-50/50 border border-dashed border-slate-200 rounded-2xl p-6 text-center text-xs text-slate-400 italic">
+                <div className="bg-slate-50/50 border border-dashed border-slate-250 rounded-xl p-6 text-center text-xs text-[var(--text-muted)] italic">
                   No evidence uploaded by client yet.
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {clientEvidence.map((ev) => (
-                    <div key={ev.id} className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div key={ev.id} className="bg-white border border-[var(--border)] rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-start gap-3">
-                        <span className="text-lg flex-shrink-0 mt-0.5">{ev.type === "file" ? "📁" : "🔗"}</span>
+                        <span className="text-slate-400 mt-0.5">
+                          {ev.type === "file" ? <FileText className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
+                        </span>
                         <div className="min-w-0 flex-grow">
                           <a
                             href={ev.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:underline block truncate"
+                            className="text-xs font-bold text-[var(--accent)] hover:text-[var(--accent-hover)] hover:underline block truncate"
                           >
                             {ev.type === "file" ? ev.url.split("/").pop() || "Evidence File" : ev.url}
                           </a>
-                          <span className="text-[10px] text-slate-400 block mt-1">
+                          <span className="text-[10px] text-[var(--text-muted)] block mt-1">
                             Uploaded {new Date(ev.createdAt).toLocaleString()}
                           </span>
                         </div>
@@ -344,31 +355,33 @@ export default function DisputeDetailPage() {
 
             {/* Freelancer Column */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Freelancer&apos;s Evidence</h3>
-                <span className="text-xs font-semibold text-slate-400">{freelancerEvidence.length} items</span>
+              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
+                <h3 className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Freelancer&apos;s Evidence</h3>
+                <span className="text-xs font-semibold text-[var(--text-muted)]">{freelancerEvidence.length} items</span>
               </div>
 
               {freelancerEvidence.length === 0 ? (
-                <div className="bg-slate-50/50 border border-dashed border-slate-200 rounded-2xl p-6 text-center text-xs text-slate-400 italic">
+                <div className="bg-slate-50/50 border border-dashed border-slate-250 rounded-xl p-6 text-center text-xs text-[var(--text-muted)] italic">
                   No evidence uploaded by freelancer yet.
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {freelancerEvidence.map((ev) => (
-                    <div key={ev.id} className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div key={ev.id} className="bg-white border border-[var(--border)] rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-start gap-3">
-                        <span className="text-lg flex-shrink-0 mt-0.5">{ev.type === "file" ? "📁" : "🔗"}</span>
+                        <span className="text-slate-400 mt-0.5">
+                          {ev.type === "file" ? <FileText className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
+                        </span>
                         <div className="min-w-0 flex-grow">
                           <a
                             href={ev.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:underline block truncate"
+                            className="text-xs font-bold text-[var(--accent)] hover:text-[var(--accent-hover)] hover:underline block truncate"
                           >
                             {ev.type === "file" ? ev.url.split("/").pop() || "Evidence File" : ev.url}
                           </a>
-                          <span className="text-[10px] text-slate-400 block mt-1">
+                          <span className="text-[10px] text-[var(--text-muted)] block mt-1">
                             Uploaded {new Date(ev.createdAt).toLocaleString()}
                           </span>
                         </div>
@@ -382,59 +395,60 @@ export default function DisputeDetailPage() {
 
           {/* Evidence Upload Area */}
           {(isClient || isFreelancer) && !isResolved && (
-            <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-100 p-6 sm:p-8">
+            <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
               <div className="mb-4">
-                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Upload Supporting Evidence</h3>
-                <p className="text-xs text-slate-500 mt-1">
+                <h3 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">Upload Supporting Evidence</h3>
+                <p className="text-xs text-[var(--text-muted)] mt-1">
                   Upload file logs, screenshots, or link relevant external demos/repos. You have uploaded {userEvidenceCount} of 10 allowed items.
                 </p>
               </div>
 
               {evidenceError && (
-                <div className="mb-4 bg-red-50 border-l-4 border-red-400 p-3 rounded-lg">
-                  <p className="text-xs text-red-700 font-semibold">{evidenceError}</p>
+                <div className="mb-4 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-3 rounded-lg">
+                  <p className="text-xs text-[var(--status-negative-text)] font-semibold">{evidenceError}</p>
                 </div>
               )}
 
               {hasReachedLimit ? (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center text-xs text-amber-700 font-medium">
-                  🔒 You have reached the evidence limit of 10 items for this dispute.
+                <div className="bg-[var(--status-progress-bg)] border border-[var(--status-progress-border)] rounded-xl p-4 text-center text-xs text-[var(--status-progress-text)] font-medium flex items-center justify-center gap-1.5">
+                  <Lock className="w-4 h-4" />
+                  You have reached the evidence limit of 10 items for this dispute.
                 </div>
               ) : (
                 <form onSubmit={handleEvidenceUpload} className="space-y-4">
                   {/* File Selector */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-450 uppercase mb-1">Deliverable file (ZIP, PDF, PNG, JPG - Max 50MB)</label>
+                    <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Deliverable file (ZIP, PDF, PNG, JPG - Max 50MB)</label>
                     <input
                       type="file"
                       onChange={handleFileChange}
                       disabled={submittingEvidence}
-                      className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer disabled:opacity-50"
+                      className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-indigo-50 file:text-[var(--accent)] hover:file:bg-indigo-105 cursor-pointer disabled:opacity-50"
                     />
                     {selectedFile && (
-                      <p className="mt-1 text-xs text-green-600 font-semibold">
+                      <p className="mt-1.5 text-xs text-[var(--status-success-text)] font-semibold">
                         Selected: {selectedFile.name} ({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
                       </p>
                     )}
                   </div>
 
                   {/* Divider */}
-                  <div className="flex items-center text-xs text-slate-400 font-medium my-3">
-                    <div className="flex-grow border-t border-slate-100" />
-                    <span className="px-3">OR</span>
-                    <div className="flex-grow border-t border-slate-100" />
+                  <div className="flex items-center text-xs text-slate-400 font-medium my-4">
+                    <div className="flex-grow border-t border-[var(--border-subtle)]" />
+                    <span className="px-3 uppercase text-[10px] tracking-wider text-slate-400">OR</span>
+                    <div className="flex-grow border-t border-[var(--border-subtle)]" />
                   </div>
 
                   {/* Link Input */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-450 uppercase mb-1">Evidence URL/Link (Alternative to file upload)</label>
+                    <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Evidence URL/Link (Alternative to file upload)</label>
                     <input
                       type="url"
                       placeholder="e.g. https://github.com/username/repo or hosted site link"
                       value={linkUrl}
                       onChange={(e) => setLinkUrl(e.target.value)}
                       disabled={submittingEvidence}
-                      className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all disabled:opacity-50"
+                      className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all disabled:opacity-50"
                     />
                   </div>
 
@@ -442,8 +456,9 @@ export default function DisputeDetailPage() {
                     <button
                       type="submit"
                       disabled={submittingEvidence || uploadingFile}
-                      className="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-sm disabled:opacity-50 cursor-pointer transition-all duration-200"
+                      className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-sm disabled:opacity-50 cursor-pointer transition-colors"
                     >
+                      <Upload className="w-3.5 h-3.5" />
                       {uploadingFile ? "Uploading File to S3..." : submittingEvidence ? "Adding Evidence..." : "Add Evidence"}
                     </button>
                   </div>
@@ -456,36 +471,36 @@ export default function DisputeDetailPage() {
         {/* Sidebar details & Admin controls */}
         <div className="lg:col-span-1 space-y-6">
           {/* Dispute Contract Specs Card */}
-          <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-100 p-6 text-slate-800">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Project Contract Information</h3>
-            <div className="space-y-4 text-sm">
-              <div className="flex justify-between">
-                <span className="text-slate-450">Escrow Value</span>
-                <span className="font-bold text-slate-900">₹{project.budget.toLocaleString()}</span>
+          <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 text-[var(--text-secondary)]">
+            <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Project Contract Information</h3>
+            <div className="space-y-3.5 text-sm">
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--text-secondary)]">Escrow Value</span>
+                <span className="font-bold text-[var(--text-primary)]">₹{project.budget.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-450">Client User</span>
-                <span className="font-semibold text-slate-900">{project.client.name || "Client"}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--text-secondary)]">Client User</span>
+                <span className="font-semibold text-[var(--text-primary)]">{project.client.name || "Client"}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-450">Freelancer</span>
-                <span className="font-semibold text-slate-900">{project.freelancer?.name || "Freelancer"}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--text-secondary)]">Freelancer</span>
+                <span className="font-semibold text-[var(--text-primary)]">{project.freelancer?.name || "Freelancer"}</span>
               </div>
-              <div className="border-t border-slate-100 pt-4">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Contract Description</span>
-                <p className="text-xs text-slate-500 leading-relaxed truncate">{project.description}</p>
+              <div className="border-t border-[var(--border-subtle)] pt-4">
+                <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider block mb-1.5">Contract Description</span>
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed truncate">{project.description}</p>
               </div>
             </div>
           </div>
 
           {/* Admin Adjudication Card */}
           {isAdmin && !isResolved && (
-            <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-100 p-6">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Adjudicate Dispute</h3>
-              
+            <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6">
+              <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Adjudicate Dispute</h3>
+
               {resolveError && (
-                <div className="mb-4 bg-red-50 border-l-4 border-red-400 p-3 rounded-lg">
-                  <p className="text-xs text-red-700 font-semibold">{resolveError}</p>
+                <div className="mb-4 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-3 rounded-lg">
+                  <p className="text-xs text-[var(--status-negative-text)] font-semibold">{resolveError}</p>
                 </div>
               )}
 
@@ -493,7 +508,7 @@ export default function DisputeDetailPage() {
                 {confirmAction === null ? (
                   <>
                     <div>
-                      <label className="block text-xs font-bold text-slate-450 uppercase mb-2">Resolution Notes (Required)</label>
+                      <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">Resolution Notes (Required)</label>
                       <textarea
                         placeholder="Provide details and justification explaining the resolution decision..."
                         rows={4}
@@ -501,34 +516,39 @@ export default function DisputeDetailPage() {
                         value={resolutionNotes}
                         onChange={(e) => setResolutionNotes(e.target.value)}
                         disabled={resolvingAction !== null}
-                        className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-xs transition-all leading-relaxed"
+                        className="w-full px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-xs transition-all leading-relaxed"
                       />
                     </div>
 
-                    <div className="flex flex-col gap-2.5 pt-2">
+                    <div className="flex flex-col gap-2 pt-2">
                       <button
                         onClick={() => setConfirmAction("RELEASE")}
                         disabled={!resolutionNotes.trim()}
-                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-650 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 cursor-pointer transition-all duration-200 shadow-sm"
+                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white bg-[var(--status-success-text)] hover:bg-emerald-800 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
                       >
+                        <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
                         Release to Freelancer
                       </button>
                       <button
                         onClick={() => setConfirmAction("REFUND")}
                         disabled={!resolutionNotes.trim()}
-                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 cursor-pointer transition-all duration-200 shadow-sm"
+                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:bg-rose-800 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
                       >
+                        <XCircle className="w-3.5 h-3.5 mr-1.5" />
                         Refund to Client
                       </button>
                     </div>
                   </>
                 ) : (
-                  <div className={`p-5 rounded-2xl border text-xs leading-relaxed space-y-4 ${
-                    confirmAction === "RELEASE" 
-                      ? "bg-emerald-50 border-emerald-200 text-emerald-850" 
-                      : "bg-red-50 border-red-200 text-red-850"
+                  <div className={`p-5 rounded-lg border text-xs leading-relaxed space-y-4 ${
+                    confirmAction === "RELEASE"
+                      ? "bg-[var(--status-success-bg)] border-[var(--status-success-border)] text-[var(--status-success-text)]"
+                      : "bg-[var(--status-negative-bg)] border-[var(--status-negative-border)] text-[var(--status-negative-text)]"
                   }`}>
-                    <div className="font-semibold text-sm">Adjudication Confirmation Required</div>
+                    <div className="font-semibold text-sm flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4" />
+                      Adjudication Confirmation
+                    </div>
                     <div>
                       {confirmAction === "RELEASE" ? (
                         <span>
@@ -540,23 +560,23 @@ export default function DisputeDetailPage() {
                         </span>
                       )}
                     </div>
-                    
-                    <div className="flex gap-3 pt-2">
+
+                    <div className="flex gap-2.5 pt-2">
                       <button
                         onClick={() => handleResolve(confirmAction)}
                         disabled={resolvingAction !== null}
-                        className={`flex-grow inline-flex justify-center items-center py-2.5 px-4 rounded-xl text-xs font-semibold text-white transition-all cursor-pointer ${
+                        className={`flex-grow inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white transition-colors cursor-pointer ${
                           confirmAction === "RELEASE"
-                            ? "bg-emerald-600 hover:bg-emerald-750"
-                            : "bg-red-600 hover:bg-red-750"
+                            ? "bg-emerald-700 hover:bg-emerald-800"
+                            : "bg-rose-700 hover:bg-rose-800"
                         }`}
                       >
-                        {resolvingAction !== null ? "Processing..." : "Yes, Confirm & Submit"}
+                        {resolvingAction !== null ? "Processing..." : "Confirm & Submit"}
                       </button>
                       <button
                         onClick={() => setConfirmAction(null)}
                         disabled={resolvingAction !== null}
-                        className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl text-xs transition-all cursor-pointer"
+                        className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition-colors cursor-pointer"
                       >
                         Cancel
                       </button>
@@ -569,20 +589,20 @@ export default function DisputeDetailPage() {
 
           {/* Resolution Outcome Display Card */}
           {isResolved && (
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Resolution Outcome</h3>
-              <div className="space-y-3 text-xs text-slate-700 leading-relaxed">
+            <div className="bg-slate-55 border border-slate-200 rounded-xl p-6">
+              <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Resolution Outcome</h3>
+              <div className="space-y-4 text-xs text-[var(--text-secondary)] leading-relaxed">
                 <div>
-                  <span className="font-bold text-slate-450 block uppercase tracking-wider mb-0.5">Decision</span>
-                  <span className={`font-bold uppercase tracking-wider ${
-                    dispute.escrow?.status === EscrowStatus.RELEASED ? "text-emerald-700" : "text-red-700"
+                  <span className="font-bold text-slate-400 block uppercase tracking-wider mb-1">Decision</span>
+                  <span className={`font-bold uppercase tracking-wider text-sm ${
+                    dispute.escrow?.status === EscrowStatus.RELEASED ? "text-[var(--status-success-text)]" : "text-[var(--status-negative-text)]"
                   }`}>
                     {dispute.escrow?.status === EscrowStatus.RELEASED ? "Released to Freelancer" : "Refunded to Client"}
                   </span>
                 </div>
                 <div className="border-t border-slate-200/60 pt-3">
-                  <span className="font-bold text-slate-450 block uppercase tracking-wider mb-0.5">Resolution Notes</span>
-                  <p className="bg-white border border-slate-100 rounded-xl p-3 font-medium text-slate-800 whitespace-pre-wrap leading-relaxed">
+                  <span className="font-bold text-slate-400 block uppercase tracking-wider mb-1.5">Resolution Notes</span>
+                  <p className="bg-white border border-slate-100 rounded-lg p-3.5 font-medium text-slate-800 whitespace-pre-wrap leading-relaxed">
                     {dispute.resolution || "No notes recorded."}
                   </p>
                 </div>

@@ -58,9 +58,16 @@ model User {
   role                 Role?      // Nullable initially until role selection
   createdAt            DateTime   @default(now())
 
+  // Profiles
+  phone                String?
+  location             String?
+  businessName         String?
+  bio                  String?
+
   projectsAsClient     Project[]  @relation("ClientProjects")
   projectsAsFreelancer Project[]  @relation("FreelancerProjects")
   proposals            Proposal[]
+  messages             Message[]
 }
 
 model Project {
@@ -81,6 +88,7 @@ model Project {
   escrow       Escrow?
   payment      Payment?
   submissions  Submission[]
+  messages     Message[]
   createdAt    DateTime      @default(now())
 }
 
@@ -168,4 +176,14 @@ model Submission {
   notes      String?
   feedback   String?
   createdAt  DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
 }

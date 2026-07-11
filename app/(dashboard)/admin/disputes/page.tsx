@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { DisputeStatus } from "@prisma/client";
+import { AlertTriangle, Shield, ArrowRight } from "lucide-react";
 
 interface DisputeItem {
   id: string;
@@ -64,13 +65,13 @@ export default function AdminDisputesPage() {
   const getStatusBadge = (status: DisputeStatus) => {
     switch (status) {
       case DisputeStatus.OPEN:
-        return "bg-amber-50 text-amber-700 border-amber-200";
+        return "bg-[var(--status-open-bg)] text-[var(--status-open-text)] border-[var(--status-open-border)]";
       case DisputeStatus.ADMIN_REVIEW:
-        return "bg-slate-100 text-slate-600 border-slate-200";
+        return "bg-[var(--status-review-bg)] text-[var(--status-review-text)] border-[var(--status-review-border)]";
       case DisputeStatus.RESOLVED:
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-[var(--status-success-bg)] text-[var(--status-success-text)] border-[var(--status-success-border)]";
       default:
-        return "bg-slate-150 text-slate-600 border-slate-200";
+        return "bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)] border-[var(--status-neutral-border)]";
     }
   };
 
@@ -78,7 +79,7 @@ export default function AdminDisputesPage() {
     return (
       <div className="flex-grow flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-indigo-500 animate-spin" />
+          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-[var(--accent)] animate-spin" />
           <p className="text-slate-400 text-sm">Loading disputes queue...</p>
         </div>
       </div>
@@ -88,36 +89,42 @@ export default function AdminDisputesPage() {
   if (errorMsg) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-12 text-center">
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
-          <p className="text-sm text-red-700 font-semibold mb-2">{errorMsg}</p>
+        <div className="bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg flex items-start gap-3">
+          <AlertTriangle className="w-4.5 h-4.5 text-[var(--status-negative-text)] flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-[var(--status-negative-text)] font-semibold">{errorMsg}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Admin Disputes Queue</h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <div className="flex items-center gap-2 mb-1">
+          <Shield className="w-5 h-5 text-[var(--accent)]" />
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Admin Disputes Queue</h1>
+        </div>
+        <p className="text-sm text-[var(--text-secondary)] mt-1">
           Review evidence files, verify contractual milestones, and resolve active platform disputes.
         </p>
       </div>
 
       {disputes.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/40 p-16 text-center">
-          <span className="text-4xl mb-4 block">🛡️</span>
-          <h2 className="text-lg font-bold text-slate-900 mb-1">Queue is Empty</h2>
-          <p className="text-sm text-slate-500 max-w-sm mx-auto">
+        <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+            <Shield className="w-6 h-6 text-[var(--status-success-text)]" />
+          </div>
+          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">Queue is Empty</h2>
+          <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto">
             All disputes have been resolved. Excellent work!
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/40 overflow-hidden">
+        <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-500 font-semibold uppercase text-[10px] tracking-wider">
+                <tr className="border-b border-[var(--border)] bg-slate-50/50 text-[var(--text-muted)] font-bold uppercase text-[10px] tracking-wider">
                   <th className="py-4 px-6">Project Title</th>
                   <th className="py-4 px-6">Client</th>
                   <th className="py-4 px-6">Freelancer</th>
@@ -127,28 +134,28 @@ export default function AdminDisputesPage() {
                   <th className="py-4 px-6 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-[var(--border-subtle)]">
                 {disputes.map((dispute) => {
                   const projectObj = dispute.escrow?.project;
                   const clientName = projectObj?.client?.name || "Client";
                   const freelancerName = projectObj?.freelancer?.name || "Freelancer";
                   const amount = projectObj?.agreedAmount || projectObj?.budget || 0;
-                  
+
                   return (
                     <tr key={dispute.id} className="group hover:bg-slate-50/50 transition-colors duration-150">
-                      <td className="py-4 px-6 font-semibold text-slate-900 max-w-xs truncate">
+                      <td className="py-4 px-6 font-semibold text-[var(--text-primary)] max-w-xs truncate">
                         {projectObj?.title}
                       </td>
-                      <td className="py-4 px-6 text-slate-700">
+                      <td className="py-4 px-6 text-[var(--text-secondary)]">
                         {clientName}
                       </td>
-                      <td className="py-4 px-6 text-slate-700">
+                      <td className="py-4 px-6 text-[var(--text-secondary)]">
                         {freelancerName}
                       </td>
-                      <td className="py-4 px-6 text-right font-bold text-slate-900">
+                      <td className="py-4 px-6 text-right font-bold text-[var(--text-primary)]">
                         ₹{amount.toLocaleString()}
                       </td>
-                      <td className="py-4 px-6 text-slate-650 font-medium">
+                      <td className="py-4 px-6 text-[var(--text-secondary)] font-medium">
                         {getDaysOpen(dispute.createdAt)}
                       </td>
                       <td className="py-4 px-6">
@@ -159,9 +166,9 @@ export default function AdminDisputesPage() {
                       <td className="py-4 px-6 text-right">
                         <Link
                           href={`/disputes/${dispute.id}`}
-                          className="inline-flex items-center px-3.5 py-1.5 border border-slate-200 hover:border-indigo-500 text-xs font-semibold rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/30 transition-all duration-200 group-hover:border-indigo-300"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 border border-[var(--border)] hover:border-[var(--accent)] text-xs font-semibold rounded-lg text-slate-650 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] transition-colors"
                         >
-                          Review Case →
+                          Review Case <ArrowRight className="w-3 h-3" />
                         </Link>
                       </td>
                     </tr>
