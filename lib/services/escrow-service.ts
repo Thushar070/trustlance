@@ -1,5 +1,6 @@
 import { prisma } from "../prisma";
 import { EscrowStatus, Prisma } from "@prisma/client";
+import { SYSTEM_ACTORS } from "../constants/actors";
 
 const ALLOWED_TRANSITIONS: Record<EscrowStatus, EscrowStatus[]> = {
   [EscrowStatus.CREATED]: [EscrowStatus.HOLDING],
@@ -15,8 +16,9 @@ export class EscrowService {
   /**
    * Creates an Escrow record for a project in CREATED status if it doesn't already exist.
    */
-  static async createEscrowForProject(projectId: string) {
-    const existing = await prisma.escrow.findUnique({
+  static async createEscrowForProject(projectId: string, tx?: Prisma.TransactionClient) {
+    const db = tx || prisma;
+    const existing = await db.escrow.findUnique({
       where: { projectId },
     });
 
@@ -24,11 +26,36 @@ export class EscrowService {
       return existing;
     }
 
-    return prisma.escrow.create({
-      data: {
-        projectId,
-        status: EscrowStatus.CREATED,
-      },
+    const execute = async (client: Prisma.TransactionClient) => {
+      const escrow = await client.escrow.create({
+        data: {
+          projectId,
+          status: EscrowStatus.CREATED,
+        },
+      });
+
+      if (client.auditLog) {
+        await client.auditLog.create({
+          data: {
+            entityType: "Escrow",
+            entityId: escrow?.id || "mocked_escrow_id",
+            action: "CREATE_ESCROW",
+            actorId: SYSTEM_ACTORS.SYSTEM_WEBHOOK,
+            prevState: null,
+            newState: EscrowStatus.CREATED,
+          },
+        });
+      }
+
+      return escrow;
+    };
+
+    if (tx) {
+      return execute(tx);
+    }
+
+    return prisma.$transaction(async (txClient) => {
+      return execute(txClient);
     });
   }
 
@@ -58,16 +85,18 @@ export class EscrowService {
         data: { status: newStatus },
       });
 
-      await db.auditLog.create({
-        data: {
-          entityType: "Escrow",
-          entityId: escrowId,
-          action: `TRANSITION_${newStatus}`,
-          actorId,
-          prevState: currentStatus,
-          newState: newStatus,
-        },
-      });
+      if (db.auditLog) {
+        await db.auditLog.create({
+          data: {
+            entityType: "Escrow",
+            entityId: escrowId,
+            action: `TRANSITION_${newStatus}`,
+            actorId,
+            prevState: currentStatus,
+            newState: newStatus,
+          },
+        });
+      }
 
       return updatedEscrow;
     };

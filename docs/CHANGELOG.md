@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Released] - 2026-07-11
 
+### Fixed
+- **Middleware Webhook Authentication Block**:
+  - Fixed a production-blocking issue where NextAuth authentication middleware (`middleware.ts`) was intercepting Razorpay webhook requests (`/api/webhooks/razorpay`) and returning `401 Unauthorized`. Explicitly excluded `/api/webhooks/*` from session authentication checks so that route security is driven entirely by cryptographic signature validation.
+  - Added regression test suite in `__tests__/integration.test.ts` to ensure that webhook routes bypass session auth, while other `/api/*` endpoints continue to strictly require session validation.
+
 ### Added
 - **Phase 8 (Dispute System with Evidence & Admin Resolution + State Machine Fix)**:
   - **Part A (Critical Escrow State Machine Fix)**:

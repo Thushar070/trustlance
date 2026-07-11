@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { DisputeStatus, EscrowStatus } from "@prisma/client";
+import AuditHistory from "@/components/AuditHistory";
 
 interface EvidenceItem {
   id: string;
@@ -590,6 +591,7 @@ export default function DisputeDetailPage() {
           )}
         </div>
       </div>
+      {dispute && <AuditHistory entityId={dispute.id} entityType="Dispute" />}
     </div>
   );
 }

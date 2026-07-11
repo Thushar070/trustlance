@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { ProjectStatus, ProposalStatus, EscrowStatus } from "@prisma/client";
 import { SKILL_GROUPS } from "@/lib/constants/skills";
+import AuditHistory from "@/components/AuditHistory";
 
 interface ClientDetails {
   id: string;
@@ -1617,6 +1618,7 @@ export default function ProjectDetailPage() {
           )}
         </div>
       )}
+      {project && <AuditHistory entityId={project.id} entityType="Project" />}
     </div>
   );
 }

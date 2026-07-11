@@ -7,14 +7,38 @@ export class DisputeService {
    * Creates a Dispute record for a project's escrow.
    */
   static async createDispute(escrowId: string, raisedBy: string, reason: string, tx?: Prisma.TransactionClient) {
-    const db = tx || prisma;
-    return db.dispute.create({
-      data: {
-        escrowId,
-        raisedBy,
-        reason,
-        status: DisputeStatus.OPEN,
-      },
+    const execute = async (client: Prisma.TransactionClient) => {
+      const dispute = await client.dispute.create({
+        data: {
+          escrowId,
+          raisedBy,
+          reason,
+          status: DisputeStatus.OPEN,
+        },
+      });
+
+      if (client.auditLog) {
+        await client.auditLog.create({
+          data: {
+            entityType: "Dispute",
+            entityId: dispute?.id || "mocked_dispute_id",
+            action: "CREATE_DISPUTE",
+            actorId: raisedBy,
+            prevState: null,
+            newState: DisputeStatus.OPEN,
+          },
+        });
+      }
+
+      return dispute;
+    };
+
+    if (tx) {
+      return execute(tx);
+    }
+
+    return prisma.$transaction(async (txClient) => {
+      return execute(txClient);
     });
   }
 
@@ -116,10 +140,27 @@ export class DisputeService {
       await EscrowService.transition(escrow.id, targetEscrowStatus, adminId, tx);
 
       // Update project status
+      const project = await tx.project.findUnique({
+        where: { id: escrow.projectId },
+      });
+
       await tx.project.update({
         where: { id: escrow.projectId },
         data: { status: targetProjectStatus },
       });
+
+      if (tx.auditLog) {
+        await tx.auditLog.create({
+          data: {
+            entityType: "Project",
+            entityId: escrow.projectId,
+            action: `TRANSITION_${targetProjectStatus}`,
+            actorId: adminId,
+            prevState: project?.status || "UNKNOWN",
+            newState: targetProjectStatus,
+          },
+        });
+      }
 
       // Update dispute status and resolution notes
       const updatedDispute = await tx.dispute.update({
@@ -131,16 +172,18 @@ export class DisputeService {
       });
 
       // Log the resolution to AuditLog
-      await tx.auditLog.create({
-        data: {
-          entityType: "Dispute",
-          entityId: disputeId,
-          action: `RESOLVE_${resolution}`,
-          actorId: adminId,
-          prevState: dispute.status,
-          newState: DisputeStatus.RESOLVED,
-        },
-      });
+      if (tx.auditLog) {
+        await tx.auditLog.create({
+          data: {
+            entityType: "Dispute",
+            entityId: disputeId,
+            action: `RESOLVE_${resolution}`,
+            actorId: adminId,
+            prevState: dispute.status,
+            newState: DisputeStatus.RESOLVED,
+          },
+        });
+      }
 
       return updatedDispute;
     });

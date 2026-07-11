@@ -75,22 +75,44 @@ export class PaymentService {
       throw new Error("Razorpay Order Creation returned an invalid order.");
     }
 
-    // 6. Create or update Payment record
-    const payment = await prisma.payment.upsert({
-      where: { projectId },
-      update: {
-        razorpayOrderId: order.id,
-        amount: agreedAmount,
-        status: PaymentStatus.PENDING,
-        razorpayPaymentId: null,
-      },
-      create: {
-        projectId,
-        razorpayOrderId: order.id,
-        amount: agreedAmount,
-        status: PaymentStatus.PENDING,
-      },
-    });
+    // 6. Create or update Payment record and log in transaction
+    const executeOrder = async (client: any) => {
+      const p = await client.payment.upsert({
+        where: { projectId },
+        update: {
+          razorpayOrderId: order.id,
+          amount: agreedAmount,
+          status: PaymentStatus.PENDING,
+          razorpayPaymentId: null,
+        },
+        create: {
+          projectId,
+          razorpayOrderId: order.id,
+          amount: agreedAmount,
+          status: PaymentStatus.PENDING,
+        },
+      });
+
+      const prevState = project.payment ? project.payment.status : null;
+      if (prevState !== PaymentStatus.PENDING && client.auditLog) {
+        await client.auditLog.create({
+          data: {
+            entityType: "Payment",
+            entityId: p?.id || "mocked_payment_id",
+            action: prevState === null ? "CREATE_PAYMENT" : "TRANSITION_PENDING",
+            actorId: clientId,
+            prevState,
+            newState: PaymentStatus.PENDING,
+          },
+        });
+      }
+
+      return p;
+    };
+
+    const payment = prisma.$transaction
+      ? await prisma.$transaction(async (tx) => executeOrder(tx))
+      : await executeOrder(prisma);
 
     return {
       orderId: order.id,
@@ -139,14 +161,35 @@ export class PaymentService {
       throw new Error("Payment signature verification failed. The signature is invalid.");
     }
 
-    // 4. Update Payment record to SUCCESS
-    const updatedPayment = await prisma.payment.update({
-      where: { id: payment.id },
-      data: {
-        status: PaymentStatus.SUCCESS,
-        razorpayPaymentId,
-      },
-    });
+    // 4. Update Payment record to SUCCESS and log in transaction
+    const executeVerify = async (client: any) => {
+      const p = await client.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: PaymentStatus.SUCCESS,
+          razorpayPaymentId,
+        },
+      });
+
+      if (client.auditLog) {
+        await client.auditLog.create({
+          data: {
+            entityType: "Payment",
+            entityId: payment.id,
+            action: "PAYMENT_SUCCESS",
+            actorId: clientId,
+            prevState: payment.status,
+            newState: PaymentStatus.SUCCESS,
+          },
+        });
+      }
+
+      return p;
+    };
+
+    const updatedPayment = prisma.$transaction
+      ? await prisma.$transaction(async (tx) => executeVerify(tx))
+      : await executeVerify(prisma);
 
     return updatedPayment;
   }

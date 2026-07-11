@@ -8,10 +8,11 @@ export async function middleware(request: NextRequest) {
 
   const isAuthPage = pathname === "/login";
   const isApiAuth = pathname.startsWith("/api/auth");
+  const isWebhook = pathname.startsWith("/api/webhooks");
   const isPublicFile = pathname.includes(".") || pathname.startsWith("/_next");
 
-  // Allow static files, auth endpoints, etc.
-  if (isApiAuth || isPublicFile) {
+  // Allow static files, auth endpoints, webhooks, etc.
+  if (isApiAuth || isPublicFile || isWebhook) {
     return NextResponse.next();
   }
 

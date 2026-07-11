@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { EscrowService } from "@/lib/services/escrow-service";
 import { PaymentStatus, EscrowStatus } from "@prisma/client";
+import { SYSTEM_ACTORS } from "@/lib/constants/actors";
 import crypto from "crypto";
 
 export async function POST(request: Request) {
@@ -88,32 +89,58 @@ export async function POST(request: Request) {
     }
 
     if (eventName === "payment.captured") {
-      // Update Payment to SUCCESS if it's not already
-      if (dbPayment.status !== PaymentStatus.SUCCESS) {
-        await prisma.payment.update({
+      await prisma.$transaction(async (tx) => {
+        // Update Payment to SUCCESS if it's not already
+        if (dbPayment.status !== PaymentStatus.SUCCESS) {
+          await tx.payment.update({
+            where: { id: dbPayment.id },
+            data: {
+              status: PaymentStatus.SUCCESS,
+              razorpayPaymentId: paymentId,
+            },
+          });
+
+          await tx.auditLog.create({
+            data: {
+              entityType: "Payment",
+              entityId: dbPayment.id,
+              action: "PAYMENT_SUCCESS",
+              actorId: SYSTEM_ACTORS.SYSTEM_WEBHOOK,
+              prevState: dbPayment.status,
+              newState: PaymentStatus.SUCCESS,
+            },
+          });
+        }
+
+        // Create Escrow
+        const escrow = await EscrowService.createEscrowForProject(dbPayment.projectId, tx);
+
+        // Transition if status is CREATED
+        if (escrow.status === EscrowStatus.CREATED) {
+          await EscrowService.transition(escrow.id, EscrowStatus.HOLDING, SYSTEM_ACTORS.SYSTEM_WEBHOOK, tx);
+        }
+      });
+    } else if (eventName === "payment.failed") {
+      await prisma.$transaction(async (tx) => {
+        // Update Payment to FAILED
+        await tx.payment.update({
           where: { id: dbPayment.id },
           data: {
-            status: PaymentStatus.SUCCESS,
+            status: PaymentStatus.FAILED,
             razorpayPaymentId: paymentId,
           },
         });
-      }
 
-      // Create Escrow
-      const escrow = await EscrowService.createEscrowForProject(dbPayment.projectId);
-
-      // Transition if status is CREATED
-      if (escrow.status === EscrowStatus.CREATED) {
-        await EscrowService.transition(escrow.id, EscrowStatus.HOLDING, "SYSTEM_WEBHOOK");
-      }
-    } else if (eventName === "payment.failed") {
-      // Update Payment to FAILED
-      await prisma.payment.update({
-        where: { id: dbPayment.id },
-        data: {
-          status: PaymentStatus.FAILED,
-          razorpayPaymentId: paymentId,
-        },
+        await tx.auditLog.create({
+          data: {
+            entityType: "Payment",
+            entityId: dbPayment.id,
+            action: "PAYMENT_FAILED",
+            actorId: SYSTEM_ACTORS.SYSTEM_WEBHOOK,
+            prevState: dbPayment.status,
+            newState: PaymentStatus.FAILED,
+          },
+        });
       });
     }
 

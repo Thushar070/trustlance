@@ -9,17 +9,42 @@ export class ProjectService {
    * Creates a new project in the database.
    */
   static async createProject(clientId: string, data: CreateProjectInput) {
-    return prisma.project.create({
-      data: {
-        clientId,
-        title: data.title,
-        description: data.description,
-        budget: data.budget,
-        deadline: data.deadline,
-        skills: data.skills,
-        status: ProjectStatus.OPEN,
-      },
-    });
+    const execute = async (client: any) => {
+      const project = await client.project.create({
+        data: {
+          clientId,
+          title: data.title,
+          description: data.description,
+          budget: data.budget,
+          deadline: data.deadline,
+          skills: data.skills,
+          status: ProjectStatus.OPEN,
+        },
+      });
+
+      if (client.auditLog) {
+        await client.auditLog.create({
+          data: {
+            entityType: "Project",
+            entityId: project?.id || "mocked_project_id",
+            action: "CREATE_PROJECT",
+            actorId: clientId,
+            prevState: null,
+            newState: ProjectStatus.OPEN,
+          },
+        });
+      }
+
+      return project;
+    };
+
+    if (prisma.$transaction) {
+      return prisma.$transaction(async (tx) => {
+        return execute(tx);
+      });
+    }
+
+    return execute(prisma);
   }
 
   /**
@@ -132,17 +157,42 @@ export class ProjectService {
       throw new Error(`Forbidden: Project cannot be updated because its status is no longer OPEN (current status: ${project.status})`);
     }
 
-    return prisma.project.update({
-      where: { id },
-      data: {
-        title: data.title !== undefined ? data.title : undefined,
-        description: data.description !== undefined ? data.description : undefined,
-        budget: data.budget !== undefined ? data.budget : undefined,
-        deadline: data.deadline !== undefined ? data.deadline : undefined,
-        skills: data.skills !== undefined ? data.skills : undefined,
-        status: data.status !== undefined ? data.status : undefined,
-      },
-    });
+    const execute = async (client: any) => {
+      const updatedProject = await client.project.update({
+        where: { id },
+        data: {
+          title: data.title !== undefined ? data.title : undefined,
+          description: data.description !== undefined ? data.description : undefined,
+          budget: data.budget !== undefined ? data.budget : undefined,
+          deadline: data.deadline !== undefined ? data.deadline : undefined,
+          skills: data.skills !== undefined ? data.skills : undefined,
+          status: data.status !== undefined ? data.status : undefined,
+        },
+      });
+
+      if (data.status !== undefined && data.status !== project.status && client.auditLog) {
+        await client.auditLog.create({
+          data: {
+            entityType: "Project",
+            entityId: id,
+            action: `TRANSITION_${data.status}`,
+            actorId: clientId,
+            prevState: project.status,
+            newState: data.status,
+          },
+        });
+      }
+
+      return updatedProject;
+    };
+
+    if (prisma.$transaction) {
+      return prisma.$transaction(async (tx) => {
+        return execute(tx);
+      });
+    }
+
+    return execute(prisma);
   }
 
   /**

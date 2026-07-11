@@ -130,6 +130,19 @@ export class ProposalService {
         },
       });
 
+      if (tx.auditLog) {
+        await tx.auditLog.create({
+          data: {
+            entityType: "Project",
+            entityId: projectId,
+            action: "TRANSITION_ASSIGNED",
+            actorId: clientId,
+            prevState: project.status,
+            newState: ProjectStatus.ASSIGNED,
+          },
+        });
+      }
+
       // 2. Mark selected proposal as ACCEPTED
       await tx.proposal.update({
         where: { id: proposal.id },

@@ -141,4 +141,33 @@ describe("Authentication & RBAC Integration Tests", () => {
       expect(prisma.user.update).not.toHaveBeenCalled();
     });
   });
+
+  describe("Middleware & Webhook Bypass Regression Tests", () => {
+    it("should allow a request to /api/webhooks/razorpay with NO session cookie", async () => {
+      mockedGetToken.mockResolvedValue(null);
+
+      const request = new NextRequest("http://localhost:3000/api/webhooks/razorpay", {
+        method: "POST"
+      });
+      const response = await middleware(request);
+
+      // If middleware returns a response (like NextResponse.next()), it shouldn't redirect or be 401
+      if (response) {
+        expect(response.headers.get("location")).toBeNull();
+        expect(response.status).not.toBe(401);
+      }
+    });
+
+    it("should reject a request to other /api/* routes with 401 if NO session cookie is present", async () => {
+      mockedGetToken.mockResolvedValue(null);
+
+      const request = new NextRequest("http://localhost:3000/api/projects");
+      const response = await middleware(request);
+
+      expect(response).toBeDefined();
+      expect(response!.status).toBe(401);
+      const data = await response!.json();
+      expect(data.error).toContain("Unauthorized");
+    });
+  });
 });
