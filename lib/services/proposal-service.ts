@@ -1,5 +1,6 @@
 import { prisma } from "../prisma";
 import { ProjectStatus, ProposalStatus } from "@prisma/client";
+import { NotificationService } from "./notification-service";
 import { SubmitProposalInput, UpdateProposalInput } from "../validators/proposal";
 
 export class ProposalService {
@@ -119,7 +120,7 @@ export class ProposalService {
     const agreedPrice = proposal.price ?? project.budget;
 
     // Use Prisma transaction to atomically update project and proposals
-    return prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       // 1. Update Project
       const updatedProject = await tx.project.update({
         where: { id: projectId },
@@ -160,6 +161,10 @@ export class ProposalService {
 
       return updatedProject;
     });
+
+    await NotificationService.notify("FREELANCER_ASSIGNED", { projectId });
+
+    return result;
   }
 
   /**

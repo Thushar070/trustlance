@@ -3,6 +3,7 @@ import { ProjectStatus, Prisma, EscrowStatus } from "@prisma/client";
 import { CreateProjectInput, UpdateProjectInput } from "../validators/project";
 import { EscrowService } from "./escrow-service";
 import { DisputeService } from "./dispute-service";
+import { NotificationService } from "./notification-service";
 
 export class ProjectService {
   /**
@@ -248,6 +249,8 @@ export class ProjectService {
 
     await EscrowService.transition(escrow.id, EscrowStatus.RELEASED, clientId);
 
+    await NotificationService.notify("PAYMENT_RELEASED", { projectId });
+
     return { success: true };
   }
 
@@ -286,7 +289,7 @@ export class ProjectService {
       throw new Error(`Forbidden: Escrow must be in UNDER_REVIEW status to request changes.`);
     }
 
-    return prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const latestSubmission = await tx.submission.findFirst({
         where: { projectId },
         orderBy: { createdAt: "desc" },
@@ -322,6 +325,10 @@ export class ProjectService {
 
       return { success: true };
     });
+
+    await NotificationService.notify("CHANGES_REQUESTED", { projectId, feedback });
+
+    return result;
   }
 
   /**
@@ -375,6 +382,8 @@ export class ProjectService {
     });
 
     await EscrowService.transition(escrow.id, EscrowStatus.DISPUTED, userId);
+
+    await NotificationService.notify("DISPUTE_RAISED", { projectId, reason });
 
     return { success: true };
   }

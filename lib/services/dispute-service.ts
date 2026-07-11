@@ -1,6 +1,7 @@
 import { prisma } from "../prisma";
 import { DisputeStatus, EscrowStatus, ProjectStatus, Prisma } from "@prisma/client";
 import { EscrowService } from "./escrow-service";
+import { NotificationService } from "./notification-service";
 
 export class DisputeService {
   /**
@@ -111,7 +112,9 @@ export class DisputeService {
       throw new Error("Resolution notes explaining the decision are required.");
     }
 
-    return prisma.$transaction(async (tx) => {
+    let projectId = "";
+
+    const result = await prisma.$transaction(async (tx) => {
       const dispute = await tx.dispute.findUnique({
         where: { id: disputeId },
         include: {
@@ -131,6 +134,8 @@ export class DisputeService {
       if (!escrow) {
         throw new Error("Escrow record not found for this dispute.");
       }
+
+      projectId = escrow.projectId;
 
       // Resolve project and escrow status transitions
       const targetEscrowStatus = resolution === "RELEASE" ? EscrowStatus.RELEASED : EscrowStatus.REFUNDED;
@@ -187,5 +192,19 @@ export class DisputeService {
 
       return updatedDispute;
     });
+
+    await NotificationService.notify("DISPUTE_RESOLVED", {
+      projectId,
+      resolution,
+      notes,
+    });
+
+    if (resolution === "RELEASE") {
+      await NotificationService.notify("PAYMENT_RELEASED", { projectId });
+    } else if (resolution === "REFUND") {
+      await NotificationService.notify("REFUND_ISSUED", { projectId });
+    }
+
+    return result;
   }
 }

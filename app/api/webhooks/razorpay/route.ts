@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { EscrowService } from "@/lib/services/escrow-service";
+import { NotificationService } from "@/lib/services/notification-service";
 import { PaymentStatus, EscrowStatus } from "@prisma/client";
 import { SYSTEM_ACTORS } from "@/lib/constants/actors";
 import crypto from "crypto";
@@ -120,6 +121,8 @@ export async function POST(request: Request) {
           await EscrowService.transition(escrow.id, EscrowStatus.HOLDING, SYSTEM_ACTORS.SYSTEM_WEBHOOK, tx);
         }
       });
+
+      await NotificationService.notify("PAYMENT_RECEIVED", { projectId: dbPayment.projectId });
     } else if (eventName === "payment.failed") {
       await prisma.$transaction(async (tx) => {
         // Update Payment to FAILED

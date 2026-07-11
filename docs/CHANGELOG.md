@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Released] - 2026-07-11
 
+### Added
+
+- **Phase 10 (Email Notifications)**:
+  - Integrated **Resend** as the email provider with lazy-init client and graceful console-fallback when `RESEND_API_KEY` is unset.
+  - Created `NotificationService` (`lib/services/notification-service.ts`) with a single `notify(event, payload)` entry point covering 8 lifecycle events: `FREELANCER_ASSIGNED`, `PAYMENT_RECEIVED`, `WORK_SUBMITTED`, `CHANGES_REQUESTED`, `DISPUTE_RAISED`, `DISPUTE_RESOLVED`, `PAYMENT_RELEASED`, `REFUND_ISSUED`.
+  - Wired notification triggers into `ProposalService`, `ProjectService`, `SubmissionService`, `DisputeService`, and the Razorpay webhook handler — all placed **after** the database transaction to ensure DB commits are never blocked by email failures.
+  - Added 4 automated tests in `__tests__/notification.test.ts` (unit: PAYMENT_RECEIVED, DISPUTE_RAISED; resilience: mailer throw; integration: full lifecycle 8-event sequence).
+  - Added `RESEND_API_KEY` to `.env.example`.
+
+### Fixed
+
+- **Unreachable notification code** in `ProposalService.selectFreelancer()`, `ProjectService.requestChanges()`, and `DisputeService.resolveDispute()`: each method was doing `return prisma.$transaction(...)`, making any `await` after the transaction unreachable. Changed to `const result = await prisma.$transaction(...)` with a subsequent `return result`.
+- **Scoping error in `DisputeService.resolveDispute()`**: notification code referenced `dispute.escrow.projectId` outside the transaction scope where `dispute` was declared. Fixed by extracting `projectId` via a hoisted `let` variable.
+
 ### Fixed
 - **Middleware Webhook Authentication Block**:
   - Fixed a production-blocking issue where NextAuth authentication middleware (`middleware.ts`) was intercepting Razorpay webhook requests (`/api/webhooks/razorpay`) and returning `401 Unauthorized`. Explicitly excluded `/api/webhooks/*` from session authentication checks so that route security is driven entirely by cryptographic signature validation.

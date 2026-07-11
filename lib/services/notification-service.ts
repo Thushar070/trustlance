@@ -41,7 +41,7 @@ export const NotificationService = {
         return;
       }
 
-      const clientEmail = project.client.email;
+      const clientEmail = project.client?.email || null;
       const freelancerEmail = project.freelancer?.email || null;
       const projectTitle = project.title;
       const projectLink = `http://localhost:3000/projects/${project.id}`;

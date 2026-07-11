@@ -14,6 +14,6 @@ This document tracks the progress of the TrustLance platform features across all
 | 7 | Client Review: Approve / Request Changes / Dispute | Done | 2026-07-11 |
 | 8 | Dispute System with Evidence & Admin Resolution | Done | 2026-07-11 |
 | 9 | Audit Logging (Retrofit + Verification) | Done | 2026-07-11 |
-| 10 | Email Notifications | Not Started | - |
+| 10 | Email Notifications | Done | 2026-07-11 |
 | 11 | Admin Dashboard, Search/Filters, & Auto-Release Cron | Not Started | - |
 | 12 | Testing Pass, Hardening, & Deployment | Not Started | - |

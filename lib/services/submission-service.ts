@@ -1,5 +1,6 @@
 import { prisma } from "../prisma";
 import { ProjectStatus, EscrowStatus } from "@prisma/client";
+import { NotificationService } from "./notification-service";
 import { EscrowService } from "./escrow-service";
 import { CreateSubmissionInput } from "../validators/submission";
 
@@ -69,6 +70,8 @@ export class SubmissionService {
     // Perform Escrow state machine transitions sequentially
     await EscrowService.transition(escrow.id, EscrowStatus.WORK_SUBMITTED, freelancerId);
     await EscrowService.transition(escrow.id, EscrowStatus.UNDER_REVIEW, freelancerId);
+
+    await NotificationService.notify("WORK_SUBMITTED", { projectId });
 
     return submission;
   }
