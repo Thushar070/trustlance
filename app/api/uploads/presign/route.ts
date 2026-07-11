@@ -1,16 +1,24 @@
 import { NextResponse } from "next/server";
-import { requireRole } from "@/lib/auth/require-role";
+import { getServerSession } from "@/lib/auth/get-server-session";
 import { presignRequestSchema } from "@/lib/validators/submission";
 import { generatePresignedUploadUrl } from "@/lib/storage/s3";
 import { Role } from "@prisma/client";
 
 export async function POST(request: Request) {
   try {
-    const authResult = await requireRole(Role.FREELANCER);
-    if (!authResult.authorized) {
+    const session = await getServerSession();
+    if (!session || !session.user) {
       return NextResponse.json(
-        { error: authResult.error || "Unauthorized" },
-        { status: authResult.status || 401 }
+        { error: "Unauthorized: Please log in first." },
+        { status: 401 }
+      );
+    }
+
+    const role = session.user.role;
+    if (role !== Role.CLIENT && role !== Role.FREELANCER) {
+      return NextResponse.json(
+        { error: `Forbidden: Mismatched role. Required: CLIENT or FREELANCER, Current: ${role || "None"}.` },
+        { status: 403 }
       );
     }
 

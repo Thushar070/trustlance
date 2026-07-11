@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Released] - 2026-07-11
 
 ### Added
+- **Phase 8 (Dispute System with Evidence Upload & Admin Resolution)**:
+  - Created `DisputeService` to handle dispute creation, evidence upload gating (capped at 10 items per party), and admin resolution (releasing or refunding escrow).
+  - Modified project service's `raiseDispute` handler to delegate database dispute creations to `DisputeService`.
+  - Upgraded presigned URL generation `/api/uploads/presign` to allow both clients and freelancers to generate upload paths.
+  - Added new backend endpoints: GET `/api/disputes` (for Admin queue), GET `/api/disputes/[id]` (gated details), POST `/api/disputes/[id]/evidence` (add evidence), and POST `/api/disputes/[id]/resolve` (Admin adjudication).
+  - Built case-file dispute detail UI displaying Client vs Freelancer evidence, drag-and-drop/select S3 evidence uploads, and Admin resolution console.
+  - Built Admin disputes queue listing open disputes sorted oldest-first.
+  - Developed 5 integration tests validating roles, limits, and resolutions.
+
 - **UI Polish Pass**:
   - Implemented consistent premium visual theme utilizing customized slate and indigo CSS variable color tokens.
   - Added sticky frosted-glass effect header navigation with gradient logo mark, hover shadow lift, and user initial avatar badges.

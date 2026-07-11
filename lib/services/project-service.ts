@@ -1,7 +1,8 @@
 import { prisma } from "../prisma";
-import { ProjectStatus, Prisma, EscrowStatus, DisputeStatus } from "@prisma/client";
+import { ProjectStatus, Prisma, EscrowStatus } from "@prisma/client";
 import { CreateProjectInput, UpdateProjectInput } from "../validators/project";
 import { EscrowService } from "./escrow-service";
+import { DisputeService } from "./dispute-service";
 
 export class ProjectService {
   /**
@@ -304,14 +305,7 @@ export class ProjectService {
     }
 
     await prisma.$transaction(async (tx) => {
-      await tx.dispute.create({
-        data: {
-          escrowId: escrow.id,
-          raisedBy: userId,
-          reason,
-          status: DisputeStatus.OPEN,
-        },
-      });
+      await DisputeService.createDispute(escrow.id, userId, reason, tx);
 
       await tx.auditLog.create({
         data: {
