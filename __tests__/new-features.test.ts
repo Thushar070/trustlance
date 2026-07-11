@@ -2,8 +2,7 @@ import { Role, ProjectStatus } from "@prisma/client";
 import { ProjectService } from "@/lib/services/project-service";
 import { MessageService } from "@/lib/services/message-service";
 import { GET as getProjectDetailHandler } from "@/app/api/projects/[id]/route";
-import { POST as postMessageHandler, GET as getMessagesHandler } from "@/app/api/projects/[id]/messages/route";
-import { PATCH as updateProfileHandler, GET as getProfileHandler } from "@/app/api/users/me/route";
+import { PATCH as updateProfileHandler } from "@/app/api/users/me/route";
 import { getServerSession } from "@/lib/auth/get-server-session";
 import { prisma } from "@/lib/prisma";
 

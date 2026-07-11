@@ -25,7 +25,8 @@ All four new features, as well as Vercel deployment setups and automation checks
 ### 4. Part D: PWA Installability
 - **Manifest**: Created `/public/manifest.json` pointing to theme colors and icons.
 - **App Icons**: Generated high-resolution PWA app logo files (`pwa-icon-192.png`, `pwa-icon-512.png`) inside `/public`.
-- **Service Worker**: Written `/public/sw.js` with a minimal pass-through fetch listener (no offline caching) to satisfy installability prompts. Registered worker inside `/components/Providers.tsx`.
+- **Service Worker**: Written `/public/sw.js` with a minimal pass-through fetch listener (no offline caching) to satisfy installability prompts. We integrated HMR/dev URL checks so it bypasses development routes (`_next`, `webpack-hmr`, and API requests), completely preventing local reload loops.
+- **Registration Gating**: Registered worker inside `/components/Providers.tsx` strictly under production builds (`process.env.NODE_ENV === "production"`) to keep development mode entirely clean.
 
 ### 5. Part E: Vercel Deployment Settings
 - **Daily Cron Job**: Defined `vercel.json` triggering `/api/admin/run-auto-release` daily.
