@@ -4,38 +4,67 @@ import { PaymentService } from "@/lib/services/payment-service";
 import { SubmissionService } from "@/lib/services/submission-service";
 import { DisputeService } from "@/lib/services/dispute-service";
 import { AuditService } from "@/lib/services/audit-service";
+import { EscrowService } from "@/lib/services/escrow-service";
 import { prisma } from "@/lib/prisma";
 import { Role, ProjectStatus, EscrowStatus, DisputeStatus, PaymentStatus, ProposalStatus } from "@prisma/client";
+import crypto from "crypto";
+import { SYSTEM_ACTORS } from "@/lib/constants/actors";
 
-// Setup logs collection array
+// Setup dynamic mock database tables in-memory
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let mockProjectDb: any = {
+  id: "proj_lifecycle",
+  status: ProjectStatus.OPEN,
+  budget: 5000,
+  clientId: "client_user",
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let mockEscrowDb: any = null;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let mockPaymentDb: any = {
+  id: "pay_123",
+  projectId: "proj_lifecycle",
+  status: PaymentStatus.PENDING,
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let mockDisputeDb: any = {
+  id: "disp_123",
+  status: DisputeStatus.OPEN,
+  escrowId: "escrow_lifecycle",
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let auditLogs: any[] = [];
 
 jest.mock("@/lib/prisma", () => {
   const mockPrisma = {
     project: {
       create: jest.fn((args) => {
-        return Promise.resolve({
+        mockProjectDb = {
           id: "proj_lifecycle",
           status: ProjectStatus.OPEN,
           budget: 5000,
           clientId: "client_user",
           ...args.data,
+        };
+        return Promise.resolve(mockProjectDb);
+      }),
+      findUnique: jest.fn(() => {
+        return Promise.resolve({
+          ...mockProjectDb,
+          payment: mockPaymentDb,
+          escrow: mockEscrowDb,
         });
       }),
-      findUnique: jest.fn(() => Promise.resolve({
-        id: "proj_lifecycle",
-        status: ProjectStatus.ASSIGNED,
-        budget: 5000,
-        agreedAmount: 6000,
-        clientId: "client_user",
-        freelancerId: "freelancer_user",
-        escrow: { id: "escrow_lifecycle", projectId: "proj_lifecycle", status: EscrowStatus.CREATED }
-      })),
       update: jest.fn((args) => {
-        return Promise.resolve({
-          id: "proj_lifecycle",
+        mockProjectDb = {
+          ...mockProjectDb,
           ...args.data,
-        });
+        };
+        return Promise.resolve(mockProjectDb);
       }),
     },
     proposal: {
@@ -57,56 +86,73 @@ jest.mock("@/lib/prisma", () => {
       updateMany: jest.fn(() => Promise.resolve({})),
     },
     escrow: {
-      findUnique: jest.fn(() => Promise.resolve({
-        id: "escrow_lifecycle",
-        projectId: "proj_lifecycle",
-        status: EscrowStatus.CREATED,
-      })),
-      create: jest.fn((args) => Promise.resolve({
-        id: "escrow_lifecycle",
-        status: EscrowStatus.CREATED,
-        ...args.data,
-      })),
-      update: jest.fn((args) => Promise.resolve({
-        id: "escrow_lifecycle",
-        ...args.data,
-      })),
+      findUnique: jest.fn(() => Promise.resolve(mockEscrowDb)),
+      create: jest.fn((args) => {
+        mockEscrowDb = {
+          id: "escrow_lifecycle",
+          status: EscrowStatus.CREATED,
+          projectId: "proj_lifecycle",
+          ...args.data,
+        };
+        return Promise.resolve(mockEscrowDb);
+      }),
+      update: jest.fn((args) => {
+        mockEscrowDb = {
+          ...mockEscrowDb,
+          ...args.data,
+        };
+        return Promise.resolve(mockEscrowDb);
+      }),
     },
     payment: {
-      upsert: jest.fn((args) => Promise.resolve({
-        id: "pay_123",
-        projectId: "proj_lifecycle",
-        status: PaymentStatus.PENDING,
-      })),
-      update: jest.fn((args) => Promise.resolve({
-        id: "pay_123",
-        projectId: "proj_lifecycle",
-        status: PaymentStatus.SUCCESS,
-      })),
+      findFirst: jest.fn(() => {
+        return Promise.resolve({
+          ...mockPaymentDb,
+          project: mockProjectDb,
+        });
+      }),
+      upsert: jest.fn((args) => {
+        mockPaymentDb = {
+          id: "pay_123",
+          projectId: "proj_lifecycle",
+          status: PaymentStatus.PENDING,
+          ...args.update,
+        };
+        return Promise.resolve(mockPaymentDb);
+      }),
+      update: jest.fn((args) => {
+        mockPaymentDb = {
+          ...mockPaymentDb,
+          ...args.data,
+        };
+        return Promise.resolve(mockPaymentDb);
+      }),
     },
     dispute: {
-      create: jest.fn((args) => Promise.resolve({
-        id: "disp_123",
-        status: DisputeStatus.OPEN,
-        ...args.data,
-      })),
-      findUnique: jest.fn(() => Promise.resolve({
-        id: "disp_123",
-        status: DisputeStatus.OPEN,
-        escrow: {
-          id: "escrow_lifecycle",
-          projectId: "proj_lifecycle",
-          project: {
-            id: "proj_lifecycle",
-            clientId: "client_user",
-            freelancerId: "freelancer_user",
-          }
-        }
-      })),
-      update: jest.fn((args) => Promise.resolve({
-        id: "disp_123",
-        status: DisputeStatus.RESOLVED,
-      })),
+      create: jest.fn((args) => {
+        mockDisputeDb = {
+          id: "disp_123",
+          status: DisputeStatus.OPEN,
+          ...args.data,
+        };
+        return Promise.resolve(mockDisputeDb);
+      }),
+      findUnique: jest.fn(() => {
+        return Promise.resolve({
+          ...mockDisputeDb,
+          escrow: {
+            ...mockEscrowDb,
+            project: mockProjectDb,
+          },
+        });
+      }),
+      update: jest.fn((args) => {
+        mockDisputeDb = {
+          ...mockDisputeDb,
+          ...args.data,
+        };
+        return Promise.resolve(mockDisputeDb);
+      }),
     },
     evidence: {
       create: jest.fn(() => Promise.resolve({})),
@@ -114,6 +160,14 @@ jest.mock("@/lib/prisma", () => {
     },
     submission: {
       create: jest.fn(() => Promise.resolve({})),
+      findFirst: jest.fn(() => Promise.resolve({
+        id: "sub_123",
+        projectId: "proj_lifecycle",
+        notes: "Some deliverables",
+        githubLink: "https://github.com/foo",
+        status: "PENDING",
+      })),
+      update: jest.fn(() => Promise.resolve({})),
     },
     auditLog: {
       create: jest.fn((args) => {
@@ -140,13 +194,30 @@ jest.mock("razorpay", () => {
 
 describe("Phase 9: Audit Logging Integration Tests", () => {
   beforeEach(() => {
+    mockProjectDb = {
+      id: "proj_lifecycle",
+      status: ProjectStatus.OPEN,
+      budget: 5000,
+      clientId: "client_user",
+    };
+    mockEscrowDb = null;
+    mockPaymentDb = {
+      id: "pay_123",
+      projectId: "proj_lifecycle",
+      status: PaymentStatus.PENDING,
+    };
+    mockDisputeDb = {
+      id: "disp_123",
+      status: DisputeStatus.OPEN,
+      escrowId: "escrow_lifecycle",
+    };
     auditLogs = [];
     jest.clearAllMocks();
   });
 
   it("1. Full project lifecycle logs should correctly reconstruct state transitions with no gaps", async () => {
     // 1. Create project (Client)
-    const project = await ProjectService.createProject("client_user", {
+    await ProjectService.createProject("client_user", {
       title: "Lifecycle Project",
       description: "Lifecycle test description",
       budget: 5000,
@@ -154,48 +225,26 @@ describe("Phase 9: Audit Logging Integration Tests", () => {
       skills: ["React"],
     });
 
-    // Mock project return values for subsequent steps
-    (prisma.project.findUnique as jest.Mock).mockResolvedValue({
-      ...project,
-      payment: null,
-      escrow: null,
-    });
-
     // 2. Select Freelancer (Client hiring Freelancer)
     await ProposalService.selectFreelancer("proj_lifecycle", "client_user", "freelancer_user");
-
-    // Mock project state update to ASSIGNED
-    const assignedProject = {
-      ...project,
-      status: ProjectStatus.ASSIGNED,
-      freelancerId: "freelancer_user",
-      agreedAmount: 6000,
-      payment: null,
-      escrow: null,
-    };
-    (prisma.project.findUnique as jest.Mock).mockResolvedValue(assignedProject);
 
     // 3. Create Razorpay order (Client pay)
     await PaymentService.createOrder("proj_lifecycle", "client_user");
 
-    // Mock payment state update to PENDING
-    const payment = { id: "pay_123", projectId: "proj_lifecycle", status: PaymentStatus.PENDING };
-    (prisma.project.findUnique as jest.Mock).mockResolvedValue({
-      ...assignedProject,
-      payment,
-    });
-
     // 4. Verify payment success (Simulating payment verification)
-    await PaymentService.verifyPayment("order_123", "pay_success", "valid_sig", "client_user");
+    process.env.RAZORPAY_KEY_SECRET = "test_secret";
+    const correctSig = crypto
+      .createHmac("sha256", "test_secret")
+      .update("order_123|pay_success")
+      .digest("hex");
+    await PaymentService.verifyPayment("order_123", "pay_success", correctSig, "client_user");
 
-    // Mock payment SUCCESS and Escrow HOLDING
-    const paymentSuccess = { ...payment, status: PaymentStatus.SUCCESS };
-    const escrowHolding = { id: "escrow_lifecycle", projectId: "proj_lifecycle", status: EscrowStatus.HOLDING };
-    (prisma.project.findUnique as jest.Mock).mockResolvedValue({
-      ...assignedProject,
-      payment: paymentSuccess,
-      escrow: escrowHolding,
-    });
+    // Simulate webhook capture transition of Escrow to HOLDING
+    await EscrowService.createEscrowForProject("proj_lifecycle");
+    const escrow = await prisma.escrow.findUnique({ where: { projectId: "proj_lifecycle" } });
+    if (escrow) {
+      await EscrowService.transition(escrow.id, EscrowStatus.HOLDING, SYSTEM_ACTORS.SYSTEM_WEBHOOK);
+    }
 
     // 5. Submit deliverables (Freelancer)
     await SubmissionService.submitWork("proj_lifecycle", "freelancer_user", {
@@ -203,37 +252,13 @@ describe("Phase 9: Audit Logging Integration Tests", () => {
       notes: "First submission deliverables.",
     });
 
-    // Mock project status transition to UNDER_REVIEW and Escrow UNDER_REVIEW
-    (prisma.project.findUnique as jest.Mock).mockResolvedValue({
-      ...assignedProject,
-      status: ProjectStatus.UNDER_REVIEW,
-      payment: paymentSuccess,
-      escrow: { ...escrowHolding, status: EscrowStatus.UNDER_REVIEW },
-    });
-
     // 6. Request Changes (Client rejects)
     await ProjectService.requestChanges("proj_lifecycle", "client_user", "Please modify style.");
-
-    // Mock project status back to IN_PROGRESS and Escrow back to HOLDING
-    (prisma.project.findUnique as jest.Mock).mockResolvedValue({
-      ...assignedProject,
-      status: ProjectStatus.IN_PROGRESS,
-      payment: paymentSuccess,
-      escrow: { ...escrowHolding, status: EscrowStatus.HOLDING },
-    });
 
     // 7. Resubmit work (Freelancer resubmits)
     await SubmissionService.submitWork("proj_lifecycle", "freelancer_user", {
       githubLink: "https://github.com/foo",
       notes: "Revised submission deliverables.",
-    });
-
-    // Mock project status back to UNDER_REVIEW and Escrow back to UNDER_REVIEW
-    (prisma.project.findUnique as jest.Mock).mockResolvedValue({
-      ...assignedProject,
-      status: ProjectStatus.UNDER_REVIEW,
-      payment: paymentSuccess,
-      escrow: { ...escrowHolding, status: EscrowStatus.UNDER_REVIEW },
     });
 
     // 8. Approve work (Client completes project)
@@ -288,10 +313,15 @@ describe("Phase 9: Audit Logging Integration Tests", () => {
     // 1. Raise Dispute (Client)
     await ProjectService.raiseDispute("proj_dispute", "client_user", "Freelancer did not follow requirements.");
 
-    // Mock project after dispute raised
+    // Mock project and escrow after dispute raised
     (prisma.project.findUnique as jest.Mock).mockResolvedValue({
       ...project,
       escrow: { id: "escrow_dispute", status: EscrowStatus.DISPUTED },
+    });
+    (prisma.escrow.findUnique as jest.Mock).mockResolvedValue({
+      id: "escrow_dispute",
+      projectId: "proj_dispute",
+      status: EscrowStatus.DISPUTED,
     });
 
     // 2. Add Evidence

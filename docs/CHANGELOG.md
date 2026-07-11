@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added regression test suite in `__tests__/integration.test.ts` to ensure that webhook routes bypass session auth, while other `/api/*` endpoints continue to strictly require session validation.
 
 ### Added
+- **Phase 9 (Audit Logging - Retrofit & Verification Pass)**:
+  - Created `lib/constants/actors.ts` reserving the `SYSTEM_WEBHOOK` and `SYSTEM_AUTO_RELEASE` actor constants.
+  - Developed `AuditService` in `lib/services/audit-service.ts` allowing admins to fetch chronological audit history sequences per-entity.
+  - Created admin-only API route GET `/api/audit-logs/[entityId]` with strict role validation.
+  - Retrofitted status-changing actions across services (`ProposalService.selectFreelancer()`, `ProjectService.createProject()`, `ProjectService.updateProject()`, `EscrowService.createEscrowForProject()`, `EscrowService.transition()`, `PaymentService.createOrder()`, `PaymentService.verifyPayment()`, `DisputeService.createDispute()`, `DisputeService.resolveDispute()`, and webhook handlers) to atomically write `AuditLog` rows inside Prisma database transactions.
+  - Implemented `AuditHistory.tsx` frontend component displaying logs in a monospace git-log-style view.
+  - Embedded `<AuditHistory />` at the bottom of the Project and Dispute detail pages.
+  - Added full project lifecycle and dispute resolution walkthrough integration tests in `__tests__/audit-lifecycle.test.ts`.
+
 - **Phase 8 (Dispute System with Evidence & Admin Resolution + State Machine Fix)**:
   - **Part A (Critical Escrow State Machine Fix)**:
     - Added the `UNDER_REVIEW` -> `HOLDING` transition path to the Escrow state machine mapping, fixing the bug that locked freelancers out of resubmitting work after a client requests changes.

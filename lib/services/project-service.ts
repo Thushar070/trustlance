@@ -9,6 +9,7 @@ export class ProjectService {
    * Creates a new project in the database.
    */
   static async createProject(clientId: string, data: CreateProjectInput) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const execute = async (client: any) => {
       const project = await client.project.create({
         data: {
@@ -157,6 +158,7 @@ export class ProjectService {
       throw new Error(`Forbidden: Project cannot be updated because its status is no longer OPEN (current status: ${project.status})`);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const execute = async (client: any) => {
       const updatedProject = await client.project.update({
         where: { id },

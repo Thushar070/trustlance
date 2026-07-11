@@ -76,6 +76,7 @@ export class PaymentService {
     }
 
     // 6. Create or update Payment record and log in transaction
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const executeOrder = async (client: any) => {
       const p = await client.payment.upsert({
         where: { projectId },
@@ -162,6 +163,7 @@ export class PaymentService {
     }
 
     // 4. Update Payment record to SUCCESS and log in transaction
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const executeVerify = async (client: any) => {
       const p = await client.payment.update({
         where: { id: payment.id },
