@@ -63,6 +63,7 @@ interface SubmissionDetails {
   githubLink?: string | null;
   demoLink?: string | null;
   notes?: string | null;
+  feedback?: string | null;
   createdAt: string;
 }
 
@@ -205,6 +206,95 @@ export default function ProjectDetailPage() {
     } finally {
       setUploadingFile(false);
       setSubmittingWork(false);
+    }
+  };
+
+  // Client Review State
+  const [reviewFeedback, setReviewFeedback] = useState("");
+  const [disputeReason, setDisputeReason] = useState("");
+  const [activeReviewAction, setActiveReviewAction] = useState<"APPROVE" | "REQUEST_CHANGES" | "DISPUTE" | null>(null);
+  const [reviewActionLoading, setReviewActionLoading] = useState(false);
+  const [reviewActionError, setReviewActionError] = useState<string | null>(null);
+
+  const handleApprove = async () => {
+    setReviewActionLoading(true);
+    setReviewActionError(null);
+    try {
+      const res = await fetch(`/api/projects/${project?.id}/approve`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Approval failed.");
+      }
+      alert("Project approved and funds released successfully!");
+      setActiveReviewAction(null);
+      setRefreshTrigger((prev) => prev + 1);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Approval failed";
+      setReviewActionError(msg);
+    } finally {
+      setReviewActionLoading(false);
+    }
+  };
+
+  const handleRequestChanges = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewFeedback.trim()) {
+      setReviewActionError("Feedback is required to request changes.");
+      return;
+    }
+    setReviewActionLoading(true);
+    setReviewActionError(null);
+    try {
+      const res = await fetch(`/api/projects/${project?.id}/request-changes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feedback: reviewFeedback }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Request changes failed.");
+      }
+      alert("Changes requested successfully! Project is back in progress.");
+      setReviewFeedback("");
+      setActiveReviewAction(null);
+      setRefreshTrigger((prev) => prev + 1);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Request changes failed";
+      setReviewActionError(msg);
+    } finally {
+      setReviewActionLoading(false);
+    }
+  };
+
+  const handleRaiseDispute = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!disputeReason.trim()) {
+      setReviewActionError("Reason is required to raise a dispute.");
+      return;
+    }
+    setReviewActionLoading(true);
+    setReviewActionError(null);
+    try {
+      const res = await fetch(`/api/projects/${project?.id}/dispute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: disputeReason }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Raising dispute failed.");
+      }
+      alert("Dispute raised successfully! Project is now flagged.");
+      setDisputeReason("");
+      setActiveReviewAction(null);
+      setRefreshTrigger((prev) => prev + 1);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Dispute failed";
+      setReviewActionError(msg);
+    } finally {
+      setReviewActionLoading(false);
     }
   };
 
@@ -846,13 +936,177 @@ export default function ProjectDetailPage() {
                 </div>
               </div>
 
-              {/* Client-Visible Submission Notification */}
+              {/* Client Review & Actions Panel */}
               {isOwner && project.status === ProjectStatus.UNDER_REVIEW && (
-                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
-                  <h3 className="text-amber-950 font-bold text-base mb-1">Project is Under Review</h3>
-                  <p className="text-sm text-amber-800">
-                    The freelancer has submitted deliverables for your review. Please inspect the submissions listed in the history below. You can approve or coordinate adjustments in client actions.
-                  </p>
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-6">
+                  <div>
+                    <h3 className="text-gray-900 font-bold text-lg mb-1.5">Project Review Decisions</h3>
+                    <p className="text-xs text-gray-400">
+                      The freelancer has submitted deliverables. Review the work details in the history log below and select your review decision.
+                    </p>
+                  </div>
+
+                  {reviewActionError && (
+                    <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
+                      <p className="text-sm text-red-700 font-semibold">{reviewActionError}</p>
+                    </div>
+                  )}
+
+                  {!activeReviewAction && (
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        onClick={handleApprove}
+                        disabled={reviewActionLoading}
+                        className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
+                      >
+                        Approve Project
+                      </button>
+                      <button
+                        onClick={() => {
+                          setActiveReviewAction("REQUEST_CHANGES");
+                          setReviewActionError(null);
+                        }}
+                        disabled={reviewActionLoading}
+                        className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
+                      >
+                        Request Changes
+                      </button>
+                      <button
+                        onClick={() => {
+                          setActiveReviewAction("DISPUTE");
+                          setReviewActionError(null);
+                        }}
+                        disabled={reviewActionLoading}
+                        className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
+                      >
+                        Raise Dispute
+                      </button>
+                    </div>
+                  )}
+
+                  {activeReviewAction === "REQUEST_CHANGES" && (
+                    <form onSubmit={handleRequestChanges} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Adjustments & Feedback Required</label>
+                        <textarea
+                          placeholder="Provide detailed instructions on what changes are needed to resume progress..."
+                          rows={4}
+                          required
+                          value={reviewFeedback}
+                          onChange={(e) => setReviewFeedback(e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        />
+                      </div>
+                      <div className="flex justify-end gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setActiveReviewAction(null)}
+                          className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={reviewActionLoading}
+                          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-50 cursor-pointer transition-colors"
+                        >
+                          {reviewActionLoading ? "Submitting..." : "Send Request"}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+
+                  {activeReviewAction === "DISPUTE" && (
+                    <form onSubmit={handleRaiseDispute} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Reason for Dispute Escalation</label>
+                        <textarea
+                          placeholder="Describe the issues, discrepancies, or reasons for escalating to a formal dispute..."
+                          rows={4}
+                          required
+                          value={disputeReason}
+                          onChange={(e) => setDisputeReason(e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        />
+                      </div>
+                      <div className="flex justify-end gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setActiveReviewAction(null)}
+                          className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={reviewActionLoading}
+                          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 cursor-pointer transition-colors"
+                        >
+                          {reviewActionLoading ? "Escalating..." : "Raise Dispute"}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              )}
+
+              {/* Freelancer Dispute Trigger */}
+              {isFreelancerHired && project.status === ProjectStatus.UNDER_REVIEW && (
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-4">
+                  <div>
+                    <h3 className="text-gray-900 font-bold text-base mb-1">Project is Under Review</h3>
+                    <p className="text-xs text-gray-400">
+                      The client is currently reviewing your submissions. If there is a dispute or deadlock, you can escalate the project to a formal dispute.
+                    </p>
+                  </div>
+
+                  {reviewActionError && (
+                    <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
+                      <p className="text-sm text-red-700 font-semibold">{reviewActionError}</p>
+                    </div>
+                  )}
+
+                  {activeReviewAction !== "DISPUTE" ? (
+                    <button
+                      onClick={() => {
+                        setActiveReviewAction("DISPUTE");
+                        setReviewActionError(null);
+                      }}
+                      className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 cursor-pointer transition-colors shadow-sm"
+                    >
+                      Raise Dispute
+                    </button>
+                  ) : (
+                    <form onSubmit={handleRaiseDispute} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Reason for Dispute Escalation</label>
+                        <textarea
+                          placeholder="Describe the issues or reasons for escalating to a formal dispute..."
+                          rows={4}
+                          required
+                          value={disputeReason}
+                          onChange={(e) => setDisputeReason(e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        />
+                      </div>
+                      <div className="flex justify-end gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setActiveReviewAction(null)}
+                          className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={reviewActionLoading}
+                          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 cursor-pointer transition-colors"
+                        >
+                          {reviewActionLoading ? "Escalating..." : "Raise Dispute"}
+                        </button>
+                      </div>
+                    </form>
+                  )}
                 </div>
               )}
 
@@ -948,6 +1202,13 @@ export default function ProjectDetailPage() {
                           <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100 whitespace-pre-wrap">
                             {sub.notes}
                           </p>
+                        )}
+
+                        {sub.feedback && (
+                          <div className="text-sm text-amber-850 bg-amber-50/50 p-3 rounded-lg border border-amber-200 whitespace-pre-wrap">
+                            <span className="font-bold block mb-1 text-amber-900">Requested Adjustments:</span>
+                            {sub.feedback}
+                          </div>
                         )}
 
                         <div className="flex flex-wrap gap-4 text-xs font-semibold text-indigo-600">

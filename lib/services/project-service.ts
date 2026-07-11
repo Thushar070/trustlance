@@ -1,6 +1,7 @@
 import { prisma } from "../prisma";
-import { ProjectStatus, Prisma } from "@prisma/client";
+import { ProjectStatus, Prisma, EscrowStatus, DisputeStatus } from "@prisma/client";
 import { CreateProjectInput, UpdateProjectInput } from "../validators/project";
+import { EscrowService } from "./escrow-service";
 
 export class ProjectService {
   /**
@@ -141,5 +142,191 @@ export class ProjectService {
         status: data.status !== undefined ? data.status : undefined,
       },
     });
+  }
+
+  /**
+   * Approves work submission for a project.
+   * Transitions Project to COMPLETED, and Escrow to RELEASED.
+   */
+  static async approve(projectId: string, clientId: string) {
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: { escrow: true },
+    });
+
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    if (project.clientId !== clientId) {
+      throw new Error("Forbidden: You do not own this project.");
+    }
+
+    if (project.status !== ProjectStatus.UNDER_REVIEW) {
+      throw new Error(`Forbidden: Cannot approve project in ${project.status} status.`);
+    }
+
+    const escrow = project.escrow;
+    if (!escrow) {
+      throw new Error("Escrow record not found for this project.");
+    }
+
+    if (escrow.status !== EscrowStatus.UNDER_REVIEW && escrow.status !== EscrowStatus.DISPUTED) {
+      throw new Error(`Forbidden: Escrow must be in UNDER_REVIEW or DISPUTED status to approve (current: ${escrow.status}).`);
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.project.update({
+        where: { id: projectId },
+        data: { status: ProjectStatus.COMPLETED },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          entityType: "Project",
+          entityId: projectId,
+          action: "TRANSITION_COMPLETED",
+          actorId: clientId,
+          prevState: project.status,
+          newState: ProjectStatus.COMPLETED,
+        },
+      });
+    });
+
+    await EscrowService.transition(escrow.id, EscrowStatus.RELEASED, clientId);
+
+    return { success: true };
+  }
+
+  /**
+   * Requests changes on a project's work submission.
+   * Reverts Project status to IN_PROGRESS and saves client feedback on the latest submission.
+   */
+  static async requestChanges(projectId: string, clientId: string, feedback: string) {
+    if (!feedback || feedback.trim() === "") {
+      throw new Error("Feedback is required to request changes.");
+    }
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: { escrow: true },
+    });
+
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    if (project.clientId !== clientId) {
+      throw new Error("Forbidden: You do not own this project.");
+    }
+
+    if (project.status !== ProjectStatus.UNDER_REVIEW) {
+      throw new Error(`Forbidden: Cannot request changes on project in ${project.status} status.`);
+    }
+
+    const escrow = project.escrow;
+    if (!escrow) {
+      throw new Error("Escrow record not found for this project.");
+    }
+
+    if (escrow.status !== EscrowStatus.UNDER_REVIEW) {
+      throw new Error(`Forbidden: Escrow must be in UNDER_REVIEW status to request changes.`);
+    }
+
+    return prisma.$transaction(async (tx) => {
+      const latestSubmission = await tx.submission.findFirst({
+        where: { projectId },
+        orderBy: { createdAt: "desc" },
+      });
+
+      if (!latestSubmission) {
+        throw new Error("No submissions found to request changes on.");
+      }
+
+      await tx.submission.update({
+        where: { id: latestSubmission.id },
+        data: { feedback },
+      });
+
+      await tx.project.update({
+        where: { id: projectId },
+        data: { status: ProjectStatus.IN_PROGRESS },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          entityType: "Project",
+          entityId: projectId,
+          action: "TRANSITION_IN_PROGRESS",
+          actorId: clientId,
+          prevState: project.status,
+          newState: ProjectStatus.IN_PROGRESS,
+        },
+      });
+
+      return { success: true };
+    });
+  }
+
+  /**
+   * Raises a dispute on a project under review.
+   * Transitions Escrow to DISPUTED and creates a minimal Dispute record.
+   */
+  static async raiseDispute(projectId: string, userId: string, reason: string) {
+    if (!reason || reason.trim() === "") {
+      throw new Error("Dispute reason is required.");
+    }
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: { escrow: true },
+    });
+
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    if (project.clientId !== userId && project.freelancerId !== userId) {
+      throw new Error("Forbidden: Only the client owner or the assigned freelancer can raise a dispute.");
+    }
+
+    if (project.status !== ProjectStatus.UNDER_REVIEW) {
+      throw new Error(`Forbidden: Cannot raise dispute on project in ${project.status} status.`);
+    }
+
+    const escrow = project.escrow;
+    if (!escrow) {
+      throw new Error("Escrow record not found for this project.");
+    }
+
+    if (escrow.status !== EscrowStatus.UNDER_REVIEW) {
+      throw new Error(`Forbidden: Escrow must be in UNDER_REVIEW status to raise a dispute (current: ${escrow.status}).`);
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.dispute.create({
+        data: {
+          escrowId: escrow.id,
+          raisedBy: userId,
+          reason,
+          status: DisputeStatus.OPEN,
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          entityType: "Project",
+          entityId: projectId,
+          action: "RAISE_DISPUTE",
+          actorId: userId,
+          prevState: project.status,
+          newState: project.status,
+        },
+      });
+    });
+
+    await EscrowService.transition(escrow.id, EscrowStatus.DISPUTED, userId);
+
+    return { success: true };
   }
 }

@@ -166,5 +166,6 @@ model Submission {
   githubLink String?
   demoLink   String?
   notes      String?
+  feedback   String?
   createdAt  DateTime @default(now())
 }

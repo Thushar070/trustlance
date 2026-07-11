@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Released] - 2026-07-11
 
 ### Added
+- **Phase 7 (Client Review: Approve / Request Changes / Dispute)**:
+  - Extended `Submission` database model in `prisma/schema.prisma` with an optional `feedback` text field.
+  - Implemented `approve(projectId, clientId)`, `requestChanges(projectId, clientId, feedback)`, and `raiseDispute(projectId, userId, reason)` service handlers in `lib/services/project-service.ts` managing project state transitions and audit logging.
+  - Created review API endpoints: POST `/api/projects/[id]/approve`, POST `/api/projects/[id]/request-changes`, and POST `/api/projects/[id]/dispute` checking permissions.
+  - Added Client Actions panel on the frontend details page with Approve, Request Changes (including feedback input), and Raise Dispute forms.
+  - Added Freelancer Dispute escalation option when the project is under review.
+  - Rendered Client adjustment feedback on historical submission round entries.
+  - Developed 5 integration tests in `__tests__/review.test.ts` verifying role gates, approval finality, loop-backs, and dispute triggers.
+
 - **Phase 6 (Work Submission & File/Link Uploads)**:
   - Added `Submission` model to Prisma schema, representing work deliverables.
   - Implemented `lib/storage/s3.ts` containing AWS S3 client setup and helper to generate presigned upload URLs.
