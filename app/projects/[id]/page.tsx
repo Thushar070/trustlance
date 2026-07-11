@@ -14,7 +14,7 @@ import {
   Briefcase,
   FileDown,
   Globe,
-  Github,
+  Code2,
   User,
   RefreshCw,
   FileText,
@@ -1348,7 +1348,7 @@ export default function ProjectDetailPage() {
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1.5 hover:underline bg-slate-50 hover:bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1.5 rounded-md border border-slate-200 transition-colors"
                               >
-                                <Github className="w-3.5 h-3.5" /> GitHub Repository
+                                <Code2 className="w-3.5 h-3.5" /> GitHub Repository
                               </a>
                             )}
                             {sub.demoLink && (

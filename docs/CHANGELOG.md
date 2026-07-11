@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Released] - 2026-07-11
 
 ### Fixed
+- **Lucide Icons Build Error**: Fixed a Next.js compilation blocker caused by importing the brand `Github` icon from `lucide-react` (which does not exist in version `1.24.0`); replaced it with `Code2`.
+- **TypeScript Build Gating**: Fixed TypeScript error in API message route `app/api/projects/[id]/messages/route.ts` where `session.user.id` could be undefined, by adding proper authorization checks.
 - **PWA Service Worker Dev Reload Loop**: Fixed infinite reload loop caused by service worker self-healing logic in development; development now never registers or attempts to clean up a service worker at all — registration is scoped strictly to production builds.
 
 ### Added
