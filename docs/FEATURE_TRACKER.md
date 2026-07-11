@@ -10,7 +10,7 @@ This document tracks the progress of the TrustLance platform features across all
 | 3 | Proposals & Freelancer Selection | Done | 2026-07-10 |
 | 4 | Razorpay Payment Capture | Done | 2026-07-10 |
 | 5 | Webhook Handling & Escrow State Machine | Done | 2026-07-10 |
-| 6 | Work Submission & File/Link Uploads | Not Started | - |
+| 6 | Work Submission & File/Link Uploads | Done | 2026-07-11 |
 | 7 | Client Review: Approve / Request Changes / Dispute | Not Started | - |
 | 8 | Dispute System with Evidence & Admin Resolution | Not Started | - |
 | 9 | Audit Logging (Retrofit + Verification) | Not Started | - |

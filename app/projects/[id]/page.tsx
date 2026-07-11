@@ -22,6 +22,7 @@ interface ProjectDetails {
   skills: string[];
   createdAt: string;
   clientId: string;
+  freelancerId?: string | null;
   client: ClientDetails;
   agreedAmount?: number | null;
   payment?: {
@@ -53,6 +54,16 @@ interface ProposalDetails {
     name: string | null;
     email: string;
   };
+}
+
+interface SubmissionDetails {
+  id: string;
+  projectId: string;
+  fileUrl?: string | null;
+  githubLink?: string | null;
+  demoLink?: string | null;
+  notes?: string | null;
+  createdAt: string;
 }
 
 export default function ProjectDetailPage() {
@@ -666,6 +677,7 @@ export default function ProjectDetailPage() {
   const isOwner = session?.user?.id === project.clientId;
   const isFreelancer = session?.user?.role === "FREELANCER";
   const isOpen = project.status === ProjectStatus.OPEN;
+  const isFreelancerHired = session?.user?.id === project.freelancerId;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -835,7 +847,7 @@ export default function ProjectDetailPage() {
               </div>
 
               {/* Client-Visible Submission Notification */}
-              {isClientOwner && project.status === ProjectStatus.UNDER_REVIEW && (
+              {isOwner && project.status === ProjectStatus.UNDER_REVIEW && (
                 <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
                   <h3 className="text-amber-950 font-bold text-base mb-1">Project is Under Review</h3>
                   <p className="text-sm text-amber-800">
@@ -921,7 +933,7 @@ export default function ProjectDetailPage() {
                 )}
 
               {/* Submission History View */}
-              {(isClientOwner || isFreelancerHired) && submissions.length > 0 && (
+              {(isOwner || isFreelancerHired) && submissions.length > 0 && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
                   <h3 className="text-gray-900 font-bold text-lg mb-4">Submission History</h3>
                   <div className="space-y-6">

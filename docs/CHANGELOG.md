@@ -5,6 +5,19 @@ All notable changes to the TrustLance project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Released] - 2026-07-11
+
+### Added
+- **Phase 6 (Work Submission & File/Link Uploads)**:
+  - Added `Submission` model to Prisma schema, representing work deliverables.
+  - Implemented `lib/storage/s3.ts` containing AWS S3 client setup and helper to generate presigned upload URLs.
+  - Developed `SubmissionService` to enforce project status barriers, create submission records inside database transactions, and route project/escrow state transitions.
+  - Created POST `/api/uploads/presign` endpoint verifying file size/type restrictions (e.g. max 50MB, allowed types like `.zip`, `.pdf`, `.png`, etc.) and generating S3 upload endpoints.
+  - Developed POST `/api/projects/[id]/submit-work` to receive freelancer links, notes, and file URLs.
+  - Developed GET `/api/projects/[id]/submissions` to list chronological submissions gated by user permissions.
+  - Developed client alerts and freelancer submission forms on the frontend details page.
+  - Wrote 7 unit and integration Jest tests in `__tests__/submission.test.ts` verifying size limit rejections, file type checks, role gates, status transitions, and data privacy.
+
 ## [Released] - 2026-07-10
 
 ### Added
