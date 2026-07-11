@@ -67,6 +67,136 @@ export default function ProjectDetailPage() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Submissions State
+  const [submissions, setSubmissions] = useState<SubmissionDetails[]>([]);
+  const [submissionNotes, setSubmissionNotes] = useState("");
+  const [githubLink, setGithubLink] = useState("");
+  const [demoLink, setDemoLink] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [submittingWork, setSubmittingWork] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+
+  const ALLOWED_CONTENT_TYPES = [
+    "application/zip",
+    "application/x-zip-compressed",
+    "application/pdf",
+    "image/png",
+    "image/jpeg",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/gzip",
+    "application/x-gzip",
+    "application/x-tar",
+  ];
+  const ALLOWED_EXTENSIONS = [".zip", ".pdf", ".png", ".jpg", ".jpeg", ".docx", ".tar.gz", ".tgz"];
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSubmissionError(null);
+    const file = e.target.files?.[0];
+    if (!file) {
+      setSelectedFile(null);
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setSubmissionError("File size must not exceed 50MB.");
+      setSelectedFile(null);
+      return;
+    }
+
+    const fileExt = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
+    const isTarGz = file.name.endsWith(".tar.gz");
+    const isValidExt = ALLOWED_EXTENSIONS.includes(fileExt) || isTarGz;
+    const isValidType = ALLOWED_CONTENT_TYPES.includes(file.type.toLowerCase());
+
+    if (!isValidExt || !isValidType) {
+      setSubmissionError("Invalid file type. Only ZIP, TAR.GZ, PDF, PNG, JPG, JPEG, and DOCX are allowed.");
+      setSelectedFile(null);
+      return;
+    }
+
+    setSelectedFile(file);
+  };
+
+  const handleWorkSubmission = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmittingWork(true);
+    setSubmissionError(null);
+
+    try {
+      if (!selectedFile && !githubLink && !demoLink) {
+        throw new Error("At least one of File, GitHub link, or Demo link must be provided.");
+      }
+
+      let fileUrl = "";
+
+      if (selectedFile) {
+        setUploadingFile(true);
+        // 1. Get presigned upload URL
+        const presignRes = await fetch("/api/uploads/presign", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fileName: selectedFile.name,
+            contentType: selectedFile.type,
+            fileSize: selectedFile.size,
+          }),
+        });
+
+        const presignData = await presignRes.json();
+        if (!presignRes.ok) {
+          throw new Error(presignData.error || "Failed to generate upload link.");
+        }
+
+        // 2. Direct upload to S3
+        const s3Res = await fetch(presignData.uploadUrl, {
+          method: "PUT",
+          headers: { "Content-Type": selectedFile.type },
+          body: selectedFile,
+        });
+
+        if (!s3Res.ok) {
+          throw new Error("Direct S3 upload failed.");
+        }
+
+        fileUrl = presignData.fileUrl;
+        setUploadingFile(false);
+      }
+
+      // 3. Post submission metadata
+      const submitRes = await fetch(`/api/projects/${project?.id}/submit-work`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileUrl,
+          githubLink: githubLink || undefined,
+          demoLink: demoLink || undefined,
+          notes: submissionNotes || undefined,
+        }),
+      });
+
+      const submitData = await submitRes.json();
+      if (!submitRes.ok) {
+        throw new Error(submitData.error || "Work submission failed.");
+      }
+
+      // Reset form on success
+      setSelectedFile(null);
+      setGithubLink("");
+      setDemoLink("");
+      setSubmissionNotes("");
+      alert("Work submitted successfully!");
+      setRefreshTrigger((prev) => prev + 1);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An error occurred submitting work.";
+      setSubmissionError(msg);
+    } finally {
+      setUploadingFile(false);
+      setSubmittingWork(false);
+    }
+  };
+
   // Project Edit Mode state (Client owner only)
   const [editMode, setEditMode] = useState(false);
   const [title, setTitle] = useState("");
@@ -202,6 +332,18 @@ export default function ProjectDetailPage() {
       }
     };
 
+    const fetchSubmissions = async () => {
+      try {
+        const response = await fetch(`/api/projects/${id}/submissions`);
+        if (response.ok) {
+          const data = await response.json();
+          setSubmissions(data);
+        }
+      } catch {
+        // Ignore
+      }
+    };
+
     const fetchProject = async () => {
       try {
         const response = await fetch(`/api/projects/${id}`);
@@ -232,6 +374,11 @@ export default function ProjectDetailPage() {
         // Fetch received proposals if logged-in user is project owner Client
         if (session?.user?.id === projDetails.clientId) {
           await fetchProposals();
+        }
+
+        // Fetch submissions if user is client owner or assigned freelancer
+        if (session?.user?.id === projDetails.clientId || session?.user?.id === projDetails.freelancerId) {
+          await fetchSubmissions();
         }
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "An error occurred.";
@@ -686,6 +833,148 @@ export default function ProjectDetailPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Client-Visible Submission Notification */}
+              {isClientOwner && project.status === ProjectStatus.UNDER_REVIEW && (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
+                  <h3 className="text-amber-950 font-bold text-base mb-1">Project is Under Review</h3>
+                  <p className="text-sm text-amber-800">
+                    The freelancer has submitted deliverables for your review. Please inspect the submissions listed in the history below. You can approve or coordinate adjustments in client actions.
+                  </p>
+                </div>
+              )}
+
+              {/* Freelancer Work Submission Form */}
+              {isFreelancerHired &&
+                (project.status === ProjectStatus.ASSIGNED || project.status === ProjectStatus.IN_PROGRESS) && (
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+                    <h3 className="text-gray-900 font-bold text-lg mb-2">Submit Work</h3>
+                    <p className="text-xs text-gray-400 mb-6">
+                      Upload your project files or provide repository and demo links. At least one of File, GitHub Link, or Demo Link is required.
+                    </p>
+
+                    {submissionError && (
+                      <div className="mb-4 bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
+                        <p className="text-sm text-red-700 font-semibold">{submissionError}</p>
+                      </div>
+                    )}
+
+                    <form onSubmit={handleWorkSubmission} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Deliverable File (ZIP, TAR.GZ, PDF, PNG, JPG, DOCX - Max 50MB)</label>
+                        <input
+                          type="file"
+                          onChange={handleFileChange}
+                          className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+                        />
+                        {selectedFile && (
+                          <p className="mt-1 text-xs text-green-600 font-semibold">
+                            Selected file: {selectedFile.name} ({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">GitHub Link (Optional)</label>
+                        <input
+                          type="url"
+                          placeholder="https://github.com/username/repo"
+                          value={githubLink}
+                          onChange={(e) => setGithubLink(e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Demo Link (Optional)</label>
+                        <input
+                          type="url"
+                          placeholder="https://my-demo-app.com"
+                          value={demoLink}
+                          onChange={(e) => setDemoLink(e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Submission Notes (Optional)</label>
+                        <textarea
+                          placeholder="Add any instructions, notes, or details about this submission..."
+                          rows={4}
+                          value={submissionNotes}
+                          onChange={(e) => setSubmissionNotes(e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        />
+                      </div>
+
+                      <div className="flex justify-end pt-2">
+                        <button
+                          type="submit"
+                          disabled={submittingWork || uploadingFile}
+                          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
+                        >
+                          {uploadingFile ? "Uploading File to S3..." : submittingWork ? "Submitting Work..." : "Submit Deliverables"}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+              {/* Submission History View */}
+              {(isClientOwner || isFreelancerHired) && submissions.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+                  <h3 className="text-gray-900 font-bold text-lg mb-4">Submission History</h3>
+                  <div className="space-y-6">
+                    {submissions.map((sub, index) => (
+                      <div key={sub.id} className="border-l-4 border-indigo-500 pl-4 py-1 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold text-gray-900">Round {submissions.length - index}</span>
+                          <span className="text-xs text-gray-400">{new Date(sub.createdAt).toLocaleString()}</span>
+                        </div>
+
+                        {sub.notes && (
+                          <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100 whitespace-pre-wrap">
+                            {sub.notes}
+                          </p>
+                        )}
+
+                        <div className="flex flex-wrap gap-4 text-xs font-semibold text-indigo-600">
+                          {sub.fileUrl && (
+                            <a
+                              href={sub.fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 hover:underline bg-indigo-50 px-2.5 py-1 rounded border border-indigo-100"
+                            >
+                              📁 Download Deliverable File
+                            </a>
+                          )}
+                          {sub.githubLink && (
+                            <a
+                              href={sub.githubLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 hover:underline bg-indigo-50 px-2.5 py-1 rounded border border-indigo-100"
+                            >
+                              🔗 GitHub Repository
+                            </a>
+                          )}
+                          {sub.demoLink && (
+                            <a
+                              href={sub.demoLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 hover:underline bg-indigo-50 px-2.5 py-1 rounded border border-indigo-100"
+                            >
+                              🌐 Live Demo Url
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Details Sidebar */}

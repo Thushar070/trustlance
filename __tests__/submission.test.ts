@@ -11,10 +11,12 @@ import { Role, ProjectStatus, EscrowStatus } from "@prisma/client";
 jest.mock("@/lib/auth/require-role");
 jest.mock("@/lib/auth/get-server-session");
 
-// Mock S3 storage SDK
-jest.mock("@aws-sdk/client-s3");
-jest.mock("@aws-sdk/s3-request-presigner", () => ({
-  getSignedUrl: jest.fn().mockResolvedValue("https://s3.amazonaws.com/mock-signed-url"),
+// Mock S3 storage service helper
+jest.mock("@/lib/storage/s3", () => ({
+  generatePresignedUploadUrl: jest.fn().mockResolvedValue({
+    uploadUrl: "https://s3.amazonaws.com/mock-signed-url",
+    fileUrl: "https://bucket.s3.amazonaws.com/submissions/mock-file.zip",
+  }),
 }));
 
 // Mock Prisma
