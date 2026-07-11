@@ -30,6 +30,7 @@ interface DisputeDetails {
       title: string;
       description: string;
       budget: number;
+      agreedAmount: number | null;
       clientId: string;
       freelancerId: string | null;
       client: {
@@ -67,6 +68,7 @@ export default function DisputeDetailPage() {
   const [resolutionNotes, setResolutionNotes] = useState("");
   const [resolvingAction, setResolvingAction] = useState<"RELEASE" | "REFUND" | null>(null);
   const [resolveError, setResolveError] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<"RELEASE" | "REFUND" | null>(null);
 
   useEffect(() => {
     const fetchDispute = async () => {
@@ -180,7 +182,8 @@ export default function DisputeDetailPage() {
       return;
     }
 
-    if (!confirm(`Are you sure you want to resolve this dispute and ${resolution === "RELEASE" ? "release funds to the freelancer" : "refund the client"}?`)) {
+    // Double-submission protection: exit if already processing
+    if (resolvingAction !== null) {
       return;
     }
 
@@ -199,6 +202,7 @@ export default function DisputeDetailPage() {
         throw new Error(data.error || "Failed to resolve dispute.");
       }
 
+      setConfirmAction(null);
       setRefreshTrigger((prev) => prev + 1);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "An error occurred during resolution.";
@@ -485,35 +489,79 @@ export default function DisputeDetailPage() {
               )}
 
               <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-450 uppercase mb-2">Resolution Notes (Required)</label>
-                  <textarea
-                    placeholder="Provide details and justification explaining the resolution decision..."
-                    rows={4}
-                    required
-                    value={resolutionNotes}
-                    onChange={(e) => setResolutionNotes(e.target.value)}
-                    disabled={resolvingAction !== null}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-xs transition-all leading-relaxed"
-                  />
-                </div>
+                {confirmAction === null ? (
+                  <>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-450 uppercase mb-2">Resolution Notes (Required)</label>
+                      <textarea
+                        placeholder="Provide details and justification explaining the resolution decision..."
+                        rows={4}
+                        required
+                        value={resolutionNotes}
+                        onChange={(e) => setResolutionNotes(e.target.value)}
+                        disabled={resolvingAction !== null}
+                        className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-xs transition-all leading-relaxed"
+                      />
+                    </div>
 
-                <div className="flex flex-col gap-2.5 pt-2">
-                  <button
-                    onClick={() => handleResolve("RELEASE")}
-                    disabled={resolvingAction !== null || !resolutionNotes.trim()}
-                    className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-650 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 cursor-pointer transition-all duration-200 shadow-sm"
-                  >
-                    {resolvingAction === "RELEASE" ? "Releasing..." : "Release to Freelancer"}
-                  </button>
-                  <button
-                    onClick={() => handleResolve("REFUND")}
-                    disabled={resolvingAction !== null || !resolutionNotes.trim()}
-                    className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 cursor-pointer transition-all duration-200 shadow-sm"
-                  >
-                    {resolvingAction === "REFUND" ? "Refunding..." : "Refund to Client"}
-                  </button>
-                </div>
+                    <div className="flex flex-col gap-2.5 pt-2">
+                      <button
+                        onClick={() => setConfirmAction("RELEASE")}
+                        disabled={!resolutionNotes.trim()}
+                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-650 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 cursor-pointer transition-all duration-200 shadow-sm"
+                      >
+                        Release to Freelancer
+                      </button>
+                      <button
+                        onClick={() => setConfirmAction("REFUND")}
+                        disabled={!resolutionNotes.trim()}
+                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 cursor-pointer transition-all duration-200 shadow-sm"
+                      >
+                        Refund to Client
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className={`p-5 rounded-2xl border text-xs leading-relaxed space-y-4 ${
+                    confirmAction === "RELEASE" 
+                      ? "bg-emerald-50 border-emerald-200 text-emerald-850" 
+                      : "bg-red-50 border-red-200 text-red-850"
+                  }`}>
+                    <div className="font-semibold text-sm">Adjudication Confirmation Required</div>
+                    <div>
+                      {confirmAction === "RELEASE" ? (
+                        <span>
+                          You are about to release <strong>₹{(project.agreedAmount || project.budget || 0).toLocaleString()}</strong> to <strong>{project.freelancer?.name || "the freelancer"}</strong>. This action is final and cannot be undone.
+                        </span>
+                      ) : (
+                        <span>
+                          You are about to refund <strong>₹{(project.agreedAmount || project.budget || 0).toLocaleString()}</strong> to <strong>{project.client.name || "the client"}</strong>. This action is final and cannot be undone.
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        onClick={() => handleResolve(confirmAction)}
+                        disabled={resolvingAction !== null}
+                        className={`flex-grow inline-flex justify-center items-center py-2.5 px-4 rounded-xl text-xs font-semibold text-white transition-all cursor-pointer ${
+                          confirmAction === "RELEASE"
+                            ? "bg-emerald-600 hover:bg-emerald-750"
+                            : "bg-red-600 hover:bg-red-750"
+                        }`}
+                      >
+                        {resolvingAction !== null ? "Processing..." : "Yes, Confirm & Submit"}
+                      </button>
+                      <button
+                        onClick={() => setConfirmAction(null)}
+                        disabled={resolvingAction !== null}
+                        className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl text-xs transition-all cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

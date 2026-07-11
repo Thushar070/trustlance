@@ -8,14 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Released] - 2026-07-11
 
 ### Added
-- **Phase 8 (Dispute System with Evidence Upload & Admin Resolution)**:
-  - Created `DisputeService` to handle dispute creation, evidence upload gating (capped at 10 items per party), and admin resolution (releasing or refunding escrow).
-  - Modified project service's `raiseDispute` handler to delegate database dispute creations to `DisputeService`.
-  - Upgraded presigned URL generation `/api/uploads/presign` to allow both clients and freelancers to generate upload paths.
-  - Added new backend endpoints: GET `/api/disputes` (for Admin queue), GET `/api/disputes/[id]` (gated details), POST `/api/disputes/[id]/evidence` (add evidence), and POST `/api/disputes/[id]/resolve` (Admin adjudication).
-  - Built case-file dispute detail UI displaying Client vs Freelancer evidence, drag-and-drop/select S3 evidence uploads, and Admin resolution console.
-  - Built Admin disputes queue listing open disputes sorted oldest-first.
-  - Developed 5 integration tests validating roles, limits, and resolutions.
+- **Phase 8 (Dispute System with Evidence & Admin Resolution + State Machine Fix)**:
+  - **Part A (Critical Escrow State Machine Fix)**:
+    - Added the `UNDER_REVIEW` -> `HOLDING` transition path to the Escrow state machine mapping, fixing the bug that locked freelancers out of resubmitting work after a client requests changes.
+    - Updated `requestChanges()` inside `ProjectService` to atomically transition the escrow status to `HOLDING` inside the main Prisma transaction.
+    - Added `Prisma.TransactionClient` support to `EscrowService.transition()` to execute state changes within parent transactions.
+    - Added integration regression tests validating the Request Changes resubmission loop end-to-end.
+  - **Part B (Admin Dispute Resolution System)**:
+    - Created `DisputeService` to handle dispute creation, evidence upload gating (capped at 10 items per party), and transaction-wrapped admin resolution (releasing or refunding escrow) with double-submission protection.
+    - Added backend endpoints: GET `/api/disputes` (gated list, sorted oldest first and filtered for OPEN/ADMIN_REVIEW), GET `/api/disputes/[id]`, POST `/api/disputes/[id]/evidence`, and POST `/api/disputes/[id]/resolve`.
+    - Redesigned dispute details UI containing a custom alert confirmation panel displaying choices, amounts, and final execution actions.
+    - Upgraded Admin disputes queue table layout displaying Project, Client, Freelancer, Amount, Days Open, and Status.
+    - Developed 5 integration tests validating roles, missing notes rejection, idempotency, and audit log creations.
 
 - **UI Polish Pass**:
   - Implemented consistent premium visual theme utilizing customized slate and indigo CSS variable color tokens.

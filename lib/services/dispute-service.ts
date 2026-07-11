@@ -87,60 +87,62 @@ export class DisputeService {
       throw new Error("Resolution notes explaining the decision are required.");
     }
 
-    const dispute = await prisma.dispute.findUnique({
-      where: { id: disputeId },
-      include: {
-        escrow: true,
-      },
+    return prisma.$transaction(async (tx) => {
+      const dispute = await tx.dispute.findUnique({
+        where: { id: disputeId },
+        include: {
+          escrow: true,
+        },
+      });
+
+      if (!dispute) {
+        throw new Error("Dispute not found");
+      }
+
+      if (dispute.status === DisputeStatus.RESOLVED) {
+        throw new Error("Cannot resolve an already resolved dispute");
+      }
+
+      const escrow = dispute.escrow;
+      if (!escrow) {
+        throw new Error("Escrow record not found for this dispute.");
+      }
+
+      // Resolve project and escrow status transitions
+      const targetEscrowStatus = resolution === "RELEASE" ? EscrowStatus.RELEASED : EscrowStatus.REFUNDED;
+      const targetProjectStatus = resolution === "RELEASE" ? ProjectStatus.COMPLETED : ProjectStatus.CANCELLED;
+
+      // Transition escrow status (enforces state transitions and creates audit log in the same transaction)
+      await EscrowService.transition(escrow.id, targetEscrowStatus, adminId, tx);
+
+      // Update project status
+      await tx.project.update({
+        where: { id: escrow.projectId },
+        data: { status: targetProjectStatus },
+      });
+
+      // Update dispute status and resolution notes
+      const updatedDispute = await tx.dispute.update({
+        where: { id: disputeId },
+        data: {
+          status: DisputeStatus.RESOLVED,
+          resolution: notes,
+        },
+      });
+
+      // Log the resolution to AuditLog
+      await tx.auditLog.create({
+        data: {
+          entityType: "Dispute",
+          entityId: disputeId,
+          action: `RESOLVE_${resolution}`,
+          actorId: adminId,
+          prevState: dispute.status,
+          newState: DisputeStatus.RESOLVED,
+        },
+      });
+
+      return updatedDispute;
     });
-
-    if (!dispute) {
-      throw new Error("Dispute not found");
-    }
-
-    if (dispute.status === DisputeStatus.RESOLVED) {
-      throw new Error("Cannot resolve an already resolved dispute");
-    }
-
-    const escrow = dispute.escrow;
-    if (!escrow) {
-      throw new Error("Escrow record not found for this dispute.");
-    }
-
-    // Resolve project and escrow status transitions
-    const targetEscrowStatus = resolution === "RELEASE" ? EscrowStatus.RELEASED : EscrowStatus.REFUNDED;
-    const targetProjectStatus = resolution === "RELEASE" ? ProjectStatus.COMPLETED : ProjectStatus.CANCELLED;
-
-    // Transition escrow status (enforces state transitions and creates audit log)
-    await EscrowService.transition(escrow.id, targetEscrowStatus, adminId);
-
-    // Update project status
-    await prisma.project.update({
-      where: { id: escrow.projectId },
-      data: { status: targetProjectStatus },
-    });
-
-    // Update dispute status and resolution notes
-    const updatedDispute = await prisma.dispute.update({
-      where: { id: disputeId },
-      data: {
-        status: DisputeStatus.RESOLVED,
-        resolution: notes,
-      },
-    });
-
-    // Log the resolution to AuditLog
-    await prisma.auditLog.create({
-      data: {
-        entityType: "Dispute",
-        entityId: disputeId,
-        action: `RESOLVE_${resolution}`,
-        actorId: adminId,
-        prevState: dispute.status,
-        newState: DisputeStatus.RESOLVED,
-      },
-    });
-
-    return updatedDispute;
   }
 }

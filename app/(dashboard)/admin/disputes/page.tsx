@@ -15,6 +15,8 @@ interface DisputeItem {
     project: {
       id: string;
       title: string;
+      budget: number;
+      agreedAmount: number | null;
       client: {
         name: string | null;
         email: string;
@@ -117,7 +119,9 @@ export default function AdminDisputesPage() {
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-500 font-semibold uppercase text-[10px] tracking-wider">
                   <th className="py-4 px-6">Project Title</th>
-                  <th className="py-4 px-6">Parties Involved</th>
+                  <th className="py-4 px-6">Client</th>
+                  <th className="py-4 px-6">Freelancer</th>
+                  <th className="py-4 px-6 text-right">Amount in Dispute</th>
                   <th className="py-4 px-6">Days Open</th>
                   <th className="py-4 px-6">Status</th>
                   <th className="py-4 px-6 text-right">Action</th>
@@ -125,19 +129,24 @@ export default function AdminDisputesPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {disputes.map((dispute) => {
-                  const clientName = dispute.escrow?.project?.client?.name || "Client";
-                  const freelancerName = dispute.escrow?.project?.freelancer?.name || "Freelancer";
+                  const projectObj = dispute.escrow?.project;
+                  const clientName = projectObj?.client?.name || "Client";
+                  const freelancerName = projectObj?.freelancer?.name || "Freelancer";
+                  const amount = projectObj?.agreedAmount || projectObj?.budget || 0;
                   
                   return (
                     <tr key={dispute.id} className="group hover:bg-slate-50/50 transition-colors duration-150">
                       <td className="py-4 px-6 font-semibold text-slate-900 max-w-xs truncate">
-                        {dispute.escrow?.project?.title}
+                        {projectObj?.title}
                       </td>
-                      <td className="py-4 px-6">
-                        <div className="flex flex-col">
-                          <span className="text-xs text-slate-700">Client: <span className="font-semibold">{clientName}</span></span>
-                          <span className="text-xs text-slate-500 mt-0.5">Freelancer: <span className="font-semibold">{freelancerName}</span></span>
-                        </div>
+                      <td className="py-4 px-6 text-slate-700">
+                        {clientName}
+                      </td>
+                      <td className="py-4 px-6 text-slate-700">
+                        {freelancerName}
+                      </td>
+                      <td className="py-4 px-6 text-right font-bold text-slate-900">
+                        ₹{amount.toLocaleString()}
                       </td>
                       <td className="py-4 px-6 text-slate-650 font-medium">
                         {getDaysOpen(dispute.createdAt)}

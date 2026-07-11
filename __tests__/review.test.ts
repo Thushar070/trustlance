@@ -201,6 +201,11 @@ describe("Phase 7: Project Review Integration Tests", () => {
         },
       });
 
+      (prisma.escrow.findUnique as jest.Mock).mockResolvedValue({
+        id: "esc_123",
+        status: EscrowStatus.UNDER_REVIEW,
+      });
+
       (prisma.submission.findFirst as jest.Mock).mockResolvedValue({
         id: "sub_456",
         projectId: "proj_123",
@@ -217,6 +222,11 @@ describe("Phase 7: Project Review Integration Tests", () => {
       expect(prisma.project.update).toHaveBeenCalledWith({
         where: { id: "proj_123" },
         data: { status: ProjectStatus.IN_PROGRESS },
+      });
+
+      expect(prisma.escrow.update).toHaveBeenCalledWith({
+        where: { id: "esc_123" },
+        data: { status: EscrowStatus.HOLDING },
       });
 
       expect(prisma.submission.update).toHaveBeenCalledWith({

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth/require-role";
 import { prisma } from "@/lib/prisma";
-import { Role } from "@prisma/client";
+import { Role, DisputeStatus } from "@prisma/client";
 
 export async function GET() {
   try {
@@ -14,6 +14,11 @@ export async function GET() {
     }
 
     const disputes = await prisma.dispute.findMany({
+      where: {
+        status: {
+          in: [DisputeStatus.OPEN, DisputeStatus.ADMIN_REVIEW],
+        },
+      },
       include: {
         escrow: {
           include: {

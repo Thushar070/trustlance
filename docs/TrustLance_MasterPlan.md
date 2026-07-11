@@ -343,27 +343,27 @@ audit — what actually happened versus what the app decided to do about it.
 ## 12. Escrow Engine — State Machine Design
 
 ```
-CREATED
-   |
-PAYMENT_PENDING
-   |
-PAYMENT_VERIFIED
-   |
-HOLDING
-   |
-WORK_SUBMITTED
-   |
-UNDER_REVIEW
-   |
-   +---------------------+
-   |                      |
- Approve               Dispute
-   |                      |
-RELEASED             DISPUTED
-   |                      |
-COMPLETED           ADMIN_REVIEW
-                          |
-                    REFUNDED / RELEASED
+            Request Changes (Loop-back)
+     +-----------------------------------------+
+     |                                         |
+     v                                         |
+  HOLDING                                      |
+     |                                         |
+     v                                         |
+WORK_SUBMITTED                                 |
+     |                                         |
+     v                                         |
+UNDER_REVIEW  ---------------------------------+
+     |
+     +---------------------+
+     |                      |
+   Approve               Dispute
+     |                      |
+  RELEASED             DISPUTED
+     |                      |
+ COMPLETED           ADMIN_REVIEW
+                            |
+                      REFUNDED / RELEASED
 ```
 
 Rules:

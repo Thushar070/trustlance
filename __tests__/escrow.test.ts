@@ -1,7 +1,9 @@
 import { EscrowService } from "@/lib/services/escrow-service";
+import { ProjectService } from "@/lib/services/project-service";
+import { SubmissionService } from "@/lib/services/submission-service";
 import { POST as webhookHandler } from "@/app/api/webhooks/razorpay/route";
 import { prisma } from "@/lib/prisma";
-import { EscrowStatus, PaymentStatus } from "@prisma/client";
+import { EscrowStatus, PaymentStatus, ProjectStatus } from "@prisma/client";
 import crypto from "crypto";
 
 const secret = "webhook_secret";
@@ -12,6 +14,15 @@ jest.mock("@/lib/auth/require-role");
 // Mock Prisma Client
 jest.mock("@/lib/prisma", () => {
   const mockPrisma = {
+    project: {
+      findUnique: jest.fn(),
+      update: jest.fn(),
+    },
+    submission: {
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
     escrow: {
       findUnique: jest.fn(),
       create: jest.fn(),
@@ -271,6 +282,122 @@ describe("Escrow State Machine & Webhooks Tests", () => {
       });
       expect(prisma.escrow.create).not.toHaveBeenCalled();
       expect(prisma.escrow.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Unit: Escrow State Machine Mapping Verification", () => {
+    it("3. verifies the exact allowed-transitions map (UNDER_REVIEW -> HOLDING is legal, nothing else new)", async () => {
+      const allStatuses = Object.values(EscrowStatus);
+      
+      const expectedTransitions: Record<EscrowStatus, EscrowStatus[]> = {
+        [EscrowStatus.CREATED]: [EscrowStatus.HOLDING],
+        [EscrowStatus.HOLDING]: [EscrowStatus.WORK_SUBMITTED],
+        [EscrowStatus.WORK_SUBMITTED]: [EscrowStatus.UNDER_REVIEW],
+        [EscrowStatus.UNDER_REVIEW]: [EscrowStatus.RELEASED, EscrowStatus.DISPUTED, EscrowStatus.HOLDING],
+        [EscrowStatus.DISPUTED]: [EscrowStatus.RELEASED, EscrowStatus.REFUNDED],
+        [EscrowStatus.RELEASED]: [],
+        [EscrowStatus.REFUNDED]: [],
+      };
+
+      for (const src of allStatuses) {
+        const allowed = expectedTransitions[src];
+        for (const dest of allStatuses) {
+          (prisma.escrow.findUnique as jest.Mock).mockResolvedValue({
+            id: "esc_test",
+            status: src,
+          });
+          
+          if (allowed.includes(dest)) {
+            // Legal transition
+            (prisma.escrow.update as jest.Mock).mockResolvedValue({
+              id: "esc_test",
+              status: dest,
+            });
+            const result = await EscrowService.transition("esc_test", dest, "actor");
+            expect(result.status).toBe(dest);
+          } else {
+            // Illegal transition
+            await expect(
+              EscrowService.transition("esc_test", dest, "actor")
+            ).rejects.toThrow("Illegal escrow transition");
+          }
+        }
+      }
+    });
+  });
+
+  describe("Integration: Request Changes Escrow Reset Regression", () => {
+    it("1. request-changes transitions Escrow back to HOLDING, and subsequent submit-work succeeds", async () => {
+      // Setup dynamic status tracker for mocks
+      let escrowStatus = EscrowStatus.UNDER_REVIEW;
+      (prisma.escrow.findUnique as jest.Mock).mockImplementation(async () => ({
+        id: "esc_123",
+        status: escrowStatus,
+      }));
+      (prisma.escrow.update as jest.Mock).mockImplementation(async ({ data }) => {
+        if (data && data.status) {
+          escrowStatus = data.status;
+        }
+        return { id: "esc_123", status: escrowStatus };
+      });
+
+      // 1. Mock first phase: client requests changes
+      (prisma.project.findUnique as jest.Mock).mockResolvedValue({
+        id: "proj_123",
+        clientId: "client_1",
+        freelancerId: "freelancer_1",
+        status: ProjectStatus.UNDER_REVIEW,
+        escrow: {
+          id: "esc_123",
+          status: EscrowStatus.UNDER_REVIEW,
+        },
+      });
+
+      (prisma.submission.findFirst as jest.Mock).mockResolvedValue({
+        id: "sub_1",
+        projectId: "proj_123",
+      });
+
+      await ProjectService.requestChanges("proj_123", "client_1", "Please resubmit with changes.");
+
+      // Check project went back to IN_PROGRESS and escrow went back to HOLDING
+      expect(prisma.project.update).toHaveBeenCalledWith({
+        where: { id: "proj_123" },
+        data: { status: ProjectStatus.IN_PROGRESS },
+      });
+      expect(escrowStatus).toBe(EscrowStatus.HOLDING);
+
+      // 2. Mock second phase: freelancer submits work again
+      // The project is now in IN_PROGRESS (submittable status) and escrow is in HOLDING (submittable status)
+      (prisma.project.findUnique as jest.Mock).mockResolvedValue({
+        id: "proj_123",
+        clientId: "client_1",
+        freelancerId: "freelancer_1",
+        status: ProjectStatus.IN_PROGRESS,
+        escrow: {
+          id: "esc_123",
+          status: EscrowStatus.HOLDING,
+        },
+      });
+
+      (prisma.submission.create as jest.Mock).mockResolvedValue({
+        id: "sub_2",
+        projectId: "proj_123",
+        fileUrl: "https://bucket.s3.amazonaws.com/submissions/file2.zip",
+        notes: "Here is the resubmitted work",
+      });
+
+      // Attempting to submit work again should succeed now without throwing escrow status errors
+      const submissionInput = {
+        fileUrl: "https://bucket.s3.amazonaws.com/submissions/file2.zip",
+        notes: "Here is the resubmitted work",
+      };
+
+      const result = await SubmissionService.submitWork("proj_123", "freelancer_1", submissionInput);
+      expect(result).toBeDefined();
+
+      // Verify that escrow transitioned to WORK_SUBMITTED and then UNDER_REVIEW
+      expect(escrowStatus).toBe(EscrowStatus.UNDER_REVIEW);
     });
   });
 });

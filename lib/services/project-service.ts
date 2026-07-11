@@ -265,6 +265,9 @@ export class ProjectService {
         },
       });
 
+      // Call Escrow state transition back to HOLDING in the same transaction context
+      await EscrowService.transition(escrow.id, EscrowStatus.HOLDING, clientId, tx);
+
       return { success: true };
     });
   }

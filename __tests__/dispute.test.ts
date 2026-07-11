@@ -106,9 +106,9 @@ describe("Phase 8: Dispute System Integration Tests", () => {
     });
   });
 
-  describe("Dispute Resolution & Role Gates", () => {
-    it("2. only Admin can call resolve, and a non-admin (including the two involved parties) is rejected", async () => {
-      // Reject non-admin (e.g. CLIENT owner)
+  describe("Dispute Adjudication Integration & Rules", () => {
+    it("1. resolveDispute is rejected for any non-Admin role, including both parties to the dispute themselves", async () => {
+      // Reject non-admin role
       mockedRequireRole.mockResolvedValue({
         authorized: false,
         status: 403,
@@ -127,7 +127,7 @@ describe("Phase 8: Dispute System Integration Tests", () => {
       expect(data.error).toContain("Forbidden");
     });
 
-    it("3. resolving correctly transitions Escrow to RELEASED or REFUNDED and sets Dispute.status to RESOLVED", async () => {
+    it("2. resolveDispute rejects a call with an empty/missing resolution-notes value", async () => {
       // Authorize admin
       mockedRequireRole.mockResolvedValue({
         authorized: true,
@@ -139,50 +139,18 @@ describe("Phase 8: Dispute System Integration Tests", () => {
         },
       });
 
-      (prisma.dispute.findUnique as jest.Mock).mockResolvedValue({
-        id: "disp_123",
-        escrowId: "esc_123",
-        status: DisputeStatus.OPEN,
-        escrow: {
-          id: "esc_123",
-          projectId: "proj_123",
-        },
-      });
-
-      (prisma.dispute.update as jest.Mock).mockResolvedValue({
-        id: "disp_123",
-        status: DisputeStatus.RESOLVED,
-        resolution: "Client deserves full refund",
-      });
-
       const req = new Request("http://localhost/api/disputes/disp_123/resolve", {
         method: "POST",
-        body: JSON.stringify({ resolution: "REFUND", notes: "Client deserves full refund" }),
+        body: JSON.stringify({ resolution: "RELEASE", notes: "   " }),
       });
 
       const res = await resolveDisputeHandler(req, { params: Promise.resolve({ id: "disp_123" }) });
-      expect(res.status).toBe(200);
-
-      // Verify escrow-service transition call
-      expect(mockedEscrowTransition).toHaveBeenCalledWith("esc_123", EscrowStatus.REFUNDED, "admin_user");
-
-      // Verify project status updated to CANCELLED (on refund resolution)
-      expect(prisma.project.update).toHaveBeenCalledWith({
-        where: { id: "proj_123" },
-        data: { status: ProjectStatus.CANCELLED },
-      });
-
-      // Verify dispute record updated
-      expect(prisma.dispute.update).toHaveBeenCalledWith({
-        where: { id: "disp_123" },
-        data: {
-          status: DisputeStatus.RESOLVED,
-          resolution: "Client deserves full refund",
-        },
-      });
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toContain("Resolution notes explaining the decision are required");
     });
 
-    it("4. a resolved dispute cannot be resolved again — calling resolve twice on the same dispute fails", async () => {
+    it("3. resolveDispute rejects a second call on an already-RESOLVED dispute (idempotency/double-submission protection)", async () => {
       mockedRequireRole.mockResolvedValue({
         authorized: true,
         status: 200,
@@ -193,7 +161,7 @@ describe("Phase 8: Dispute System Integration Tests", () => {
         },
       });
 
-      // Dispute is already RESOLVED
+      // Mock dispute already in RESOLVED status
       (prisma.dispute.findUnique as jest.Mock).mockResolvedValue({
         id: "disp_123",
         status: DisputeStatus.RESOLVED,
@@ -202,13 +170,139 @@ describe("Phase 8: Dispute System Integration Tests", () => {
 
       const req = new Request("http://localhost/api/disputes/disp_123/resolve", {
         method: "POST",
-        body: JSON.stringify({ resolution: "RELEASE", notes: "Secondary resolve attempt" }),
+        body: JSON.stringify({ resolution: "RELEASE", notes: "Attempt resolving twice" }),
       });
 
       const res = await resolveDisputeHandler(req, { params: Promise.resolve({ id: "disp_123" }) });
       expect(res.status).toBe(400);
       const data = await res.json();
       expect(data.error).toContain("Cannot resolve an already resolved dispute");
+    });
+
+    it("4. a successful Release correctly sets Escrow to RELEASED, Dispute to RESOLVED, and produces exactly one new AuditLog entry", async () => {
+      mockedRequireRole.mockResolvedValue({
+        authorized: true,
+        status: 200,
+        error: null,
+        session: {
+          user: { id: "admin_user", role: Role.ADMIN },
+          expires: "2026-12-31",
+        },
+      });
+
+      (prisma.dispute.findUnique as jest.Mock).mockResolvedValue({
+        id: "disp_123",
+        status: DisputeStatus.OPEN,
+        escrowId: "esc_123",
+        escrow: {
+          id: "esc_123",
+          projectId: "proj_123",
+        },
+      });
+
+      (prisma.dispute.update as jest.Mock).mockResolvedValue({
+        id: "disp_123",
+        status: DisputeStatus.RESOLVED,
+        resolution: "Release details notes",
+      });
+
+      const req = new Request("http://localhost/api/disputes/disp_123/resolve", {
+        method: "POST",
+        body: JSON.stringify({ resolution: "RELEASE", notes: "Release details notes" }),
+      });
+
+      const res = await resolveDisputeHandler(req, { params: Promise.resolve({ id: "disp_123" }) });
+      expect(res.status).toBe(200);
+
+      // 1. Escrow transitioned to RELEASED
+      expect(mockedEscrowTransition).toHaveBeenCalledWith("esc_123", EscrowStatus.RELEASED, "admin_user", expect.any(Object));
+
+      // 2. Project updated to COMPLETED
+      expect(prisma.project.update).toHaveBeenCalledWith({
+        where: { id: "proj_123" },
+        data: { status: ProjectStatus.COMPLETED },
+      });
+
+      // 3. Dispute updated to RESOLVED
+      expect(prisma.dispute.update).toHaveBeenCalledWith({
+        where: { id: "disp_123" },
+        data: { status: DisputeStatus.RESOLVED, resolution: "Release details notes" },
+      });
+
+      // 4. Audit log produced exactly once for the Dispute entity
+      expect(prisma.auditLog.create).toHaveBeenCalledWith({
+        data: {
+          entityType: "Dispute",
+          entityId: "disp_123",
+          action: "RESOLVE_RELEASE",
+          actorId: "admin_user",
+          prevState: DisputeStatus.OPEN,
+          newState: DisputeStatus.RESOLVED,
+        },
+      });
+    });
+
+    it("5. a successful Refund correctly sets Escrow to REFUNDED, Dispute to RESOLVED, and produces exactly one new AuditLog entry", async () => {
+      mockedRequireRole.mockResolvedValue({
+        authorized: true,
+        status: 200,
+        error: null,
+        session: {
+          user: { id: "admin_user", role: Role.ADMIN },
+          expires: "2026-12-31",
+        },
+      });
+
+      (prisma.dispute.findUnique as jest.Mock).mockResolvedValue({
+        id: "disp_123",
+        status: DisputeStatus.OPEN,
+        escrowId: "esc_123",
+        escrow: {
+          id: "esc_123",
+          projectId: "proj_123",
+        },
+      });
+
+      (prisma.dispute.update as jest.Mock).mockResolvedValue({
+        id: "disp_123",
+        status: DisputeStatus.RESOLVED,
+        resolution: "Refund details notes",
+      });
+
+      const req = new Request("http://localhost/api/disputes/disp_123/resolve", {
+        method: "POST",
+        body: JSON.stringify({ resolution: "REFUND", notes: "Refund details notes" }),
+      });
+
+      const res = await resolveDisputeHandler(req, { params: Promise.resolve({ id: "disp_123" }) });
+      expect(res.status).toBe(200);
+
+      // 1. Escrow transitioned to REFUNDED
+      expect(mockedEscrowTransition).toHaveBeenCalledWith("esc_123", EscrowStatus.REFUNDED, "admin_user", expect.any(Object));
+
+      // 2. Project updated to CANCELLED
+      expect(prisma.project.update).toHaveBeenCalledWith({
+        where: { id: "proj_123" },
+        data: { status: ProjectStatus.CANCELLED },
+      });
+
+      // 3. Dispute updated to RESOLVED
+      expect(prisma.dispute.update).toHaveBeenCalledWith({
+        where: { id: "disp_123" },
+        data: { status: DisputeStatus.RESOLVED, resolution: "Refund details notes" },
+      });
+
+      // 4. Audit log produced exactly once for the Dispute entity
+      expect(prisma.auditLog.create).toHaveBeenCalledWith({
+        data: {
+          entityType: "Dispute",
+          entityId: "disp_123",
+          action: "RESOLVE_REFUND",
+          actorId: "admin_user",
+          prevState: DisputeStatus.OPEN,
+          newState: DisputeStatus.RESOLVED,
+        },
+      });
     });
   });
 });

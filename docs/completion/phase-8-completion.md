@@ -1,6 +1,6 @@
-# Phase 8 Completion: Dispute System with Evidence Upload & Admin Resolution
+# Phase 8 Completion: Dispute System with Evidence Upload & Admin Resolution (Including Critical Escrow Fix)
 
-**Completion Date/Time:** 2026-07-11 10:15:00+05:30
+**Completion Date/Time:** 2026-07-11 10:45:00+05:30
 **Status:** Completed, verified, all tests passing.
 
 ---
@@ -8,48 +8,60 @@
 ## Files Touched
 
 ### Services & Logic
-- **[`lib/services/dispute-service.ts`](file:///home/billy/Documents/ESCROW/lib/services/dispute-service.ts)** [NEW]: Created the core service encapsulating dispute creation, evidence submission gating with a limit of 10 items per user, and administrative resolution transitions (releasing/refunding).
-- **[`lib/services/project-service.ts`](file:///home/billy/Documents/ESCROW/lib/services/project-service.ts)** [MODIFIED]: Refactored `raiseDispute` to delegate DB creation of `Dispute` records to `DisputeService.createDispute`.
+- **[`lib/services/escrow-service.ts`](file:///home/billy/Documents/ESCROW/lib/services/escrow-service.ts)** [MODIFIED]:
+  - Added the loop-back transition path `UNDER_REVIEW` -> `HOLDING` inside `ALLOWED_TRANSITIONS` to support the Request Changes resubmission flow.
+  - Added support for passing an optional transaction client `tx?: Prisma.TransactionClient` to perform transitions inside a parent transaction context.
+- **[`lib/services/project-service.ts`](file:///home/billy/Documents/ESCROW/lib/services/project-service.ts)** [MODIFIED]:
+  - Updated `requestChanges()` to transition the escrow to `HOLDING` inside the same database transaction context.
+- **[`lib/services/dispute-service.ts`](file:///home/billy/Documents/ESCROW/lib/services/dispute-service.ts)** [MODIFIED]:
+  - Wrapped `resolveDispute()` in a single transaction block to guarantee atomic changes, strict audit logging, and double-submission protection.
 
 ### API Routes
-- **[`app/api/uploads/presign/route.ts`](file:///home/billy/Documents/ESCROW/app/api/uploads/presign/route.ts)** [MODIFIED]: Upgraded the authorization check to allow both `Role.CLIENT` and `Role.FREELANCER` to request presigned upload URLs (allowing clients to upload evidence).
-- **[`app/api/disputes/route.ts`](file:///home/billy/Documents/ESCROW/app/api/disputes/route.ts)** [NEW]: Created GET endpoint for Admins to view all open disputes sorted oldest-first.
-- **[`app/api/disputes/[id]/route.ts`](file:///home/billy/Documents/ESCROW/app/api/disputes/%5Bid%5D/route.ts)** [NEW]: Created GET details endpoint gated to client owners, assigned freelancers, and admins.
-- **[`app/api/disputes/[id]/evidence/route.ts`](file:///home/billy/Documents/ESCROW/app/api/disputes/%5Bid%5D/evidence/route.ts)** [NEW]: Created POST endpoint for involved parties to submit evidence links/files (capped at 10 items).
-- **[`app/api/disputes/[id]/resolve/route.ts`](file:///home/billy/Documents/ESCROW/app/api/disputes/%5Bid%5D/resolve/route.ts)** [NEW]: Created POST endpoint for Admin users to resolve disputes with a notes field (required).
+- **[`app/api/disputes/route.ts`](file:///home/billy/Documents/ESCROW/app/api/disputes/route.ts)** [MODIFIED]:
+  - Added database-level filtering to return only disputes with `status: OPEN` or `status: ADMIN_REVIEW`.
 
 ### Frontend Pages
-- **[`app/disputes/[id]/page.tsx`](file:///home/billy/Documents/ESCROW/app/disputes/%5Bid%5D/page.tsx)** [NEW]: Created case-file layout detail view displaying Client vs Freelancer evidence, drag-and-drop evidence upload area, and Admin adjudication panel.
-- **[`app/(dashboard)/admin/disputes/page.tsx`](file:///home/billy/Documents/ESCROW/app/%28dashboard%29/admin/disputes/page.tsx)** [NEW]: Created Admin dispute queue showing chronological table list of active cases.
+- **[`app/disputes/[id]/page.tsx`](file:///home/billy/Documents/ESCROW/app/disputes/%5Bid%5D/page.tsx)** [MODIFIED]:
+  - Replaced browser `confirm()` with a beautiful custom inline confirmation panel within the Adjudicate Dispute card. The confirmation displays chosen outcomes and exact dispute amounts before final confirmation.
+- **[`app/(dashboard)/admin/disputes/page.tsx`](file:///home/billy/Documents/ESCROW/app/%28dashboard%29/admin/disputes/page.tsx)** [MODIFIED]:
+  - Upgraded table layout to display exactly Project Title, Client Name, Freelancer Name, Amount in Dispute, Days Open, and Status.
 
 ### Tests
-- **[`__tests__/dispute.test.ts`](file:///home/billy/Documents/ESCROW/__tests__/dispute.test.ts)** [NEW]: Integration test suite containing 5 validation tests.
+- **[`__tests__/escrow.test.ts`](file:///home/billy/Documents/ESCROW/__tests__/escrow.test.ts)** [MODIFIED]:
+  - Added allowed-transitions mapping unit verification.
+  - Added integration regression tests simulating the Request Changes resubmission loop end-to-end.
+- **[`__tests__/dispute.test.ts`](file:///home/billy/Documents/ESCROW/__tests__/dispute.test.ts)** [MODIFIED]:
+  - Added tests for role gating, empty notes rejection, idempotency, and successful release/refund operations generating AuditLog entries.
 
 ---
 
-## Key Decisions
+## Part A: Critical Bug Fix
+- **Problem**: When a client requests changes, the project reverts to `IN_PROGRESS`, but the escrow remained stuck in `UNDER_REVIEW`. The freelancer could not resubmit work because `submitWork` requires the escrow to be in `HOLDING` status.
+- **Solution**: Added the legal transition `UNDER_REVIEW -> HOLDING` to `escrow-service.ts`'s allowed transitions map, updated `project-service.ts` to transition the escrow to `HOLDING` atomically inside the `requestChanges` transaction, and updated the state machine diagram in `docs/TrustLance_MasterPlan.md`.
 
-1. **Evidence Upload Limits**: Configured a strict cap of **maximum 10 pieces of evidence** per party per dispute to prevent visual clutter and support concise administrative review.
-2. **Resolution Notes Required**: Set resolution notes as a required field for admins. When releasing or refunding, admins must enter notes explaining their decision, which is recorded in the database and visible to both parties.
-3. **In-App Notifications**: Decided not to construct a redundant in-app notifications system. Email notifications will be integrated in Phase 10, and users can track updates live by revisiting the case-file detail page.
+---
+
+## Part B: Admin Dispute Resolution
+- **Queue Layout**: An oldest-first chronological table showing Project title, Client name, Freelancer name, amount, days open, and status.
+- **Inline Confirmation Step**: Replaced immediate fire-on-click buttons with a custom alert-box confirmation, dynamically stating chosen outcomes and funds distribution (e.g., "You are about to release ₹X to [Freelancer]. This cannot be undone.").
+- **Safety & Concurrency**: Wrapping `resolveDispute()` inside a Prisma transaction prevents race conditions and ensures exact idempotency against double-clicks.
 
 ---
 
 ## Verification Results
 
 ### Automated Tests
-All 5 dispute integration tests pass successfully (total test suite at 55 passing specs):
-- `Phase 8: Dispute System Integration Tests › Access Control (Evidence & Details) › 1. only the two involved parties can add evidence to a given dispute — a random other user is rejected`
-- `Phase 8: Dispute System Integration Tests › Access Control (Evidence & Details) › 5. GET /api/disputes/:id is rejected for users who are neither party nor Admin`
-- `Phase 8: Dispute System Integration Tests › Dispute Resolution & Role Gates › 2. only Admin can call resolve, and a non-admin (including the two involved parties) is rejected`
-- `Phase 8: Dispute System Integration Tests › Dispute Resolution & Role Gates › 3. resolving correctly transitions Escrow to RELEASED or REFUNDED and sets Dispute.status to RESOLVED`
-- `Phase 8: Dispute System Integration Tests › Dispute Resolution & Role Gates › 4. a resolved dispute cannot be resolved again — calling resolve twice on the same dispute fails`
+All 59 test cases across all test suites pass successfully:
+1. `__tests__/escrow.test.ts`
+   - `3. verifies the exact allowed-transitions map (UNDER_REVIEW -> HOLDING is legal, nothing else new)`
+   - `1. request-changes transitions Escrow back to HOLDING, and subsequent submit-work succeeds`
+2. `__tests__/dispute.test.ts`
+   - `1. resolveDispute is rejected for any non-Admin role, including both parties to the dispute themselves`
+   - `2. resolveDispute rejects a call with an empty/missing resolution-notes value`
+   - `3. resolveDispute rejects a second call on an already-RESOLVED dispute (idempotency/double-submission protection)`
+   - `4. a successful Release correctly sets Escrow to RELEASED, Dispute to RESOLVED, and produces exactly one new AuditLog entry`
+   - `5. a successful Refund correctly sets Escrow to REFUNDED, Dispute to RESOLVED, and produces exactly one new AuditLog entry`
 
 ### Build & Lint
 - `npm run lint` compiles cleanly with zero warnings/errors.
 - `npm run build` generates clean output routes.
-
----
-
-## Deferred Items
-- Partial split dispute resolutions (e.g. 50/50 division) are out of scope for the MVP.
