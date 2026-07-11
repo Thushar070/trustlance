@@ -1,0 +1,60 @@
+# Changelog
+
+All notable changes to the TrustLance project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Released] - 2026-07-10
+
+### Added
+- **Phase 5 (Webhook Handling & Escrow State Machine)**:
+  - Created `EscrowService` implementing the central allowed-transitions state machine and writing audit log rows inside database transactions.
+  - Implemented `/api/webhooks/razorpay` endpoint to receive and verify event signature hooks securely.
+  - Added idempotency filter logging `event.id` values to prevent duplicate event processes.
+  - Integrated webhook `payment.captured` listener to transition payment and escrow statuses to `SUCCESS` and `HOLDING` automatically.
+  - Integrated webhook `payment.failed` listener to mark payment failures.
+  - Updated frontend details page to display Escrow Status Badge indicator next to payment status under details sidebar.
+  - Created 6 Jest tests in `__tests__/escrow.test.ts` verifying illegal transitions, audit logging, incorrect signatures, idempotency, and full capture/fail flows.
+- **Phase 4 (Razorpay Payment Capture)**:
+  - Installed `razorpay` npm package for server-side order transactions.
+  - Implemented `PaymentService` to create orders (`createOrder`) and verify payments (`verifyPayment`) using HMAC-SHA256 signature verification.
+  - Developed `POST /api/payments/[projectId]/create-order` route to initiate orders (restricted to Client owner, status ASSIGNED).
+  - Developed `POST /api/payments/verify` route for signature verification and setting `Payment.status = SUCCESS`.
+  - Added "Pay Now" checkout widget integration using Razorpay Checkout SDK and dynamic script loading in `/app/projects/[id]`.
+  - Added inline Payment Status indicator showing Pending / Success / Failed in the Details Sidebar.
+  - Created 8 new Jest tests in `__tests__/payment.test.ts` covering signature checks and route guards.
+- **Phase 0 (Project Scaffolding)**:
+  - Initialized Next.js 16 (App Router) + TypeScript + Tailwind CSS project skeleton.
+  - Set up Prisma 6.4.0 database connection configuration and dynamic client loader.
+  - Created initial Prisma database schema models representing the full Conceptual Data Model: `User`, `Project`, `Proposal`, `Payment`, `Escrow`, `Dispute`, `Evidence`, `AuditLog`, and `WebhookEvent`.
+  - Created `.env.example` file populated with placeholder keys for database, NextAuth, Razorpay, and AWS S3 integrations.
+- **Phase 1 (Authentication & RBAC)**:
+  - Integrated NextAuth.js configured with Google OAuth provider.
+  - Implemented client-side onboarding page flow `/select-role` redirecting unassigned role users to select `CLIENT` or `FREELANCER` role.
+  - Implemented `/api/auth/select-role` API route to validate and permanently save the selected role to the database, blocking `ADMIN` from select-role submissions.
+  - Implemented developer overrides configuration in `lib/auth/role-overrides.ts` mapping specific test Gmail accounts directly to predefined roles (`ADMIN`, `CLIENT`, `FREELANCER`) on first Google sign-in.
+  - Created server-side RBAC guards `getServerSession` and `requireRole` to retrieve active user context and protect future page/API resource actions.
+  - Created request-level global routing wrapper in `middleware.ts` guarding paths and API endpoints, redirecting unauthenticated users to `/login`.
+  - Added session-aware global `<Navbar />` showing name, role, and logout action.
+- **Phase 2 (Project Posting)**:
+  - Added predefined, categorized skills under `lib/constants/skills.ts` containing 9 categories of tech skills.
+  - Updated `ProjectStatus` enum in `prisma/schema.prisma` with `CANCELLED` and `CLOSED` states.
+  - Implemented Zod schema validation for project creation and edits in `lib/validators/project.ts` (budget > 0, future deadline, non-empty predefined skills).
+  - Built `ProjectService` class in `lib/services/project-service.ts` handling data transactions, ownership validation, and lifecycle guards.
+  - Created `POST /api/projects` and `GET /api/projects` routes for listing/creating projects.
+  - Created `GET /api/projects/[id]` and `PATCH /api/projects/[id]` routes for details and update actions.
+  - Built Client-side creation form at `/client/projects/new`.
+  - Built Client dashboard at `/client/projects` listing owned projects with status badges and cancellation capabilities.
+  - Built Public project browse/search interface at `/projects` with status and skill filter sidebars.
+  - Built detailed Project dashboard at `/projects/[id]` with inline edit forms for Client owners.
+  - Created 7 Jest unit and integration tests confirming past deadline rejection, budget constraint validation, empty skill array block, GET filters, PATCH ownership checks, status update blocks, and Freelancer role posting rejections.
+- **Phase 3 (Proposals & Freelancer Selection)**:
+  - Added `ProposalStatus` enum (`PENDING`, `ACCEPTED`, `REJECTED`), added `status` to `Proposal`, and added `agreedAmount` to `Project` model in Prisma.
+  - Created Zod validation schema in `lib/validators/proposal.ts` verifying description limits, delivery times, and price counter-offers.
+  - Implemented `ProposalService` in `lib/services/proposal-service.ts` managing transactional project-freelancer assignments, list filters, edits, and proposal deletions.
+  - Developed route endpoints for proposal actions: `/api/projects/[id]/apply`, `/api/projects/[id]/proposals`, `/api/projects/[id]/select-freelancer`, and `/api/proposals/[id]`.
+  - Built Freelancer proposal forms (apply, inline edits, withdrawals) and Client selection dashboards (proposal reviews and project assignments) on the project detail route.
+  - Added 8 Jest tests validating proposal errors, duplicate bid rejections, closed project application blocks, list privacy gating, transactional project assignment, and assignment authorization checks.
+
+

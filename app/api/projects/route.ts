@@ -1,0 +1,81 @@
+import { NextResponse } from "next/server";
+import { requireRole } from "@/lib/auth/require-role";
+import { getServerSession } from "@/lib/auth/get-server-session";
+import { createProjectSchema } from "@/lib/validators/project";
+import { ProjectService } from "@/lib/services/project-service";
+import { Role, ProjectStatus } from "@prisma/client";
+
+export async function POST(request: Request) {
+  try {
+    const authResult = await requireRole(Role.CLIENT);
+    if (!authResult.authorized || !authResult.session?.user?.id) {
+      return NextResponse.json(
+        { error: authResult.error || "Unauthorized" },
+        { status: authResult.status || 401 }
+      );
+    }
+
+    const clientId = authResult.session.user.id;
+    const body = await request.json().catch(() => ({}));
+    const parseResult = createProjectSchema.safeParse(body);
+
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { error: "Validation failed", details: parseResult.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
+    const project = await ProjectService.createProject(clientId, parseResult.data);
+    return NextResponse.json(project, { status: 201 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+    return NextResponse.json(
+      { error: message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const session = await getServerSession();
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const statusParam = searchParams.get("status");
+    const skillsParam = searchParams.get("skills");
+    const clientIdParam = searchParams.get("clientId");
+    const pageParam = searchParams.get("page");
+    const limitParam = searchParams.get("limit");
+
+    const status = statusParam && Object.values(ProjectStatus).includes(statusParam as ProjectStatus)
+      ? (statusParam as ProjectStatus)
+      : undefined;
+
+    const skills = skillsParam
+      ? skillsParam.split(",").map((s) => s.trim()).filter(Boolean)
+      : undefined;
+
+    const page = pageParam ? parseInt(pageParam, 10) : undefined;
+    const limit = limitParam ? parseInt(limitParam, 10) : undefined;
+
+    const result = await ProjectService.listProjects({
+      status,
+      skills,
+      clientId: clientIdParam || undefined,
+      page,
+      limit,
+    });
+
+    return NextResponse.json(result);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+    return NextResponse.json(
+      { error: message },
+      { status: 500 }
+    );
+  }
+}

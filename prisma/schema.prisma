@@ -1,0 +1,170 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CLIENT
+  FREELANCER
+  ADMIN
+}
+
+enum ProjectStatus {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  UNDER_REVIEW
+  COMPLETED
+  CANCELLED
+  CLOSED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum ProposalStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum EscrowStatus {
+  CREATED
+  HOLDING
+  WORK_SUBMITTED
+  UNDER_REVIEW
+  RELEASED
+  DISPUTED
+  REFUNDED
+}
+
+enum DisputeStatus {
+  OPEN
+  ADMIN_REVIEW
+  RESOLVED
+}
+
+model User {
+  id                   String     @id @default(cuid())
+  email                String     @unique
+  name                 String?
+  role                 Role?      // Nullable initially until role selection
+  createdAt            DateTime   @default(now())
+
+  projectsAsClient     Project[]  @relation("ClientProjects")
+  projectsAsFreelancer Project[]  @relation("FreelancerProjects")
+  proposals            Proposal[]
+}
+
+model Project {
+  id           String        @id @default(cuid())
+  clientId     String
+  client       User          @relation("ClientProjects", fields: [clientId], references: [id])
+  title        String
+  description  String
+  budget       Int
+  deadline     DateTime
+  skills       String[]
+  status       ProjectStatus @default(OPEN)
+  freelancerId String?
+  freelancer   User?         @relation("FreelancerProjects", fields: [freelancerId], references: [id])
+  agreedAmount Int?
+
+  proposals    Proposal[]
+  escrow       Escrow?
+  payment      Payment?
+  submissions  Submission[]
+  createdAt    DateTime      @default(now())
+}
+
+model Proposal {
+  id            String   @id @default(cuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id])
+  freelancerId  String
+  freelancer    User     @relation(fields: [freelancerId], references: [id])
+  message       String
+  estimatedDays Int
+  price         Int?
+  status        ProposalStatus @default(PENDING)
+  createdAt     DateTime       @default(now())
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  projectId         String        @unique
+  project           Project       @relation(fields: [projectId], references: [id])
+  razorpayOrderId   String
+  razorpayPaymentId String?
+  amount            Int
+  status            PaymentStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+}
+
+model Escrow {
+  id        String       @id @default(cuid())
+  projectId String       @unique
+  project   Project      @relation(fields: [projectId], references: [id])
+  status    EscrowStatus @default(CREATED)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  dispute   Dispute?
+}
+
+model Dispute {
+  id         String        @id @default(cuid())
+  escrowId   String        @unique
+  escrow     Escrow        @relation(fields: [escrowId], references: [id])
+  raisedBy   String        // userId or system
+  reason     String
+  status     DisputeStatus @default(OPEN)
+  resolution String?
+  evidence   Evidence[]
+  createdAt  DateTime      @default(now())
+}
+
+model Evidence {
+  id        String   @id @default(cuid())
+  disputeId String
+  dispute   Dispute  @relation(fields: [disputeId], references: [id])
+  userId    String
+  type      String   // "file" | "link" | "screenshot"
+  url       String
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  entityType String   // "Escrow" | "Project" | "Dispute"
+  entityId   String
+  action     String
+  actorId    String   // String to allow "SYSTEM_AUTO_RELEASE" or userId
+  prevState  String?
+  newState   String?
+  createdAt  DateTime @default(now())
+}
+
+model WebhookEvent {
+  id              String   @id @default(cuid())
+  razorpayEventId String   @unique
+  processedAt     DateTime @default(now())
+}
+
+model Submission {
+  id         String   @id @default(cuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id])
+  fileUrl    String?
+  githubLink String?
+  demoLink   String?
+  notes      String?
+  createdAt  DateTime @default(now())
+}
