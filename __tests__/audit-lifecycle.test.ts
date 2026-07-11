@@ -4,11 +4,9 @@ import { PaymentService } from "@/lib/services/payment-service";
 import { SubmissionService } from "@/lib/services/submission-service";
 import { DisputeService } from "@/lib/services/dispute-service";
 import { AuditService } from "@/lib/services/audit-service";
-import { EscrowService } from "@/lib/services/escrow-service";
 import { prisma } from "@/lib/prisma";
 import { Role, ProjectStatus, EscrowStatus, DisputeStatus, PaymentStatus, ProposalStatus } from "@prisma/client";
 import crypto from "crypto";
-import { SYSTEM_ACTORS } from "@/lib/constants/actors";
 
 // Setup dynamic mock database tables in-memory
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -239,12 +237,7 @@ describe("Phase 9: Audit Logging Integration Tests", () => {
       .digest("hex");
     await PaymentService.verifyPayment("order_123", "pay_success", correctSig, "client_user");
 
-    // Simulate webhook capture transition of Escrow to HOLDING
-    await EscrowService.createEscrowForProject("proj_lifecycle");
-    const escrow = await prisma.escrow.findUnique({ where: { projectId: "proj_lifecycle" } });
-    if (escrow) {
-      await EscrowService.transition(escrow.id, EscrowStatus.HOLDING, SYSTEM_ACTORS.SYSTEM_WEBHOOK);
-    }
+
 
     // 5. Submit deliverables (Freelancer)
     await SubmissionService.submitWork("proj_lifecycle", "freelancer_user", {

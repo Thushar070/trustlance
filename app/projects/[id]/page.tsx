@@ -202,7 +202,10 @@ export default function ProjectDetailPage() {
       alert("Work submitted successfully!");
       setRefreshTrigger((prev) => prev + 1);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "An error occurred submitting work.";
+      let msg = err instanceof Error ? err.message : "An error occurred submitting work.";
+      if (msg.includes("Escrow record not found") || msg.includes("Escrow must be in HOLDING")) {
+        msg = "Payment received, but escrow setup is still processing. If this persists, contact support.";
+      }
       setSubmissionError(msg);
     } finally {
       setUploadingFile(false);
@@ -1126,6 +1129,14 @@ export default function ProjectDetailPage() {
                     {submissionError && (
                       <div className="mb-4 bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
                         <p className="text-sm text-red-700 font-semibold">{submissionError}</p>
+                      </div>
+                    )}
+
+                    {project.payment?.status === "SUCCESS" && !project.escrow && (
+                      <div className="mb-4 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-md">
+                        <p className="text-sm text-amber-800 font-semibold">
+                          Payment received, but escrow setup is still processing. If this persists, contact support.
+                        </p>
                       </div>
                     )}
 

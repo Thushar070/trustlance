@@ -1,7 +1,8 @@
 import Razorpay from "razorpay";
 import { prisma } from "../prisma";
-import { ProjectStatus, PaymentStatus } from "@prisma/client";
+import { ProjectStatus, PaymentStatus, EscrowStatus } from "@prisma/client";
 import crypto from "crypto";
+import { EscrowService } from "./escrow-service";
 
 let razorpayInstance: Razorpay | null = null;
 
@@ -184,6 +185,13 @@ export class PaymentService {
             newState: PaymentStatus.SUCCESS,
           },
         });
+      }
+
+      if (client.escrow) {
+        const escrow = await EscrowService.createEscrowForProject(payment.projectId, client);
+        if (escrow.status === EscrowStatus.CREATED) {
+          await EscrowService.transition(escrow.id, EscrowStatus.HOLDING, clientId, client);
+        }
       }
 
       return p;

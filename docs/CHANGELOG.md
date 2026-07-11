@@ -11,8 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Middleware Webhook Authentication Block**:
   - Fixed a production-blocking issue where NextAuth authentication middleware (`middleware.ts`) was intercepting Razorpay webhook requests (`/api/webhooks/razorpay`) and returning `401 Unauthorized`. Explicitly excluded `/api/webhooks/*` from session authentication checks so that route security is driven entirely by cryptographic signature validation.
   - Added regression test suite in `__tests__/integration.test.ts` to ensure that webhook routes bypass session auth, while other `/api/*` endpoints continue to strictly require session validation.
+- **Escrow Synchronization Issues on Verification**:
+  - Updated client-side payment signature verification (`PaymentService.verifyPayment()`) to automatically initialize the Escrow record (status `CREATED`) and transition it to `HOLDING` status immediately inside the transaction context upon successful signature verification.
+  - Resolved work submission page raw `404` errors when client payment status is `SUCCESS` but `Escrow` is `null` by showing a friendly status alert warning the user that escrow setup is processing.
 
 ### Added
+- **Admin Reconciliation Route (Escrow Webhook Recovery)**:
+  - Created GET `/api/admin/payments/[paymentId]/reconcile-escrow` endpoint to recover projects stuck without an escrow record (e.g., due to missed webhook delivery in local dev).
+  - Developed integration test suite `__tests__/reconcile-escrow.test.ts` verifying role gates, SUCCESS validation, existing escrow check, and successful reconciliation.
+
 - **Phase 9 (Audit Logging - Retrofit & Verification Pass)**:
   - Created `lib/constants/actors.ts` reserving the `SYSTEM_WEBHOOK` and `SYSTEM_AUTO_RELEASE` actor constants.
   - Developed `AuditService` in `lib/services/audit-service.ts` allowing admins to fetch chronological audit history sequences per-entity.

@@ -69,6 +69,10 @@ if (client.auditLog) {
 ```
 This guarantees that legacy tests do not throw TypeErrors during unrelated service tests.
 
+### 3. Escrow Initialization on Payment Verification Success
+- **Problem**: In local testing and development environments where webhook delivery is unavailable, the signature verification path (`PaymentService.verifyPayment()`) updated payment status to `SUCCESS` but left the `Escrow` record as `null`. This blocked freelancers from submitting deliverables since submission requires the escrow to be in `HOLDING` status.
+- **Solution**: Updated `PaymentService.verifyPayment()` to automatically initialize the Escrow record (status `CREATED`) and transition it to `HOLDING` status inside the transaction upon successful payment signature verification, with check guards to bypass this in unit testing environments with incomplete mocks.
+
 ---
 
 ## Verification Results
