@@ -707,41 +707,44 @@ export default function ProjectDetailPage() {
   const getStatusBadgeClass = (status: ProjectStatus) => {
     switch (status) {
       case ProjectStatus.OPEN:
-        return "bg-blue-50 text-blue-700 border-blue-200";
+        return "bg-sky-50 text-sky-700 border-sky-200";
       case ProjectStatus.ASSIGNED:
-        return "bg-yellow-50 text-yellow-700 border-yellow-200";
+        return "bg-amber-50 text-amber-700 border-amber-200";
       case ProjectStatus.IN_PROGRESS:
-        return "bg-purple-50 text-purple-700 border-purple-200";
+        return "bg-violet-50 text-violet-700 border-violet-200";
       case ProjectStatus.UNDER_REVIEW:
         return "bg-indigo-50 text-indigo-700 border-indigo-200";
       case ProjectStatus.COMPLETED:
-        return "bg-green-50 text-green-700 border-green-200";
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
       case ProjectStatus.CANCELLED:
         return "bg-red-50 text-red-700 border-red-200";
       case ProjectStatus.CLOSED:
-        return "bg-gray-50 text-gray-700 border-gray-200";
+        return "bg-slate-100 text-slate-600 border-slate-200";
       default:
-        return "bg-gray-50 text-gray-700 border-gray-200";
+        return "bg-slate-100 text-slate-600 border-slate-200";
     }
   };
 
   const getProposalStatusBadge = (status: ProposalStatus) => {
     switch (status) {
       case ProposalStatus.PENDING:
-        return "bg-blue-50 text-blue-600 border-blue-200";
+        return "bg-sky-50 text-sky-600 border-sky-200";
       case ProposalStatus.ACCEPTED:
-        return "bg-green-50 text-green-700 border-green-200";
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
       case ProposalStatus.REJECTED:
         return "bg-red-50 text-red-700 border-red-200";
       default:
-        return "bg-gray-50 text-gray-600 border-gray-200";
+        return "bg-slate-100 text-slate-600 border-slate-200";
     }
   };
 
   if (loading) {
     return (
       <div className="flex-grow flex items-center justify-center">
-        <p className="text-gray-500 text-sm">Loading project details...</p>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-indigo-500 animate-spin" />
+          <p className="text-slate-400 text-sm">Loading project details...</p>
+        </div>
       </div>
     );
   }
@@ -773,8 +776,8 @@ export default function ProjectDetailPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {editMode ? (
         // Inline Edit Mode Panel (Client project editor)
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-10">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">Edit Project Details</h1>
+        <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-100 p-6 sm:p-10">
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-6">Edit Project Details</h1>
           {errorMsg && (
             <div className="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
               <p className="text-sm text-red-700">{errorMsg}</p>
@@ -902,33 +905,33 @@ export default function ProjectDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
               {/* Title & Description Box */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+              <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-100 p-6 sm:p-8">
                 <div className="flex flex-wrap items-center gap-3 mb-4">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getStatusBadgeClass(project.status)}`}>
-                    {project.status}
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-widest ${getStatusBadgeClass(project.status)}`}>
+                    {project.status.replace("_", " ")}
                   </span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-slate-400">
                     Posted on {new Date(project.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-950 mb-6 leading-tight">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-6 leading-tight tracking-tight">
                   {project.title}
                 </h1>
 
-                <div className="prose max-w-none text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">
-                  <h3 className="text-gray-900 font-bold text-base mb-2">Project Description</h3>
+                <div className="prose max-w-none text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">
+                  <h3 className="text-slate-900 font-bold text-base mb-2">Project Description</h3>
                   {project.description}
                 </div>
               </div>
 
               {/* Skills Box */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <h3 className="text-gray-900 font-bold text-sm mb-3">Skills Required</h3>
+              <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-100 p-6">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Skills Required</h3>
                 <div className="flex flex-wrap gap-2">
                   {project.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="bg-indigo-50/50 text-indigo-700 text-xs px-3 py-1 rounded-lg border border-indigo-100 font-semibold"
+                      className="bg-indigo-50/60 text-indigo-700 text-xs px-3 py-1.5 rounded-lg border border-indigo-100/80 font-semibold"
                     >
                       {skill}
                     </span>
@@ -938,10 +941,10 @@ export default function ProjectDetailPage() {
 
               {/* Client Review & Actions Panel */}
               {isOwner && project.status === ProjectStatus.UNDER_REVIEW && (
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-6">
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/40 p-6 sm:p-8 space-y-6">
                   <div>
-                    <h3 className="text-gray-900 font-bold text-lg mb-1.5">Project Review Decisions</h3>
-                    <p className="text-xs text-gray-400">
+                    <h3 className="text-slate-900 font-extrabold text-lg tracking-tight mb-1.5">Project Review Decisions</h3>
+                    <p className="text-xs text-slate-400">
                       The freelancer has submitted deliverables. Review the work details in the history log below and select your review decision.
                     </p>
                   </div>
@@ -957,9 +960,9 @@ export default function ProjectDetailPage() {
                       <button
                         onClick={handleApprove}
                         disabled={reviewActionLoading}
-                        className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
+                        className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 cursor-pointer transition-all duration-200 shadow-sm shadow-emerald-200/50 hover:shadow-md"
                       >
-                        Approve Project
+                        ✓ Approve Project
                       </button>
                       <button
                         onClick={() => {
@@ -967,9 +970,9 @@ export default function ProjectDetailPage() {
                           setReviewActionError(null);
                         }}
                         disabled={reviewActionLoading}
-                        className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
+                        className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-amber-500 hover:bg-amber-600 disabled:opacity-50 cursor-pointer transition-all duration-200 shadow-sm"
                       >
-                        Request Changes
+                        ↻ Request Changes
                       </button>
                       <button
                         onClick={() => {
@@ -977,9 +980,9 @@ export default function ProjectDetailPage() {
                           setReviewActionError(null);
                         }}
                         disabled={reviewActionLoading}
-                        className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
+                        className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 cursor-pointer transition-all duration-200 shadow-sm"
                       >
-                        Raise Dispute
+                        ⚠ Raise Dispute
                       </button>
                     </div>
                   )}
@@ -1052,10 +1055,10 @@ export default function ProjectDetailPage() {
 
               {/* Freelancer Dispute Trigger */}
               {isFreelancerHired && project.status === ProjectStatus.UNDER_REVIEW && (
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-4">
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/40 p-6 sm:p-8 space-y-4">
                   <div>
-                    <h3 className="text-gray-900 font-bold text-base mb-1">Project is Under Review</h3>
-                    <p className="text-xs text-gray-400">
+                    <h3 className="text-slate-900 font-extrabold text-base tracking-tight mb-1">Project is Under Review</h3>
+                    <p className="text-xs text-slate-400">
                       The client is currently reviewing your submissions. If there is a dispute or deadlock, you can escalate the project to a formal dispute.
                     </p>
                   </div>
@@ -1113,9 +1116,9 @@ export default function ProjectDetailPage() {
               {/* Freelancer Work Submission Form */}
               {isFreelancerHired &&
                 (project.status === ProjectStatus.ASSIGNED || project.status === ProjectStatus.IN_PROGRESS) && (
-                  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
-                    <h3 className="text-gray-900 font-bold text-lg mb-2">Submit Work</h3>
-                    <p className="text-xs text-gray-400 mb-6">
+                  <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-100 p-6 sm:p-8">
+                    <h3 className="text-slate-900 font-extrabold text-lg tracking-tight mb-2">Submit Work</h3>
+                    <p className="text-xs text-slate-400 mb-6">
                       Upload your project files or provide repository and demo links. At least one of File, GitHub Link, or Demo Link is required.
                     </p>
 
@@ -1188,14 +1191,14 @@ export default function ProjectDetailPage() {
 
               {/* Submission History View */}
               {(isOwner || isFreelancerHired) && submissions.length > 0 && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
-                  <h3 className="text-gray-900 font-bold text-lg mb-4">Submission History</h3>
+                <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-100 p-6 sm:p-8">
+                  <h3 className="text-slate-900 font-extrabold text-lg tracking-tight mb-4">Submission History</h3>
                   <div className="space-y-6">
                     {submissions.map((sub, index) => (
-                      <div key={sub.id} className="border-l-4 border-indigo-500 pl-4 py-1 space-y-2">
+                      <div key={sub.id} className="border-l-4 border-indigo-400 pl-4 py-1 space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-bold text-gray-900">Round {submissions.length - index}</span>
-                          <span className="text-xs text-gray-400">{new Date(sub.createdAt).toLocaleString()}</span>
+                          <span className="text-sm font-bold text-slate-900">Round {submissions.length - index}</span>
+                          <span className="text-xs text-slate-400">{new Date(sub.createdAt).toLocaleString()}</span>
                         </div>
 
                         {sub.notes && (
@@ -1253,32 +1256,32 @@ export default function ProjectDetailPage() {
             {/* Details Sidebar */}
             <div className="lg:col-span-1 space-y-6">
               {/* Budget & Actions Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
-                <span className="text-xs text-gray-400 uppercase font-bold tracking-wider block mb-1">
+              <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-100 p-6 text-center sticky top-20">
+                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest block mb-1">
                   {project.agreedAmount ? "Agreed Contract Price" : "Project Budget"}
                 </span>
-                <span className="text-3xl font-black text-gray-900 block mb-6">
+                <span className="text-3xl font-black text-slate-900 block mb-6">
                   ₹{(project.agreedAmount || project.budget).toLocaleString()}
                 </span>
 
-                <div className="border-t border-gray-100 pt-6 text-left space-y-4">
+                <div className="border-t border-slate-100 pt-6 text-left space-y-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Deadline</span>
-                    <span className="font-semibold text-gray-900">{new Date(project.deadline).toLocaleDateString()}</span>
+                    <span className="text-slate-400">Deadline</span>
+                    <span className="font-semibold text-slate-900">{new Date(project.deadline).toLocaleDateString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Client Owner</span>
-                    <span className="font-semibold text-gray-900">{project.client.name || "Client"}</span>
+                    <span className="text-slate-400">Client Owner</span>
+                    <span className="font-semibold text-slate-900">{project.client.name || "Client"}</span>
                   </div>
                   {project.payment && (
                     <div className="flex justify-between text-sm items-center">
-                      <span className="text-gray-400">Payment Status</span>
-                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${
+                      <span className="text-slate-400">Payment Status</span>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         project.payment.status === "SUCCESS"
-                          ? "bg-green-50 text-green-700 border border-green-200"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                           : project.payment.status === "FAILED"
                           ? "bg-red-50 text-red-700 border border-red-200"
-                          : "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                          : "bg-amber-50 text-amber-700 border border-amber-200"
                       }`}>
                         {project.payment.status}
                       </span>
@@ -1286,10 +1289,10 @@ export default function ProjectDetailPage() {
                   )}
                   {project.escrow && (
                     <div className="flex justify-between text-sm items-center">
-                      <span className="text-gray-400">Escrow Status</span>
-                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${
+                      <span className="text-slate-400">Escrow Status</span>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         project.escrow.status === "RELEASED"
-                          ? "bg-green-50 text-green-700 border border-green-200"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                           : project.escrow.status === "REFUNDED"
                           ? "bg-red-50 text-red-700 border border-red-200"
                           : project.escrow.status === "DISPUTED"
@@ -1303,16 +1306,16 @@ export default function ProjectDetailPage() {
                 </div>
 
                 {isOwner && isOpen && (
-                  <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col gap-2.5">
+                  <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col gap-2.5">
                     <button
                       onClick={() => setEditMode(true)}
-                      className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-indigo-600 rounded-lg text-sm font-semibold text-indigo-600 hover:bg-indigo-50 cursor-pointer transition-colors"
+                      className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-indigo-500 rounded-xl text-sm font-semibold text-indigo-600 hover:bg-indigo-50 cursor-pointer transition-all duration-200"
                     >
                       Edit Project
                     </button>
                     <button
                       onClick={handleCancelProject}
-                      className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 cursor-pointer transition-colors"
+                      className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-transparent rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 cursor-pointer transition-all duration-200"
                     >
                       Cancel Project
                     </button>
@@ -1320,11 +1323,11 @@ export default function ProjectDetailPage() {
                 )}
 
                 {isOwner && project.status === ProjectStatus.ASSIGNED && (!project.payment || project.payment.status !== "SUCCESS") && (
-                  <div className="mt-6 pt-6 border-t border-gray-100">
+                  <div className="mt-6 pt-6 border-t border-slate-100">
                     <button
                       onClick={handlePayment}
                       disabled={paymentLoading}
-                      className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
+                      className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 cursor-pointer transition-all duration-200 shadow-sm shadow-indigo-200/50 hover:shadow-md"
                     >
                       {paymentLoading ? "Processing..." : "Pay Now"}
                     </button>
@@ -1336,23 +1339,23 @@ export default function ProjectDetailPage() {
 
           {/* Client Proposal Review Panel */}
           {isOwner && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
-              <div className="flex justify-between items-center border-b border-gray-100 pb-4 mb-6">
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/40 p-6 sm:p-8">
+              <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-950">Received Proposals</h2>
-                  <p className="text-xs text-gray-400 mt-0.5">Review submissions and hire the appropriate freelancer.</p>
+                  <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">Received Proposals</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Review submissions and hire the appropriate freelancer.</p>
                 </div>
-                <span className="bg-indigo-50 text-indigo-700 font-bold text-xs px-2.5 py-1 rounded-full border border-indigo-100">
-                  Total Bids: {proposals.length}
+                <span className="bg-indigo-50 text-indigo-700 font-bold text-[10px] px-2.5 py-1 rounded-full border border-indigo-100 uppercase tracking-widest">
+                  {proposals.length} Bids
                 </span>
               </div>
 
               {proposals.length === 0 ? (
-                <p className="text-sm text-gray-400 italic text-center py-6">No proposals received for this project yet.</p>
+                <p className="text-sm text-slate-400 italic text-center py-6">No proposals received for this project yet.</p>
               ) : (
                 <div className="space-y-6">
                   {proposals.map((prop) => (
-                    <div key={prop.id} className="border border-gray-100 rounded-xl p-5 hover:bg-gray-50/50 transition-colors">
+                    <div key={prop.id} className="border border-slate-100 rounded-xl p-5 hover:bg-slate-50/50 transition-all duration-150">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-3 pb-3 border-b border-gray-100/50">
                         <div>
                           <span className="font-bold text-gray-900 text-sm block">
@@ -1404,14 +1407,14 @@ export default function ProjectDetailPage() {
 
           {/* Freelancer Apply / View Proposal Panel */}
           {isFreelancer && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/40 p-6 sm:p-8">
               {myProposal ? (
                 // Freelancer Has Already Applied
                 <div className="space-y-6">
-                  <div className="flex justify-between items-center border-b border-gray-100 pb-4">
+                  <div className="flex justify-between items-center border-b border-slate-100 pb-4">
                     <div>
-                      <h2 className="text-xl font-bold text-gray-950">Your Submitted Proposal</h2>
-                      <p className="text-xs text-gray-400 mt-0.5">Manage your active bid details.</p>
+                      <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">Your Submitted Proposal</h2>
+                      <p className="text-xs text-slate-400 mt-0.5">Manage your active bid details.</p>
                     </div>
                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${getProposalStatusBadge(myProposal.status)}`}>
                       {myProposal.status}
@@ -1528,8 +1531,8 @@ export default function ProjectDetailPage() {
                 // Freelancer Has Not Applied Yet (Submit New Proposal Form)
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-xl font-bold text-gray-950">Submit a Proposal</h2>
-                    <p className="text-xs text-gray-400 mt-0.5">Apply for this project listing by submitting your counter price and message.</p>
+                    <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">Submit a Proposal</h2>
+                    <p className="text-xs text-slate-400 mt-0.5">Apply for this project listing by submitting your counter price and message.</p>
                   </div>
                   {errorMsg && (
                     <div className="bg-red-50 border-l-4 border-red-400 p-3 rounded-md">

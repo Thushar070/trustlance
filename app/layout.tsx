@@ -29,13 +29,24 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-gray-50 text-gray-900">
+      <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
         <Providers>
           <Navbar />
           <main className="flex-1 flex flex-col">{children}</main>
+          <footer className="border-t border-slate-200/60 bg-white/50 backdrop-blur-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-2">
+              <p className="text-xs text-slate-400 tracking-wide">
+                © 2026 TrustLance. Secure escrow-powered freelance marketplace.
+              </p>
+              <div className="flex items-center gap-4 text-xs text-slate-400">
+                <span>Built with Next.js &amp; Prisma</span>
+                <span className="w-1 h-1 rounded-full bg-slate-300" />
+                <span>Razorpay Payments</span>
+              </div>
+            </div>
+          </footer>
         </Providers>
       </body>
     </html>
   );
 }
-
