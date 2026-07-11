@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Phase 11 (Admin Dashboard, Search/Filters, & Auto-Release Cron)**:
+  - Extended GET `/api/projects` and project-service `listProjects()` with budget range (`minBudget`/`maxBudget`) and deadline boundary (`deadlineBefore`/`deadlineAfter`) filters.
+  - Implemented client-side UI filter inputs in the projects sidebar on `/projects` page.
+  - Created admin overview metrics endpoint GET `/api/admin/overview` and frontend dashboard `/admin/overview`.
+  - Added payment history endpoint GET `/api/payments/history` and user ledger page `/payments`.
+  - Developed auto-release cron logic in `lib/cron/auto-release.ts` implementing a 5-day grace period, 24-hour advance warnings (`AUTO_RELEASE_WARNING`), and explicit `SYSTEM_AUTO_RELEASE` actor auditing.
+  - Added manual POST trigger endpoint `/api/admin/run-auto-release`.
+  - Added 6 automated tests in `__tests__/auto-release.test.ts`.
+
 - **Phase 10 (Email Notifications)**:
   - Integrated **Resend** as the email provider with lazy-init client and graceful console-fallback when `RESEND_API_KEY` is unset.
   - Created `NotificationService` (`lib/services/notification-service.ts`) with a single `notify(event, payload)` entry point covering 8 lifecycle events: `FREELANCER_ASSIGNED`, `PAYMENT_RECEIVED`, `WORK_SUBMITTED`, `CHANGES_REQUESTED`, `DISPUTE_RAISED`, `DISPUTE_RESOLVED`, `PAYMENT_RELEASED`, `REFUND_ISSUED`.

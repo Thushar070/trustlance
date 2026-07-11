@@ -9,7 +9,8 @@ export type NotificationEvent =
   | "DISPUTE_RAISED"
   | "DISPUTE_RESOLVED"
   | "PAYMENT_RELEASED"
-  | "REFUND_ISSUED";
+  | "REFUND_ISSUED"
+  | "AUTO_RELEASE_WARNING";
 
 export interface NotificationPayload {
   projectId: string;
@@ -149,6 +150,18 @@ export const NotificationService = {
             const subject = `[TrustLance] Refund issued for project: ${projectTitle}`;
             const body = `The escrow payment has been successfully refunded to you for project: ${projectTitle}.\n\nView details: ${projectLink}`;
             await Mailer.sendEmail(clientEmail, subject, body);
+          }
+          break;
+        }
+
+        case "AUTO_RELEASE_WARNING": {
+          const subject = `[TrustLance] Action Required: Auto-release warning for project: ${projectTitle}`;
+          const body = `The submitted deliverables for project: ${projectTitle} have been under review. The funds held in escrow will be automatically released to the freelancer in 24 hours unless the client requests changes or raises a dispute.\n\nView project: ${projectLink}`;
+          if (clientEmail) {
+            await Mailer.sendEmail(clientEmail, subject, body);
+          }
+          if (freelancerEmail) {
+            await Mailer.sendEmail(freelancerEmail, subject, body);
           }
           break;
         }

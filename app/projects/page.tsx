@@ -28,6 +28,10 @@ export default function BrowseProjectsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("OPEN");
+  const [minBudget, setMinBudget] = useState<string>("");
+  const [maxBudget, setMaxBudget] = useState<string>("");
+  const [deadlineBefore, setDeadlineBefore] = useState<string>("");
+  const [deadlineAfter, setDeadlineAfter] = useState<string>("");
 
   // Pagination state
   const [page, setPage] = useState(1);
@@ -40,6 +44,10 @@ export default function BrowseProjectsPage() {
         const queryParams = new URLSearchParams();
         if (statusFilter) queryParams.set("status", statusFilter);
         if (selectedSkills.length > 0) queryParams.set("skills", selectedSkills.join(","));
+        if (minBudget) queryParams.set("minBudget", minBudget);
+        if (maxBudget) queryParams.set("maxBudget", maxBudget);
+        if (deadlineBefore) queryParams.set("deadlineBefore", deadlineBefore);
+        if (deadlineAfter) queryParams.set("deadlineAfter", deadlineAfter);
         queryParams.set("page", page.toString());
         queryParams.set("limit", "10");
 
@@ -57,7 +65,7 @@ export default function BrowseProjectsPage() {
     };
 
     fetchProjects();
-  }, [statusFilter, selectedSkills, page]);
+  }, [statusFilter, selectedSkills, page, minBudget, maxBudget, deadlineBefore, deadlineAfter]);
 
   const toggleSkill = (skill: string) => {
     setPage(1); // Reset page on filter change
@@ -72,6 +80,10 @@ export default function BrowseProjectsPage() {
     setSelectedSkills([]);
     setStatusFilter("OPEN");
     setSearchTerm("");
+    setMinBudget("");
+    setMaxBudget("");
+    setDeadlineBefore("");
+    setDeadlineAfter("");
     setPage(1);
   };
 
@@ -148,6 +160,64 @@ export default function BrowseProjectsPage() {
                 <option value="CANCELLED">Cancelled</option>
                 <option value="CLOSED">Closed</option>
               </select>
+            </div>
+
+            {/* Budget range filter */}
+            <div className="mb-6">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Budget Range (₹)</label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={minBudget}
+                  onChange={(e) => {
+                    setPage(1);
+                    setMinBudget(e.target.value);
+                  }}
+                  className="w-1/2 text-sm px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 bg-white transition-all"
+                />
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={maxBudget}
+                  onChange={(e) => {
+                    setPage(1);
+                    setMaxBudget(e.target.value);
+                  }}
+                  className="w-1/2 text-sm px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 bg-white transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Deadline filter */}
+            <div className="mb-6">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Deadline Boundaries</label>
+              <div className="space-y-2">
+                <div>
+                  <span className="text-[10px] text-slate-400 block font-bold mb-1">Due After</span>
+                  <input
+                    type="date"
+                    value={deadlineAfter}
+                    onChange={(e) => {
+                      setPage(1);
+                      setDeadlineAfter(e.target.value);
+                    }}
+                    className="w-full text-sm px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 bg-white transition-all"
+                  />
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 block font-bold mb-1">Due Before</span>
+                  <input
+                    type="date"
+                    value={deadlineBefore}
+                    onChange={(e) => {
+                      setPage(1);
+                      setDeadlineBefore(e.target.value);
+                    }}
+                    className="w-full text-sm px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 bg-white transition-all"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Skills Filter */}

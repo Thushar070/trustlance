@@ -85,6 +85,10 @@ export class ProjectService {
     status?: ProjectStatus;
     skills?: string[];
     clientId?: string;
+    minBudget?: number;
+    maxBudget?: number;
+    deadlineBefore?: Date;
+    deadlineAfter?: Date;
     page?: number;
     limit?: number;
   }) {
@@ -106,6 +110,26 @@ export class ProjectService {
       where.skills = {
         hasSome: filters.skills,
       };
+    }
+
+    if (filters.minBudget !== undefined || filters.maxBudget !== undefined) {
+      where.budget = {};
+      if (filters.minBudget !== undefined) {
+        where.budget.gte = filters.minBudget;
+      }
+      if (filters.maxBudget !== undefined) {
+        where.budget.lte = filters.maxBudget;
+      }
+    }
+
+    if (filters.deadlineBefore || filters.deadlineAfter) {
+      where.deadline = {};
+      if (filters.deadlineBefore) {
+        where.deadline.lte = filters.deadlineBefore;
+      }
+      if (filters.deadlineAfter) {
+        where.deadline.gte = filters.deadlineAfter;
+      }
     }
 
     const [total, items] = await Promise.all([

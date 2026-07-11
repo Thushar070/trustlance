@@ -30,3 +30,26 @@ Since Razorpay's servers are on the public internet, they cannot directly commun
 
 > [!WARNING]
 > If ngrok is restarted, a new public URL will be generated. You must update the Webhook URL in the Razorpay Dashboard with the new URL to avoid webhook delivery failures.
+
+## Auto-Release Cron & Manual Trigger
+
+TrustLance incorporates an auto-release cron mechanism to resolve stalled reviews automatically after a grace period.
+
+### 1. Behavior & Settings
+- **Grace Period**: 5 days (120 hours) after work is submitted (project reaches `UNDER_REVIEW`).
+- **24-Hour Advance Warning**: Clients receive a warning email 24 hours prior to auto-release, giving them one last chance to approve, request changes, or raise a dispute.
+- **System Actor**: Transitions executed by the cron are attributed in the audit logs to `SYSTEM_AUTO_RELEASE`, rendering them clearly distinguishable from manual approvals.
+
+### 2. Manual Execution Trigger
+During local development, instead of scheduling a node-cron server task, you can manually trigger the auto-release logic at any time:
+- Send a authenticated `POST` request from an **Admin** session to: `/api/admin/run-auto-release`.
+- Response format:
+  ```json
+  {
+    "success": true,
+    "released": 1,
+    "warned": 0
+  }
+  ```
+- Alternatively, go to the Admin Overview Dashboard at `/admin/overview` and click the **"Trigger Auto-Release"** button.
+- For production environments, Vercel Cron or a separate cron runner can be scheduled to hit the `/api/admin/run-auto-release` endpoint on a daily schedule.

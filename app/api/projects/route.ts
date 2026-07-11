@@ -50,6 +50,10 @@ export async function GET(request: Request) {
     const clientIdParam = searchParams.get("clientId");
     const pageParam = searchParams.get("page");
     const limitParam = searchParams.get("limit");
+    const minBudgetParam = searchParams.get("minBudget");
+    const maxBudgetParam = searchParams.get("maxBudget");
+    const deadlineBeforeParam = searchParams.get("deadlineBefore");
+    const deadlineAfterParam = searchParams.get("deadlineAfter");
 
     const status = statusParam && Object.values(ProjectStatus).includes(statusParam as ProjectStatus)
       ? (statusParam as ProjectStatus)
@@ -62,10 +66,19 @@ export async function GET(request: Request) {
     const page = pageParam ? parseInt(pageParam, 10) : undefined;
     const limit = limitParam ? parseInt(limitParam, 10) : undefined;
 
+    const minBudget = minBudgetParam ? parseInt(minBudgetParam, 10) : undefined;
+    const maxBudget = maxBudgetParam ? parseInt(maxBudgetParam, 10) : undefined;
+    const deadlineBefore = deadlineBeforeParam ? new Date(deadlineBeforeParam) : undefined;
+    const deadlineAfter = deadlineAfterParam ? new Date(deadlineAfterParam) : undefined;
+
     const result = await ProjectService.listProjects({
       status,
       skills,
       clientId: clientIdParam || undefined,
+      minBudget: minBudget && !isNaN(minBudget) ? minBudget : undefined,
+      maxBudget: maxBudget && !isNaN(maxBudget) ? maxBudget : undefined,
+      deadlineBefore: deadlineBefore && !isNaN(deadlineBefore.getTime()) ? deadlineBefore : undefined,
+      deadlineAfter: deadlineAfter && !isNaN(deadlineAfter.getTime()) ? deadlineAfter : undefined,
       page,
       limit,
     });

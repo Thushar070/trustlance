@@ -91,6 +91,16 @@ export default function AuditHistory({ entityId, entityType }: AuditHistoryProps
                 const dateStr = new Date(log.createdAt).toISOString();
                 const isExpanded = expandedLogId === log.id;
 
+                const getActorDisplayName = (actorId: string) => {
+                  if (actorId === "SYSTEM_AUTO_RELEASE") {
+                    return "Auto-released (no client response)";
+                  }
+                  if (actorId === "SYSTEM_WEBHOOK") {
+                    return "Payment webhook";
+                  }
+                  return actorId;
+                };
+
                 return (
                   <div key={log.id} className="border-b border-slate-100/50 pb-1 last:border-b-0">
                     <div
@@ -99,7 +109,7 @@ export default function AuditHistory({ entityId, entityType }: AuditHistoryProps
                     >
                       <span className="text-slate-400 select-none whitespace-nowrap shrink-0">{dateStr}</span>
                       <span className="shrink-0 text-slate-500">
-                        actor: <span className="font-bold text-slate-800">{log.actorId}</span>
+                        actor: <span className="font-bold text-slate-800">{getActorDisplayName(log.actorId)}</span>
                       </span>
                       <span className="font-semibold text-slate-700 shrink-0">{log.action}</span>
                       
@@ -120,7 +130,7 @@ export default function AuditHistory({ entityId, entityType }: AuditHistoryProps
                           <div><span className="text-slate-400">Log ID:</span> {log.id}</div>
                           <div><span className="text-slate-400">Entity:</span> {log.entityType} ({log.entityId})</div>
                           <div><span className="text-slate-400">Action:</span> {log.action}</div>
-                          <div><span className="text-slate-400">Actor:</span> {log.actorId}</div>
+                          <div><span className="text-slate-400">Actor:</span> {getActorDisplayName(log.actorId)}</div>
                           <div><span className="text-slate-400">Prev State:</span> {log.prevState ?? "null"}</div>
                           <div><span className="text-slate-400">New State:</span> {log.newState ?? "null"}</div>
                           <div><span className="text-slate-400">Timestamp:</span> {log.createdAt}</div>
