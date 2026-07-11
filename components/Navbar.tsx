@@ -14,6 +14,7 @@ import {
   LogOut,
   Menu,
   X,
+  User,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -53,7 +54,10 @@ export default function Navbar() {
       : []),
     { href: "/projects", label: "Browse Projects", icon: FolderSearch, exact: false },
     ...(session
-      ? [{ href: "/payments", label: "Payments", icon: CreditCard, exact: false }]
+      ? [
+          { href: "/payments", label: "Payments", icon: CreditCard, exact: false },
+          { href: "/profile", label: "Profile", icon: User, exact: false }
+        ]
       : []),
     ...(isAdmin
       ? [

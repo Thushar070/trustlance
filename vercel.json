@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/admin/run-auto-release",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

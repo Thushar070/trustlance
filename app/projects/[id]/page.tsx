@@ -393,13 +393,12 @@ export default function ProjectDetailPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Messaging state
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<MessageItem[]>([]);
   const [messageInput, setMessageInput] = useState("");
-  const [loadingMessages, setLoadingMessages] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
   const [messageError, setMessageError] = useState<string | null>(null);
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       const res = await fetch(`/api/projects/${id}/messages`);
       if (res.ok) {
@@ -409,7 +408,7 @@ export default function ProjectDetailPage() {
     } catch {
       // Ignore background errors
     }
-  };
+  }, [id]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -612,10 +611,12 @@ export default function ProjectDetailPage() {
 
     if (!isClientOwner && !isFreelancerAssigned) return;
 
-    fetchMessages();
+    setTimeout(() => {
+      fetchMessages();
+    }, 0);
     const interval = setInterval(fetchMessages, 6000);
     return () => clearInterval(interval);
-  }, [id, project, session?.user?.id]);
+  }, [project, session?.user?.id, fetchMessages]);
 
   const toggleSkill = (skill: string) => {
     if (selectedSkills.includes(skill)) {
