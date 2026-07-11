@@ -68,28 +68,31 @@ export default function ClientProjectsPage() {
   const getStatusBadgeClass = (status: ProjectStatus) => {
     switch (status) {
       case ProjectStatus.OPEN:
-        return "bg-blue-50 text-blue-700 border-blue-200";
+        return "bg-sky-50 text-sky-700 border-sky-200";
       case ProjectStatus.ASSIGNED:
-        return "bg-yellow-50 text-yellow-700 border-yellow-200";
+        return "bg-amber-50 text-amber-700 border-amber-200";
       case ProjectStatus.IN_PROGRESS:
-        return "bg-purple-50 text-purple-700 border-purple-200";
+        return "bg-violet-50 text-violet-700 border-violet-200";
       case ProjectStatus.UNDER_REVIEW:
         return "bg-indigo-50 text-indigo-700 border-indigo-200";
       case ProjectStatus.COMPLETED:
-        return "bg-green-50 text-green-700 border-green-200";
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
       case ProjectStatus.CANCELLED:
         return "bg-red-50 text-red-700 border-red-200";
       case ProjectStatus.CLOSED:
-        return "bg-gray-50 text-gray-700 border-gray-200";
+        return "bg-slate-100 text-slate-600 border-slate-200";
       default:
-        return "bg-gray-50 text-gray-700 border-gray-200";
+        return "bg-slate-100 text-slate-600 border-slate-200";
     }
   };
 
   if (loading) {
     return (
       <div className="flex-grow flex items-center justify-center">
-        <p className="text-gray-500 text-sm">Loading your projects...</p>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-indigo-500 animate-spin" />
+          <p className="text-slate-400 text-sm">Loading your projects...</p>
+        </div>
       </div>
     );
   }
@@ -98,86 +101,86 @@ export default function ClientProjectsPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Your Posted Projects</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage and track your project escrow lifecycles.</p>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Your Posted Projects</h1>
+          <p className="text-sm text-slate-500 mt-1">Manage and track your project escrow lifecycles.</p>
         </div>
         <Link
           href="/client/projects/new"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors cursor-pointer"
+          className="inline-flex items-center px-4 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-sm shadow-indigo-200/50 hover:shadow-md transition-all duration-200 cursor-pointer"
         >
-          Post a Project
+          + Post a Project
         </Link>
       </div>
 
       {errorMsg && (
-        <div className="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
-          <p className="text-sm text-red-700">{errorMsg}</p>
+        <div className="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
+          <p className="text-sm text-red-700 font-medium">{errorMsg}</p>
         </div>
       )}
 
       {projects.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/40 p-16 text-center">
           <span className="text-4xl mb-4 block">💼</span>
-          <h2 className="text-lg font-bold text-gray-900 mb-1">No Projects Found</h2>
-          <p className="text-sm text-gray-500 max-w-sm mx-auto mb-6">
+          <h2 className="text-lg font-bold text-slate-900 mb-1">No Projects Found</h2>
+          <p className="text-sm text-slate-500 max-w-sm mx-auto mb-6">
             You haven&apos;t posted any freelance project listings yet. Click below to create your first.
           </p>
           <Link
             href="/client/projects/new"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors"
+            className="inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-sm shadow-indigo-200/50 hover:shadow-md transition-all duration-200"
           >
             Post Your First Project
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <ul className="divide-y divide-gray-100">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/40 overflow-hidden">
+          <ul className="divide-y divide-slate-100">
             {projects.map((project) => (
-              <li key={project.id} className="p-6 hover:bg-gray-50 transition-colors">
+              <li key={project.id} className="group p-6 hover:bg-slate-50/50 transition-colors duration-150">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex-grow">
-                    <div className="flex flex-wrap items-center gap-3 mb-2">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getStatusBadgeClass(project.status)}`}>
-                        {project.status}
+                  <div className="flex-grow min-w-0">
+                    <div className="flex flex-wrap items-center gap-2.5 mb-2">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-widest ${getStatusBadgeClass(project.status)}`}>
+                        {project.status.replace("_", " ")}
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-slate-400">
                         Posted {new Date(project.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                     <Link
                       href={`/projects/${project.id}`}
-                      className="text-lg font-bold text-gray-950 hover:text-indigo-600 transition-colors block mb-1"
+                      className="text-base font-bold text-slate-900 hover:text-indigo-600 transition-colors block mb-1.5 truncate"
                     >
                       {project.title}
                     </Link>
-                    <p className="text-sm text-gray-500 line-clamp-2 mb-3 max-w-3xl">
+                    <p className="text-sm text-slate-500 line-clamp-2 mb-3 max-w-3xl leading-relaxed">
                       {project.description}
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {project.skills.map((s) => (
-                        <span key={s} className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded">
+                        <span key={s} className="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded-md font-semibold">
                           {s}
                         </span>
                       ))}
                     </div>
                   </div>
 
-                  <div className="flex sm:flex-col items-start sm:items-end justify-between sm:justify-center gap-2 border-t sm:border-t-0 border-gray-100 pt-4 sm:pt-0">
-                    <div className="text-right sm:mb-2">
-                      <span className="text-xs text-gray-400 block uppercase font-bold tracking-wider">Budget</span>
-                      <span className="text-lg font-black text-gray-900">₹{project.budget.toLocaleString()}</span>
+                  <div className="flex sm:flex-col items-start sm:items-end justify-between sm:justify-center gap-2 border-t sm:border-t-0 border-slate-100 pt-4 sm:pt-0 flex-shrink-0 sm:min-w-[120px]">
+                    <div className="text-right sm:mb-3">
+                      <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-widest mb-0.5">Budget</span>
+                      <span className="text-lg font-black text-slate-900">₹{project.budget.toLocaleString()}</span>
                     </div>
                     <div className="flex gap-2">
                       <Link
                         href={`/projects/${project.id}`}
-                        className="px-3 py-1.5 border border-gray-200 hover:border-gray-300 text-xs font-semibold rounded-lg text-gray-600 hover:bg-gray-50 transition-all"
+                        className="px-4 py-1.5 border border-slate-200 hover:border-indigo-400 text-xs font-semibold rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/30 transition-all duration-200 group-hover:border-indigo-300"
                       >
-                        View Details
+                        View Details →
                       </Link>
                       {project.status === ProjectStatus.OPEN && (
                         <button
                           onClick={() => handleCancelProject(project.id)}
-                          className="px-3 py-1.5 border border-red-200 hover:border-red-300 text-xs font-semibold rounded-lg text-red-600 hover:bg-red-50 transition-all cursor-pointer"
+                          className="px-3 py-1.5 border border-red-200 hover:border-red-400 text-xs font-semibold rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 cursor-pointer"
                         >
                           Cancel
                         </button>
