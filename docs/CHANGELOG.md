@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Released] - 2026-07-11
 
+### Fixed
+- **PWA Service Worker Dev Reload Loop**: Fixed infinite reload loop caused by service worker self-healing logic in development; development now never registers or attempts to clean up a service worker at all — registration is scoped strictly to production builds.
+
 ### Added
 
 - **Phase 11 (Admin Dashboard, Search/Filters, & Auto-Release Cron)**:
