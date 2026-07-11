@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Released] - 2026-07-11
 
 ### Added
+- **UI Polish Pass**:
+  - Implemented consistent premium visual theme utilizing customized slate and indigo CSS variable color tokens.
+  - Added sticky frosted-glass effect header navigation with gradient logo mark, hover shadow lift, and user initial avatar badges.
+  - Redesigned `/login` and `/select-role` forms featuring elevated background grids, decorative blur blobs, gradient action CTA buttons, and interactive card icons.
+  - Upgraded `/projects` public browser lists with sticky filter chip sidebars, search box icons, custom scrollbars, and group-hover lift transitions.
+  - Upgraded `/projects/[id]` project detail cards with sticky sidebar contract details, structured review buttons (with ✓/↻/⚠ indicators), clean timeline submission history, and consistent status badge styling.
+  - Upgraded Client dashboard tables and new project wizard form fields with modern input focus rings, spacing, and layout formatting.
+
+### Added
 - **Phase 7 (Client Review: Approve / Request Changes / Dispute)**:
   - Extended `Submission` database model in `prisma/schema.prisma` with an optional `feedback` text field.
   - Implemented `approve(projectId, clientId)`, `requestChanges(projectId, clientId, feedback)`, and `raiseDispute(projectId, userId, reason)` service handlers in `lib/services/project-service.ts` managing project state transitions and audit logging.
