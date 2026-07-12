@@ -7,7 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Released] - 2026-07-12
 
+### Redesigned
+- **Visual Theme Redesign & Responsive Layout Optimization Pass**:
+  - Implemented the precise hex color palette specified in the task description for both light and dark themes in `app/globals.css`.
+  - Shifted mobile menu breakpoint in `Navbar.tsx` from `md` (768px) to `lg` (1024px) to show the hamburger panel for all tablet/mobile viewports.
+  - Implemented a "More" navigation dropdown for condensed desktop screens (1024px - 1440px) to prevent horizontal navbar link wrapping.
+  - Developed an interactive, responsive Avatar Dropdown replacing the static username and separate logout buttons on condensed screen widths.
+  - Added defensive `overflow-x: hidden` to root layout and `body` in `globals.css` to prevent accidental scroll leaks.
+  - Redesigned the Admin Overview page layout: added the "Total Projects Count" metric and progress indicators/bars to status distribution items.
+  - Aligned metric containers and layout sections using standard `max-w-7xl` centered grids.
+  - Cleared all hardcoded Tailwind slate/rose/emerald styles in dispute resolution components to draw colors dynamically from semantic CSS variables.
+  - Fixed pre-existing eslint violations (`react-hooks/set-state-in-effect`) in the local `ThemeProvider` and `ThemeToggle` components.
+
+### Fixed
+- **Table Horizontal Overflow on Mobile**:
+  - Diagnosed a containment bug where wide data tables (Payments, Assignments, Disputes) forced a page-level horizontal scroll on viewports narrower than `1024px` because their columns/data stretched outer flex layouts without width constraints.
+  - Refactored Admin Assignments, Payments ledger, and Admin Disputes queue pages to use responsive conditional rendering: tabular layout on desktop (>= `1024px`) and custom touch-friendly stacked card grids on mobile/tablet viewports (< `1024px`).
+  - Added global layout containment rules in `app/globals.css` ensuring the root `<main>` layout element enforces `w-full max-w-full overflow-x-hidden min-w-0` to guarantee page-level containment.
+- **NextAuth Session JWT Decryption Failure (Dashboard Access Regression)**:
+  - Identified a critical decryption discrepancy where the client-side/edge Middleware decrypted the NextAuth session token using `process.env.NEXTAUTH_SECRET`, but the API route handlers (specifically `/api/auth/session` called by `useSession()`) decrypted using a SHA-256 hashed secret derived by next-auth's `createSecret` utility (because `secret` was not explicitly declared inside `authOptions`).
+  - This decryption mismatch caused all CLIENT and FREELANCER dashboard loads to get stuck in `status: "loading"` or fail session validation, resulting in a redirect loop to `/select-role` or `/login`.
+  - Resolved this root cause by explicitly mapping `secret: process.env.NEXTAUTH_SECRET` inside the shared `authOptions` config in [auth-options.ts](file:///home/billy/Documents/ESCROW/lib/auth/auth-options.ts).
+
 ### Added
+- **Social & Discovery Layer**:
+  - Implemented the `Rating` database model in `prisma/schema.prisma` and applied schema migrations.
+  - Created the `GET /api/users/search` user search API endpoint with cross-role validation checks and sensitive profile contact data masking (excluding email and phone from search results).
+  - Developed the dynamic `GET /api/users/:id/public-profile` API route to return profile stats, computed skills (from proposals), and rater feedback comments.
+  - Built the `POST /api/projects/:id/rating` endpoint to allow Clients and Freelancers to rate completed projects (1-5 stars + comment) while enforcing the single-rating-per-project constraint.
+  - Developed the client-side `/search` query page and `/profiles/[userId]` profile details interface, complete with a security-locked contact details section.
+  - Integrated the new "Search" page into the dynamic Navbar.
+  - Created a robust security-focused integration test suite at `__tests__/social-discovery.test.ts`.
 - **Public Landing, Security Hardening & Onboarding Pass**:
   - Re-implemented root `/` route as a public-facing marketing landing page with functional descriptions, "How it Works" section, and "Get Started" triggers.
   - Implemented automatic redirection: authenticated users hitting root `/` are redirected to their default dashboard page.

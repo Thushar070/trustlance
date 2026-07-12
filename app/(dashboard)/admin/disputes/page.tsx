@@ -120,62 +120,148 @@ export default function AdminDisputesPage() {
           </p>
         </div>
       ) : (
-        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-[var(--text-muted)] font-bold uppercase text-[10px] tracking-wider">
-                  <th className="py-4 px-6">Project Title</th>
-                  <th className="py-4 px-6">Client</th>
-                  <th className="py-4 px-6">Freelancer</th>
-                  <th className="py-4 px-6 text-right">Amount in Dispute</th>
-                  <th className="py-4 px-6">Days Open</th>
-                  <th className="py-4 px-6">Status</th>
-                  <th className="py-4 px-6 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border-subtle)]">
-                {disputes.map((dispute) => {
-                  const projectObj = dispute.escrow?.project;
-                  const clientName = projectObj?.client?.name || "Client";
-                  const freelancerName = projectObj?.freelancer?.name || "Freelancer";
-                  const amount = projectObj?.agreedAmount || projectObj?.budget || 0;
+        <div className="space-y-6">
+          {/* Desktop Table View */}
+          <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm overflow-hidden hidden lg:block">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-[var(--text-muted)] font-bold uppercase text-[10px] tracking-wider">
+                    <th className="py-4 px-6">Project Title</th>
+                    <th className="py-4 px-6">Client</th>
+                    <th className="py-4 px-6">Freelancer</th>
+                    <th className="py-4 px-6 text-right">Amount in Dispute</th>
+                    <th className="py-4 px-6">Days Open</th>
+                    <th className="py-4 px-6">Status</th>
+                    <th className="py-4 px-6 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border-subtle)]">
+                  {disputes.map((dispute) => {
+                    const projectObj = dispute.escrow?.project;
+                    const clientName = projectObj?.client?.name || "Client";
+                    const freelancerName = projectObj?.freelancer?.name || "Freelancer";
+                    const amount = projectObj?.agreedAmount || projectObj?.budget || 0;
 
-                  return (
-                    <tr key={dispute.id} className="group hover:bg-[var(--surface-subtle)]/50 transition-colors duration-150">
-                      <td className="py-4 px-6 font-semibold text-[var(--text-primary)] max-w-xs truncate">
+                    return (
+                      <tr key={dispute.id} className="group hover:bg-[var(--surface-subtle)]/50 transition-colors duration-150">
+                        <td className="py-4 px-6 font-semibold text-[var(--text-primary)] max-w-xs truncate">
+                          {projectObj?.title}
+                        </td>
+                        <td className="py-4 px-6 text-[var(--text-secondary)]">
+                          {clientName}
+                        </td>
+                        <td className="py-4 px-6 text-[var(--text-secondary)]">
+                          {freelancerName}
+                        </td>
+                        <td className="py-4 px-6 text-right font-bold text-[var(--text-primary)]">
+                          ₹{amount.toLocaleString()}
+                        </td>
+                        <td className="py-4 px-6 text-[var(--text-secondary)] font-medium">
+                          {getDaysOpen(dispute.createdAt)}
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadge(dispute.status)}`}>
+                            {dispute.status}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6 text-right">
+                          <Link
+                            href={`/disputes/${dispute.id}`}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 border border-[var(--border)] hover:border-[var(--accent)] text-xs font-semibold rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-[var(--accent-light)] transition-colors"
+                          >
+                            Review Case <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile / Tablet Card View */}
+          <div className="block lg:hidden space-y-4">
+            {disputes.map((dispute) => {
+              const projectObj = dispute.escrow?.project;
+              const clientName = projectObj?.client?.name || "Client";
+              const freelancerName = projectObj?.freelancer?.name || "Freelancer";
+              const amount = projectObj?.agreedAmount || projectObj?.budget || 0;
+
+              return (
+                <div
+                  key={dispute.id}
+                  className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-5 shadow-sm space-y-4"
+                >
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-sm font-bold text-[var(--text-primary)] leading-snug break-words">
                         {projectObj?.title}
-                      </td>
-                      <td className="py-4 px-6 text-[var(--text-secondary)]">
+                      </h3>
+                      <span className={`mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadge(dispute.status)}`}>
+                        {dispute.status}
+                      </span>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <Link
+                        href={`/disputes/${dispute.id}`}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-[var(--accent-light)] hover:bg-[var(--accent)] hover:text-white text-[11px] font-bold text-[var(--accent)] rounded-lg transition-colors border border-[var(--border)]"
+                      >
+                        <span>Review</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-3 border-t border-[var(--border-subtle)] text-xs">
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">
+                        Client
+                      </div>
+                      <div className="font-semibold text-[var(--text-primary)] truncate">
                         {clientName}
-                      </td>
-                      <td className="py-4 px-6 text-[var(--text-secondary)]">
+                      </div>
+                      <div className="text-[var(--text-muted)] truncate">
+                        {projectObj?.client?.email}
+                      </div>
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">
+                        Freelancer
+                      </div>
+                      <div className="font-semibold text-[var(--text-primary)] truncate">
                         {freelancerName}
-                      </td>
-                      <td className="py-4 px-6 text-right font-bold text-[var(--text-primary)]">
+                      </div>
+                      <div className="text-[var(--text-muted)] truncate">
+                        {projectObj?.freelancer?.email || "Unassigned"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-3 border-t border-[var(--border-subtle)] text-xs">
+                    <div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-0.5">
+                        Amount in Dispute
+                      </div>
+                      <div className="text-sm font-bold text-[var(--text-primary)]">
                         ₹{amount.toLocaleString()}
-                      </td>
-                      <td className="py-4 px-6 text-[var(--text-secondary)] font-medium">
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-0.5">
+                        Days Open
+                      </div>
+                      <div className="text-sm font-semibold text-[var(--text-secondary)]">
                         {getDaysOpen(dispute.createdAt)}
-                      </td>
-                      <td className="py-4 px-6">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadge(dispute.status)}`}>
-                          {dispute.status}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 text-right">
-                        <Link
-                          href={`/disputes/${dispute.id}`}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 border border-[var(--border)] hover:border-[var(--accent)] text-xs font-semibold rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-[var(--accent-light)] transition-colors"
-                        >
-                          Review Case <ArrowRight className="w-3 h-3" />
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

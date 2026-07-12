@@ -4,6 +4,7 @@ import { prisma } from "../prisma";
 import { getRoleOverride } from "./role-overrides";
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "dummy-client-id",

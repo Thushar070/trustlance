@@ -90,47 +90,92 @@ export default function PaymentsHistoryPage() {
           </p>
         </div>
       ) : (
-        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
-              <thead className="bg-[var(--surface-subtle)] text-[var(--text-muted)] font-bold uppercase tracking-wider text-[10px] text-left">
-                <tr>
-                  <th className="px-6 py-4">Project</th>
-                  <th className="px-6 py-4">Transaction Amount</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--text-secondary)]">
-                {payments.map((p) => (
-                  <tr key={p.id} className="hover:bg-[var(--surface-subtle)]/50 transition-colors">
-                    <td className="px-6 py-4 font-semibold text-[var(--text-primary)]">
-                      <Link href={`/projects/${p.projectId}`} className="hover:text-[var(--accent)] transition-colors inline-flex items-center gap-1">
-                        {p.projectTitle}
-                        <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </Link>
-                    </td>
-                    <td className="px-6 py-4 font-bold text-[var(--text-primary)]">
-                      ₹{p.amount.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadgeClass(p.status)}`}>
-                        {p.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-[var(--text-muted)] font-medium">
-                      {new Date(p.createdAt).toLocaleDateString(undefined, {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </td>
+        <div className="space-y-6">
+          {/* Desktop Table View */}
+          <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm overflow-hidden hidden lg:block">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
+                <thead className="bg-[var(--surface-subtle)] text-[var(--text-muted)] font-bold uppercase tracking-wider text-[10px] text-left">
+                  <tr>
+                    <th className="px-6 py-4">Project</th>
+                    <th className="px-6 py-4">Transaction Amount</th>
+                    <th className="px-6 py-4">Status</th>
+                    <th className="px-6 py-4">Date</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--text-secondary)]">
+                  {payments.map((p) => (
+                    <tr key={p.id} className="hover:bg-[var(--surface-subtle)]/50 transition-colors">
+                      <td className="px-6 py-4 font-semibold text-[var(--text-primary)]">
+                        <Link href={`/projects/${p.projectId}`} className="hover:text-[var(--accent)] transition-colors inline-flex items-center gap-1">
+                          {p.projectTitle}
+                          <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4 font-bold text-[var(--text-primary)]">
+                        ₹{p.amount.toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadgeClass(p.status)}`}>
+                          {p.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-[var(--text-muted)] font-medium">
+                        {new Date(p.createdAt).toLocaleDateString(undefined, {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile / Tablet Card View */}
+          <div className="block lg:hidden space-y-4">
+            {payments.map((p) => (
+              <div
+                key={p.id}
+                className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-5 shadow-sm space-y-3"
+              >
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-[var(--text-muted)] font-medium">
+                    {new Date(p.createdAt).toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadgeClass(p.status)}`}>
+                    {p.status}
+                  </span>
+                </div>
+
+                <div className="pt-1">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-0.5">
+                    Project
+                  </div>
+                  <Link
+                    href={`/projects/${p.projectId}`}
+                    className="text-sm font-semibold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors line-clamp-2"
+                  >
+                    {p.projectTitle}
+                  </Link>
+                </div>
+
+                <div className="pt-2 border-t border-[var(--border-subtle)] flex justify-between items-center">
+                  <span className="text-xs text-[var(--text-secondary)] font-medium">Transaction Amount</span>
+                  <span className="text-sm font-bold text-[var(--text-primary)]">
+                    ₹{p.amount.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

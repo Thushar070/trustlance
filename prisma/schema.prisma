@@ -188,3 +188,15 @@ model Message {
   content   String
   createdAt DateTime @default(now())
 }
+
+model Rating {
+  id        String   @id @default(cuid())
+  projectId String
+  raterId   String
+  rateeId   String
+  score     Int      // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@unique([projectId, raterId])
+}

@@ -32,6 +32,9 @@ jest.mock("@/lib/prisma", () => ({
     dispute: {
       findFirst: jest.fn(),
     },
+    rating: {
+      findUnique: jest.fn(),
+    },
   },
 }));
 

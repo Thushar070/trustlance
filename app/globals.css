@@ -3,16 +3,15 @@
 /* =============================================
    TrustLance Design System — CSS Variables
    =============================================
-   Brand: Deep indigo primary for trust/authority.
-   Status colors are deliberate and semantically distinct.
-   See /docs/DESIGN_SYSTEM.md for the full spec.
+   Brand: Indigo primary for authority.
+   Status colors are dark-optimized for readability.
    ============================================= */
 
 :root {
   /* ---- Brand ---- */
   --background: #f8fafc;
   --foreground: #0f172a;
-  --accent: #4338ca;
+  --accent: #4f46e5;
   --accent-hover: #3730a3;
   --accent-light: #eef2ff;
 
@@ -22,51 +21,51 @@
   --surface-subtle: #f8fafc;
 
   /* ---- Borders ---- */
-  --border: #e2e8f0;
-  --border-subtle: #f1f5f9;
+  --border: rgba(15, 23, 42, 0.08);
+  --border-subtle: rgba(15, 23, 42, 0.04);
 
   /* ---- Text ---- */
   --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --text-secondary: #64748b;
   --text-muted: #94a3b8;
 
   /* ---- Inputs ---- */
   --input-bg: #ffffff;
 
-  /* ---- Status: Available / Accepting ---- */
-  --status-open-bg: #f0f9ff;
-  --status-open-text: #0369a1;
-  --status-open-border: #bae6fd;
+  /* ---- Status: Available / Accepting (Neutral/Info - Blue) ---- */
+  --status-open-bg: rgba(37, 99, 235, 0.08);
+  --status-open-text: #2563eb;
+  --status-open-border: rgba(37, 99, 235, 0.2);
 
-  /* ---- Status: Assigned / In-Progress ---- */
-  --status-progress-bg: #fffbeb;
-  --status-progress-text: #b45309;
-  --status-progress-border: #fde68a;
+  /* ---- Status: Assigned / In-Progress (Amber) ---- */
+  --status-progress-bg: rgba(217, 119, 6, 0.08);
+  --status-progress-text: #d97706;
+  --status-progress-border: rgba(217, 119, 6, 0.2);
 
-  /* ---- Status: Under Review ---- */
-  --status-review-bg: #f5f3ff;
-  --status-review-text: #6d28d9;
-  --status-review-border: #ddd6fe;
+  /* ---- Status: Under Review (Blue/Indigo) ---- */
+  --status-review-bg: rgba(37, 99, 235, 0.08);
+  --status-review-text: #2563eb;
+  --status-review-border: rgba(37, 99, 235, 0.2);
 
-  /* ---- Status: Final Positive (Completed / Released / Success) ---- */
-  --status-success-bg: #ecfdf5;
-  --status-success-text: #047857;
-  --status-success-border: #a7f3d0;
+  /* ---- Status: Final Positive (Completed / Released / Success - Emerald) ---- */
+  --status-success-bg: rgba(5, 150, 105, 0.08);
+  --status-success-text: #059669;
+  --status-success-border: rgba(5, 150, 105, 0.2);
 
-  /* ---- Status: Disputed / Warning ---- */
-  --status-disputed-bg: #fff7ed;
-  --status-disputed-text: #c2410c;
-  --status-disputed-border: #fed7aa;
+  /* ---- Status: Disputed / Warning (Amber) ---- */
+  --status-disputed-bg: rgba(217, 119, 6, 0.08);
+  --status-disputed-text: #d97706;
+  --status-disputed-border: rgba(217, 119, 6, 0.2);
 
-  /* ---- Status: Final Negative (Cancelled / Refunded / Failed) ---- */
-  --status-negative-bg: #fff1f2;
-  --status-negative-text: #be123c;
-  --status-negative-border: #fecdd3;
+  /* ---- Status: Final Negative (Cancelled / Refunded / Failed - Red) ---- */
+  --status-negative-bg: rgba(220, 38, 38, 0.08);
+  --status-negative-text: #dc2626;
+  --status-negative-border: rgba(220, 38, 38, 0.2);
 
-  /* ---- Status: Neutral / Closed ---- */
-  --status-neutral-bg: #f1f5f9;
-  --status-neutral-text: #475569;
-  --status-neutral-border: #cbd5e1;
+  /* ---- Status: Neutral / Closed (Slate) ---- */
+  --status-neutral-bg: rgba(100, 116, 139, 0.08);
+  --status-neutral-text: #64748b;
+  --status-neutral-border: rgba(100, 116, 139, 0.2);
 
   /* ---- Scrollbar ---- */
   --scrollbar-thumb: #cbd5e1;
@@ -84,61 +83,61 @@
    ============================================= */
 
 .dark {
-  --background: #0f172a;
-  --foreground: #e2e8f0;
-  --accent: #818cf8;
-  --accent-hover: #6366f1;
-  --accent-light: #312e81;
+  --background: #000000;
+  --foreground: #f5f5f5;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-light: rgba(99, 102, 241, 0.12);
 
-  --surface: #1e293b;
-  --surface-elevated: #334155;
-  --surface-subtle: #1e293b;
+  --surface: #111111;
+  --surface-elevated: #1a1a1a;
+  --surface-subtle: #0a0a0a;
 
-  --border: #334155;
-  --border-subtle: #1e293b;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.04);
 
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
+  --text-primary: #f5f5f5;
+  --text-secondary: #a0a0a0;
   --text-muted: #64748b;
 
-  --input-bg: #1e293b;
+  --input-bg: #111111;
 
-  /* ---- Status (dark-optimized for readability on dark bg) ---- */
-  --status-open-bg: #0c4a6e;
-  --status-open-text: #38bdf8;
-  --status-open-border: #0369a1;
+  /* ---- Status (dark-optimized for readability on dark bg with 12% opacity bg) ---- */
+  --status-open-bg: rgba(96, 165, 250, 0.12);
+  --status-open-text: #60a5fa;
+  --status-open-border: rgba(96, 165, 250, 0.3);
 
-  --status-progress-bg: #78350f;
-  --status-progress-text: #fbbf24;
-  --status-progress-border: #b45309;
+  --status-progress-bg: rgba(245, 158, 11, 0.12);
+  --status-progress-text: #f59e0b;
+  --status-progress-border: rgba(245, 158, 11, 0.3);
 
-  --status-review-bg: #4c1d95;
-  --status-review-text: #a78bfa;
-  --status-review-border: #6d28d9;
+  --status-review-bg: rgba(96, 165, 250, 0.12);
+  --status-review-text: #60a5fa;
+  --status-review-border: rgba(96, 165, 250, 0.3);
 
-  --status-success-bg: #064e3b;
-  --status-success-text: #34d399;
-  --status-success-border: #047857;
+  --status-success-bg: rgba(16, 185, 129, 0.12);
+  --status-success-text: #10b981;
+  --status-success-border: rgba(16, 185, 129, 0.3);
 
-  --status-disputed-bg: #7c2d12;
-  --status-disputed-text: #fb923c;
-  --status-disputed-border: #c2410c;
+  --status-disputed-bg: rgba(245, 158, 11, 0.12);
+  --status-disputed-text: #f59e0b;
+  --status-disputed-border: rgba(245, 158, 11, 0.3);
 
-  --status-negative-bg: #881337;
-  --status-negative-text: #fb7185;
-  --status-negative-border: #be123c;
+  --status-negative-bg: rgba(248, 113, 113, 0.12);
+  --status-negative-text: #f87171;
+  --status-negative-border: rgba(248, 113, 113, 0.3);
 
-  --status-neutral-bg: #1e293b;
-  --status-neutral-text: #94a3b8;
-  --status-neutral-border: #475569;
+  --status-neutral-bg: rgba(144, 150, 165, 0.12);
+  --status-neutral-text: #9096a5;
+  --status-neutral-border: rgba(144, 150, 165, 0.3);
 
   --scrollbar-thumb: #475569;
   --scrollbar-thumb-hover: #64748b;
 
-  --gradient-from: #818cf8;
-  --gradient-to: #6366f1;
-  --gradient-subtle-from: #312e81;
-  --gradient-subtle-to: #3730a3;
+  --gradient-from: #6366f1;
+  --gradient-to: #4f46e5;
+  --gradient-subtle-from: rgba(99, 102, 241, 0.15);
+  --gradient-subtle-to: rgba(79, 70, 229, 0.15);
 }
 
 @theme inline {
@@ -151,12 +150,42 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+main {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Responsive Desktop Helper Classes */
+@media (min-width: 1440px) {
+  .xl-desktop-only {
+    display: flex !important;
+  }
+  .condensed-only {
+    display: none !important;
+  }
+}
+@media (max-width: 1439.98px) {
+  .xl-desktop-only {
+    display: none !important;
+  }
+  .condensed-only {
+    display: flex !important;
+  }
 }
 
 /* Smooth transitions on interactive elements */

@@ -11,7 +11,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession();
-    if (!session || !session.user) {
+    if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -53,8 +53,8 @@ export async function GET(
 
     // If the logged-in user is a freelancer, attach their own proposal if it exists
     let myProposal = null;
+    const { prisma } = await import("@/lib/prisma");
     if (session.user.role === Role.FREELANCER) {
-      const { prisma } = await import("@/lib/prisma");
       myProposal = await prisma.proposal.findFirst({
         where: {
           projectId: id,
@@ -63,9 +63,20 @@ export async function GET(
       });
     }
 
+    // Fetch user's rating for this project if it exists
+    const myRating = await prisma.rating.findUnique({
+      where: {
+        projectId_raterId: {
+          projectId: id,
+          raterId: session.user.id,
+        },
+      },
+    });
+
     return NextResponse.json({
       ...project,
       myProposal,
+      myRating,
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Internal Server Error";

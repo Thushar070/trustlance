@@ -565,10 +565,10 @@ export default function DisputeDetailPage() {
                       <button
                         onClick={() => handleResolve(confirmAction)}
                         disabled={resolvingAction !== null}
-                        className={`flex-grow inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white transition-colors cursor-pointer ${
+                        className={`flex-grow inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white transition-all cursor-pointer ${
                           confirmAction === "RELEASE"
-                            ? "bg-emerald-700 hover:bg-emerald-800"
-                            : "bg-rose-700 hover:bg-rose-800"
+                            ? "bg-[var(--status-success-text)] hover:brightness-110"
+                            : "bg-[var(--status-negative-text)] hover:brightness-110"
                         }`}
                       >
                         {resolvingAction !== null ? "Processing..." : "Confirm & Submit"}
@@ -576,7 +576,7 @@ export default function DisputeDetailPage() {
                       <button
                         onClick={() => setConfirmAction(null)}
                         disabled={resolvingAction !== null}
-                        className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition-colors cursor-pointer"
+                        className="px-4 py-2.5 bg-[var(--surface-subtle)] border border-[var(--border)] hover:bg-[var(--border-subtle)] text-[var(--text-primary)] font-semibold rounded-lg text-xs transition-all cursor-pointer"
                       >
                         Cancel
                       </button>
