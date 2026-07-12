@@ -30,7 +30,7 @@ jest.mock("@/lib/auth/require-role", () => ({
 // Mock getServerSession
 jest.mock("@/lib/auth/get-server-session", () => ({
   getServerSession: jest.fn().mockResolvedValue({
-    user: { id: "client_user", role: "CLIENT" },
+    user: { id: "client_user", role: "FREELANCER" },
   }),
 }));
 

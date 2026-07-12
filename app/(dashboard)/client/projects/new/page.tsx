@@ -15,6 +15,7 @@ export default function NewProjectPage() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [skillsOpen, setSkillsOpen] = useState(false);
 
   const toggleSkill = (skill: string) => {
     if (selectedSkills.includes(skill)) {
@@ -95,7 +96,7 @@ export default function NewProjectPage() {
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Build a secure escrow payment module for Next.js app"
+                placeholder="e.g. Build a secure escrow payment module for web application"
                 className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all"
               />
               {errors.title && (
@@ -165,38 +166,52 @@ export default function NewProjectPage() {
 
             {/* Skill Selection */}
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5">Skills Required</label>
-              <p className="text-[11px] text-[var(--text-muted)] mb-3 font-medium">Select at least one skill representing the tech stack required.</p>
+              <div className="flex items-center justify-between mb-2">
+                <button
+                  type="button"
+                  onClick={() => setSkillsOpen(!skillsOpen)}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors uppercase tracking-wider cursor-pointer"
+                >
+                  {skillsOpen ? "− Hide skills selection" : "+ Add relevant skills (optional)"}
+                </button>
+                {selectedSkills.length > 0 && (
+                  <span className="text-xs text-[var(--text-muted)] font-medium">
+                    {selectedSkills.length} selected
+                  </span>
+                )}
+              </div>
               {errors.skills && (
                 <p className="mb-3 text-xs text-[var(--status-negative-text)] font-medium">{errors.skills[0]}</p>
               )}
 
-              <div className="space-y-4 border border-[var(--border)] rounded-lg p-4 bg-[var(--surface-subtle)] max-h-80 overflow-y-auto">
-                {SKILL_GROUPS.map((group) => (
-                  <div key={group.category}>
-                    <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">{group.category}</h3>
-                    <div className="flex flex-wrap gap-1.5">
-                      {group.skills.map((skill) => {
-                        const isSelected = selectedSkills.includes(skill);
-                        return (
-                          <button
-                            key={skill}
-                            type="button"
-                            onClick={() => toggleSkill(skill)}
-                            className={`text-[10px] px-2.5 py-1 rounded-md border font-medium cursor-pointer transition-all duration-150 ${
-                              isSelected
-                                ? "bg-[var(--accent-light)] border-[var(--accent)] text-[var(--accent)] font-bold shadow-sm"
-                                : "bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)]"
-                            }`}
-                          >
-                            {skill}
-                          </button>
-                        );
-                      })}
+              {skillsOpen && (
+                <div className="space-y-4 border border-[var(--border)] rounded-lg p-4 bg-[var(--surface-subtle)] max-h-80 overflow-y-auto mt-2 transition-all">
+                  {SKILL_GROUPS.map((group) => (
+                    <div key={group.category}>
+                      <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">{group.category}</h3>
+                      <div className="flex flex-wrap gap-1.5">
+                        {group.skills.map((skill) => {
+                          const isSelected = selectedSkills.includes(skill);
+                          return (
+                            <button
+                              key={skill}
+                              type="button"
+                              onClick={() => toggleSkill(skill)}
+                              className={`text-[10px] px-2.5 py-1 rounded-md border font-medium cursor-pointer transition-all duration-150 ${
+                                isSelected
+                                  ? "bg-[var(--accent-light)] border-[var(--accent)] text-[var(--accent)] font-bold shadow-sm"
+                                  : "bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)]"
+                              }`}
+                            >
+                              {skill}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Action Buttons */}

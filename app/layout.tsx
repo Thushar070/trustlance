@@ -51,7 +51,7 @@ export default function RootLayout({
                 © 2026 TrustLance. Secure escrow-powered freelance marketplace.
               </p>
               <div className="flex items-center gap-4 text-xs text-[var(--text-muted)]">
-                <span>Next.js · Prisma · Razorpay</span>
+                <span>Secure · Verified · Escrow-Backed</span>
               </div>
             </div>
           </footer>

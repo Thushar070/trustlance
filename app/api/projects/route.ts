@@ -44,6 +44,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (session.user.role === Role.ADMIN) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
     const statusParam = searchParams.get("status");
     const skillsParam = searchParams.get("skills");
@@ -71,10 +75,16 @@ export async function GET(request: Request) {
     const deadlineBefore = deadlineBeforeParam ? new Date(deadlineBeforeParam) : undefined;
     const deadlineAfter = deadlineAfterParam ? new Date(deadlineAfterParam) : undefined;
 
+    // Scope Clients to only their own projects
+    let clientIdFilter = clientIdParam || undefined;
+    if (session.user.role === Role.CLIENT) {
+      clientIdFilter = session.user.id;
+    }
+
     const result = await ProjectService.listProjects({
       status,
       skills,
-      clientId: clientIdParam || undefined,
+      clientId: clientIdFilter,
       minBudget: minBudget && !isNaN(minBudget) ? minBudget : undefined,
       maxBudget: maxBudget && !isNaN(maxBudget) ? maxBudget : undefined,
       deadlineBefore: deadlineBefore && !isNaN(deadlineBefore.getTime()) ? deadlineBefore : undefined,

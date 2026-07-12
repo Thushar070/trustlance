@@ -22,15 +22,33 @@ export async function GET(
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // Visibility boundary: Non-OPEN projects are restricted
-    if (project.status !== ProjectStatus.OPEN) {
-      const isClientOwner = project.clientId === session.user.id;
-      const isFreelancerAssigned = project.freelancerId === session.user.id;
-      const isAdmin = session.user.role === Role.ADMIN;
+    const isClientOwner = project.clientId === session.user.id;
+    const isFreelancerAssigned = project.freelancerId === session.user.id;
+    const isFreelancerRole = session.user.role === Role.FREELANCER;
+    const isAdmin = session.user.role === Role.ADMIN;
 
-      if (!isClientOwner && !isFreelancerAssigned && !isAdmin) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    let isAuthorized = false;
+
+    if (isClientOwner || isFreelancerAssigned) {
+      isAuthorized = true;
+    } else if (isFreelancerRole && project.status === ProjectStatus.OPEN) {
+      isAuthorized = true;
+    } else if (isAdmin) {
+      // Admin is only granted full access if an active or resolved dispute exists
+      const { prisma } = await import("@/lib/prisma");
+      const dispute = await prisma.dispute.findFirst({
+        where: {
+          escrow: { projectId: project.id },
+          status: { in: ["OPEN", "ADMIN_REVIEW", "RESOLVED"] }
+        }
+      });
+      if (dispute) {
+        isAuthorized = true;
       }
+    }
+
+    if (!isAuthorized) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // If the logged-in user is a freelancer, attach their own proposal if it exists

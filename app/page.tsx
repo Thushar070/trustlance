@@ -27,27 +27,27 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-xl mx-auto">
               <div className="group p-4 bg-[var(--surface-subtle)] rounded-xl border border-[var(--border)] hover:shadow-md hover:border-[var(--text-muted)] transition-all duration-150">
                 <span className="font-semibold text-[var(--text-primary)] block mb-1.5 text-sm flex items-center gap-1.5">
-                  <Key className="w-4 h-4 text-[var(--accent)]" /> Google OAuth
+                  <Key className="w-4 h-4 text-[var(--accent)]" /> Secure Sign-In
                 </span>
-                <span className="text-xs text-[var(--text-secondary)] leading-relaxed">Seamless sign-in utilizing secure Google Cloud identity provider.</span>
+                <span className="text-xs text-[var(--text-secondary)] leading-relaxed">Seamless sign-in utilizing secure, trusted identity providers.</span>
               </div>
               <div className="group p-4 bg-[var(--surface-subtle)] rounded-xl border border-[var(--border)] hover:shadow-md hover:border-[var(--text-muted)] transition-all duration-150">
                 <span className="font-semibold text-[var(--text-primary)] block mb-1.5 text-sm flex items-center gap-1.5">
-                  <Shield className="w-4 h-4 text-[var(--status-success-text)]" /> Role-Based RBAC
+                  <Shield className="w-4 h-4 text-[var(--status-success-text)]" /> Tailored Workspaces
                 </span>
-                <span className="text-xs text-[var(--text-secondary)] leading-relaxed">Automatic email role mapping or selective onboarding for client/freelancer roles.</span>
+                <span className="text-xs text-[var(--text-secondary)] leading-relaxed">Tailored workspace views and dashboard capabilities for clients and freelancers.</span>
               </div>
               <div className="group p-4 bg-[var(--surface-subtle)] rounded-xl border border-[var(--border)] hover:shadow-md hover:border-[var(--text-muted)] transition-all duration-150">
                 <span className="font-semibold text-[var(--text-primary)] block mb-1.5 text-sm flex items-center gap-1.5">
-                  <CreditCard className="w-4 h-4 text-[var(--status-progress-text)]" /> Razorpay Escrow
+                  <CreditCard className="w-4 h-4 text-[var(--status-progress-text)]" /> Secure Escrow Payments
                 </span>
-                <span className="text-xs text-[var(--text-secondary)] leading-relaxed">Application-level escrow with full state machine for payment lifecycle.</span>
+                <span className="text-xs text-[var(--text-secondary)] leading-relaxed">Application-level escrow protection for the entire contract lifecycle.</span>
               </div>
               <div className="group p-4 bg-[var(--surface-subtle)] rounded-xl border border-[var(--border)] hover:shadow-md hover:border-[var(--text-muted)] transition-all duration-150">
                 <span className="font-semibold text-[var(--text-primary)] block mb-1.5 text-sm flex items-center gap-1.5">
-                  <FolderUp className="w-4 h-4 text-[var(--status-review-text)]" /> S3 Submissions
+                  <FolderUp className="w-4 h-4 text-[var(--status-review-text)]" /> Cloud Deliverables
                 </span>
-                <span className="text-xs text-[var(--text-secondary)] leading-relaxed">Direct presigned uploads to AWS S3 with work review and dispute workflows.</span>
+                <span className="text-xs text-[var(--text-secondary)] leading-relaxed">Direct file uploads with structured review, milestone checks, and dispute workflows.</span>
               </div>
             </div>
           </div>

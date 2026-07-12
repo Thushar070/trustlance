@@ -1,28 +1,36 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-let resendInstance: Resend | null = null;
+let transporterInstance: nodemailer.Transporter | null = null;
 
-const getResend = () => {
-  if (!resendInstance && process.env.RESEND_API_KEY) {
-    resendInstance = new Resend(process.env.RESEND_API_KEY);
+const getTransporter = () => {
+  if (!transporterInstance && process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+    transporterInstance = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port: parseInt(process.env.SMTP_PORT || "587", 10),
+      secure: process.env.SMTP_SECURE === "true", // usually false for 587 (STARTTLS)
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
   }
-  return resendInstance;
+  return transporterInstance;
 };
 
 export const Mailer = {
   /**
-   * Sends a plain-text transactional email using Resend.
+   * Sends a plain-text transactional email using Nodemailer with Gmail SMTP.
    * Encapsulates errors to prevent failures from blocking parent transactions.
    */
   async sendEmail(to: string | string[], subject: string, body: string): Promise<boolean> {
-    const from = "TrustLance (Dev) <onboarding@resend.dev>";
+    const from = "TrustLance <trustlance.noreply@gmail.com>";
     const recipients = Array.isArray(to) ? to : [to];
 
     try {
-      const resend = getResend();
-      if (!resend) {
+      const transporter = getTransporter();
+      if (!transporter) {
         console.warn(
-          `[Mailer WARNING] RESEND_API_KEY is not configured. Email NOT sent to: ${recipients.join(
+          `[Mailer WARNING] SMTP_USER or SMTP_PASSWORD is not configured. Email NOT sent to: ${recipients.join(
             ", "
           )}\n` +
             `Subject: ${subject}\n` +
@@ -31,19 +39,12 @@ export const Mailer = {
         return false;
       }
 
-      const response = await resend.emails.send({
+      await transporter.sendMail({
         from,
         to: recipients,
         subject,
         text: body,
       });
-
-      if (response.error) {
-        console.warn(
-          `[Mailer WARNING] Resend API returned an error: ${JSON.stringify(response.error)}`
-        );
-        return false;
-      }
 
       return true;
     } catch (error: unknown) {

@@ -48,12 +48,16 @@ export default function Navbar() {
     }`;
   };
 
+  const isFreelancer = session?.user?.role === "FREELANCER";
+
   const navLinks = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
     ...(isClient
       ? [{ href: "/client/projects", label: "My Projects", icon: Briefcase, exact: false }]
       : []),
-    { href: "/projects", label: "Browse Projects", icon: FolderSearch, exact: false },
+    ...(isFreelancer
+      ? [{ href: "/projects", label: "Browse Projects", icon: FolderSearch, exact: false }]
+      : []),
     ...(session
       ? [
           { href: "/payments", label: "Payments", icon: CreditCard, exact: false },
@@ -62,6 +66,7 @@ export default function Navbar() {
       : []),
     ...(isAdmin
       ? [
+          { href: "/admin/assignments", label: "Assignments", icon: Briefcase, exact: false },
           { href: "/admin/disputes", label: "Disputes", icon: AlertTriangle, exact: false },
           { href: "/admin/overview", label: "Admin", icon: Shield, exact: false },
         ]

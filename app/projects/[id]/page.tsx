@@ -233,7 +233,7 @@ export default function ProjectDetailPage() {
         });
 
         if (!s3Res.ok) {
-          throw new Error("Direct S3 upload failed.");
+          throw new Error("Direct cloud upload failed.");
         }
 
         fileUrl = presignData.fileUrl;
@@ -367,6 +367,7 @@ export default function ProjectDetailPage() {
 
   // Project Edit Mode state (Client owner only)
   const [editMode, setEditMode] = useState(false);
+  const [editSkillsOpen, setEditSkillsOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [budget, setBudget] = useState("");
@@ -942,36 +943,51 @@ export default function ProjectDetailPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Skills Required</label>
+              <div className="flex items-center justify-between mb-2">
+                <button
+                  type="button"
+                  onClick={() => setEditSkillsOpen(!editSkillsOpen)}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors uppercase tracking-wider cursor-pointer"
+                >
+                  {editSkillsOpen ? "− Hide skills selection" : "+ Add relevant skills (optional)"}
+                </button>
+                {selectedSkills.length > 0 && (
+                  <span className="text-xs text-[var(--text-muted)] font-medium">
+                    {selectedSkills.length} selected
+                  </span>
+                )}
+              </div>
               {validationErrors.skills && (
                 <p className="mb-3 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.skills[0]}</p>
               )}
-              <div className="space-y-4 border border-[var(--border)] rounded-lg p-4 bg-[var(--surface-subtle)] max-h-60 overflow-y-auto">
-                {SKILL_GROUPS.map((group) => (
-                  <div key={group.category}>
-                    <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">{group.category}</h3>
-                    <div className="flex flex-wrap gap-1.5">
-                      {group.skills.map((skill) => {
-                        const isSelected = selectedSkills.includes(skill);
-                        return (
-                          <button
-                            key={skill}
-                            type="button"
-                            onClick={() => toggleSkill(skill)}
-                            className={`text-[10px] px-2.5 py-1 rounded-md border font-medium cursor-pointer transition-all duration-150 ${
-                              isSelected
-                                ? "bg-[var(--accent-light)] border-[var(--accent)] text-[var(--accent)] font-bold shadow-sm"
-                                : "bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)]"
-                            }`}
-                          >
-                            {skill}
-                          </button>
-                        );
-                      })}
+              {editSkillsOpen && (
+                <div className="space-y-4 border border-[var(--border)] rounded-lg p-4 bg-[var(--surface-subtle)] max-h-60 overflow-y-auto mt-2 transition-all">
+                  {SKILL_GROUPS.map((group) => (
+                    <div key={group.category}>
+                      <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">{group.category}</h3>
+                      <div className="flex flex-wrap gap-1.5">
+                        {group.skills.map((skill) => {
+                          const isSelected = selectedSkills.includes(skill);
+                          return (
+                            <button
+                              key={skill}
+                              type="button"
+                              onClick={() => toggleSkill(skill)}
+                              className={`text-[10px] px-2.5 py-1 rounded-md border font-medium cursor-pointer transition-all duration-150 ${
+                                isSelected
+                                  ? "bg-[var(--accent-light)] border-[var(--accent)] text-[var(--accent)] font-bold shadow-sm"
+                                  : "bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)]"
+                              }`}
+                            >
+                              {skill}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end gap-3 border-t border-[var(--border-subtle)] pt-6">
@@ -1024,19 +1040,21 @@ export default function ProjectDetailPage() {
               </div>
 
               {/* Skills Box */}
-              <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6">
-                <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3.5">Skills Required</h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {project.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="bg-[var(--accent-light)] text-[var(--accent)] text-[10px] px-2.5 py-1 rounded-md border border-[var(--border)] font-bold"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+              {project.skills && project.skills.length > 0 && (
+                <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6">
+                  <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3.5">Skills Required</h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {project.skills.map((skill) => (
+                      <span
+                        key={skill}
+                        className="bg-[var(--surface-subtle)] text-[var(--text-secondary)] text-[10px] px-2.5 py-1 rounded-md border border-[var(--border-subtle)] font-medium"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Client Review & Actions Panel */}
               {isOwner && project.status === ProjectStatus.UNDER_REVIEW && (
@@ -1289,7 +1307,7 @@ export default function ProjectDetailPage() {
                           disabled={submittingWork || uploadingFile}
                           className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 cursor-pointer shadow-sm transition-colors"
                         >
-                          {uploadingFile ? "Uploading File to S3..." : submittingWork ? "Submitting Work..." : "Submit Deliverables"}
+                          {uploadingFile ? "Uploading File to Cloud..." : submittingWork ? "Submitting Work..." : "Submit Deliverables"}
                         </button>
                       </div>
                     </form>

@@ -22,9 +22,10 @@ export const createProjectSchema = z.object({
     }),
   skills: z
     .array(z.string())
-    .min(1, "At least one skill is required.")
+    .optional()
+    .default([])
     .refine(
-      (skills) => skills.every((skill) => ALL_SKILLS.includes(skill)),
+      (skills) => !skills || skills.every((skill) => ALL_SKILLS.includes(skill)),
       {
         message: "One or more selected skills are invalid.",
       }

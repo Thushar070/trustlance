@@ -154,7 +154,7 @@ export default function DisputeDetailPage() {
         });
 
         if (!s3Res.ok) {
-          throw new Error("Direct S3 upload failed.");
+          throw new Error("Direct cloud upload failed.");
         }
 
         type = "file";
@@ -459,7 +459,7 @@ export default function DisputeDetailPage() {
                       className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-sm disabled:opacity-50 cursor-pointer transition-colors"
                     >
                       <Upload className="w-3.5 h-3.5" />
-                      {uploadingFile ? "Uploading File to S3..." : submittingEvidence ? "Adding Evidence..." : "Add Evidence"}
+                      {uploadingFile ? "Uploading File to Cloud..." : submittingEvidence ? "Adding Evidence..." : "Add Evidence"}
                     </button>
                   </div>
                 </form>

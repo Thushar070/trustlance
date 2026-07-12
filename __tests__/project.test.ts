@@ -60,7 +60,7 @@ describe("Project Posting Validator Unit Tests", () => {
     }
   });
 
-  it("should reject a project with zero skills listed", () => {
+  it("should allow a project with zero skills listed", () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 2);
 
@@ -72,10 +72,7 @@ describe("Project Posting Validator Unit Tests", () => {
       skills: [],
     });
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.flatten().fieldErrors.skills?.[0]).toContain("At least one skill is required");
-    }
+    expect(result.success).toBe(true);
   });
 });
 

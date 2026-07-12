@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Released] - 2026-07-12
 
 ### Added
+- **Access Control & Email Overhaul Pass**:
+  - Restricted Client project search visibility: clients now only see their own projects, public project lists are restricted to Freelancers, and browse links are removed from Client Navbar.
+  - Implemented Client redirect warnings when clients try to navigate to `/projects` directly.
+  - Updated skills field validation to be fully optional, hiding selection lists behind collapsible `+ Add relevant skills` selectors.
+  - Hardened Admin visibility checks: admins can only view projects that have active or resolved disputes. Private chat threads remain completely forbidden for admins.
+  - Built `GET /api/admin/assignments` endpoint and `/admin/assignments` Admin panel page displaying flat client/freelancer directory summaries.
+  - Integrated Nodemailer SMTP Gmail transport replacing Resend notifications.
+  - Cleared all developer-facing technical terms (Next.js, Prisma, S3, Razorpay, OAuth, RBAC) from user-visible pages.
+
 - **UI/UX Overhaul: Complete Dark/Light Mode & Responsive Redesign**:
   - Implemented client-side theme engine with `components/ThemeProvider.tsx` and custom sun/moon/monitor cycle trigger `components/ThemeToggle.tsx`.
   - Added inline theme flash prevention script inside `app/layout.tsx` to handle hydration-safe loading from local storage.

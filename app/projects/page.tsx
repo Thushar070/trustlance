@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { ProjectStatus } from "@prisma/client";
 import { SKILL_GROUPS } from "@/lib/constants/skills";
 import {
@@ -52,6 +53,7 @@ const getStatusBadgeClass = (status: ProjectStatus) => {
 };
 
 export default function BrowseProjectsPage() {
+  const { data: session } = useSession();
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -283,6 +285,34 @@ export default function BrowseProjectsPage() {
     </>
   );
 
+  if (session && session.user && session.user.role === "CLIENT") {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-16 text-center">
+        <div className="bg-[var(--surface)] p-8 rounded-2xl border border-[var(--border)] shadow-sm">
+          <FolderSearch className="w-12 h-12 text-[var(--accent)] mx-auto mb-4" />
+          <h1 className="text-xl font-bold text-[var(--text-primary)]">Client Accounts Do Not Browse Projects</h1>
+          <p className="text-sm text-[var(--text-secondary)] mt-2 mb-6">
+            To hire freelancers and manage your jobs, please view your current project postings or post a new project.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <Link
+              href="/client/projects"
+              className="px-5 py-2.5 text-sm font-semibold rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors text-center"
+            >
+              My Projects
+            </Link>
+            <Link
+              href="/client/projects/new"
+              className="px-5 py-2.5 text-sm font-semibold rounded-lg border border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] transition-colors text-center"
+            >
+              Post a Project
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -335,7 +365,7 @@ export default function BrowseProjectsPage() {
             <Search className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0" />
             <input
               type="text"
-              placeholder="Search by keywords (e.g. Next.js, API, dashboard)..."
+              placeholder="Search by keywords (e.g. Design, Frontend, Writing)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full text-sm focus:outline-none bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"

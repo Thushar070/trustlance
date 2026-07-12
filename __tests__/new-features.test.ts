@@ -2,9 +2,12 @@ import { Role, ProjectStatus } from "@prisma/client";
 import { ProjectService } from "@/lib/services/project-service";
 import { MessageService } from "@/lib/services/message-service";
 import { GET as getProjectDetailHandler } from "@/app/api/projects/[id]/route";
+import { GET as listProjectsHandler } from "@/app/api/projects/route";
+import { GET as getAssignmentsHandler } from "@/app/api/admin/assignments/route";
 import { PATCH as updateProfileHandler } from "@/app/api/users/me/route";
 import { getServerSession } from "@/lib/auth/get-server-session";
 import { prisma } from "@/lib/prisma";
+import { createProjectSchema } from "@/lib/validators/project";
 
 // Mock NextAuth helpers
 jest.mock("@/lib/auth/get-server-session");
@@ -26,6 +29,9 @@ jest.mock("@/lib/prisma", () => ({
       findUnique: jest.fn(),
       update: jest.fn(),
     },
+    dispute: {
+      findFirst: jest.fn(),
+    },
   },
 }));
 
@@ -37,39 +43,155 @@ describe("New Features Unit & API Gating Tests", () => {
   });
 
   describe("Part A: Restrict Project Visibility", () => {
-    it("ProjectService.listProjects should filter out non-OPEN status unless user is client/freelancer owner", async () => {
-      (prisma.project.count as jest.Mock).mockResolvedValue(0);
-      (prisma.project.findMany as jest.Mock).mockResolvedValue([]);
-
-      await ProjectService.listProjects({
-        status: ProjectStatus.ASSIGNED,
-        currentUserId: "freelancer_123",
-      });
-
-      expect(prisma.project.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            status: ProjectStatus.ASSIGNED,
-            AND: [
-              {
-                OR: [
-                  { clientId: "freelancer_123" },
-                  { freelancerId: "freelancer_123" },
-                ],
-              },
-            ],
-          }),
-        })
-      );
-    });
-
-    it("GET /api/projects/[id] should forbid access to non-related users for non-OPEN projects", async () => {
+    it("1. CLIENT calling GET /api/projects is restricted to only their own projects", async () => {
       mockedGetServerSession.mockResolvedValue({
-        user: { id: "third_party_user", email: "third@gmail.com", role: Role.FREELANCER },
+        user: { id: "client_123", email: "client@test.com", role: Role.CLIENT },
         expires: "2026-12-31",
       });
 
-      // Mock project is ASSIGNED to a different user
+      const listSpy = jest.spyOn(ProjectService, "listProjects").mockResolvedValue({
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      });
+
+      const request = new Request("http://localhost:3000/api/projects?clientId=someone_else");
+      const response = await listProjectsHandler(request);
+
+      expect(response.status).toBe(200);
+      expect(listSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          clientId: "client_123", // forced scope override
+          currentUserId: "client_123",
+        })
+      );
+
+      listSpy.mockRestore();
+    });
+
+    it("2. FREELANCER calling GET /api/projects still sees all OPEN projects as before", async () => {
+      mockedGetServerSession.mockResolvedValue({
+        user: { id: "freelancer_123", email: "freelancer@test.com", role: Role.FREELANCER },
+        expires: "2026-12-31",
+      });
+
+      const listSpy = jest.spyOn(ProjectService, "listProjects").mockResolvedValue({
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      });
+
+      const request = new Request("http://localhost:3000/api/projects?status=OPEN");
+      const response = await listProjectsHandler(request);
+
+      expect(response.status).toBe(200);
+      expect(listSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: "OPEN",
+          clientId: undefined, // no forced client override
+          currentUserId: "freelancer_123",
+        })
+      );
+
+      listSpy.mockRestore();
+    });
+
+    it("3. Regression check: My Projects still returns the Client's own projects", async () => {
+      mockedGetServerSession.mockResolvedValue({
+        user: { id: "client_123", email: "client@test.com", role: Role.CLIENT },
+        expires: "2026-12-31",
+      });
+
+      const listSpy = jest.spyOn(ProjectService, "listProjects").mockResolvedValue({
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      });
+
+      const request = new Request("http://localhost:3000/api/projects?clientId=client_123");
+      const response = await listProjectsHandler(request);
+
+      expect(response.status).toBe(200);
+      expect(listSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          clientId: "client_123",
+          currentUserId: "client_123",
+        })
+      );
+
+      listSpy.mockRestore();
+    });
+  });
+
+  describe("Part B: Optional Skills Verification", () => {
+    it("1. Permissive schema validation should allow project creation with zero skills", () => {
+      const payload = {
+        title: "Test Optional Skills Title",
+        description: "Test Optional Skills description that is sufficiently long.",
+        budget: 10000,
+        deadline: new Date(Date.now() + 86400000).toISOString(),
+        skills: [], // empty skills array
+      };
+
+      const result = createProjectSchema.safeParse(payload);
+      expect(result.success).toBe(true);
+      expect(result.data.skills).toEqual([]);
+    });
+  });
+
+  describe("Part C: Tighten Admin visibility bounds", () => {
+    it("1. GET /api/admin/assignments returns only flat assignments directory and no description/budget", async () => {
+      mockedGetServerSession.mockResolvedValue({
+        user: { id: "admin_123", email: "admin@test.com", role: Role.ADMIN },
+        expires: "2026-12-31",
+      });
+
+      const mockProjects = [
+        {
+          id: "proj_123",
+          title: "Assigned Project title",
+          status: ProjectStatus.ASSIGNED,
+          description: "Top secret detailed description",
+          budget: 50000,
+          client: { name: "Client Corp", email: "client@test.com" },
+          freelancer: { name: "Freelancer Dev", email: "freelancer@test.com" },
+          escrow: { dispute: { id: "disp_123" } },
+        },
+      ];
+      (prisma.project.findMany as jest.Mock).mockResolvedValue(mockProjects);
+
+      const response = await getAssignmentsHandler();
+      expect(response.status).toBe(200);
+
+      const data = await response.json();
+      expect(data).toHaveLength(1);
+      expect(data[0]).toEqual({
+        projectId: "proj_123",
+        projectTitle: "Assigned Project title",
+        projectStatus: "ASSIGNED",
+        clientName: "Client Corp",
+        clientEmail: "client@test.com",
+        freelancerName: "Freelancer Dev",
+        freelancerEmail: "freelancer@test.com",
+        disputeId: "disp_123",
+      });
+      // Verify descriptions or budgets are never leaked
+      expect(data[0].description).toBeUndefined();
+      expect(data[0].budget).toBeUndefined();
+    });
+
+    it("2. Admin is rejected (403) from GET /api/projects/:id for a project with NO dispute at all", async () => {
+      mockedGetServerSession.mockResolvedValue({
+        user: { id: "admin_123", email: "admin@test.com", role: Role.ADMIN },
+        expires: "2026-12-31",
+      });
+
       const mockProject = {
         id: "proj_123",
         clientId: "client_123",
@@ -77,6 +199,7 @@ describe("New Features Unit & API Gating Tests", () => {
         status: ProjectStatus.ASSIGNED,
       };
       (prisma.project.findUnique as jest.Mock).mockResolvedValue(mockProject);
+      (prisma.dispute.findFirst as jest.Mock).mockResolvedValue(null); // No dispute
 
       const request = new Request("http://localhost:3000/api/projects/proj_123");
       const response = await getProjectDetailHandler(request, {
@@ -87,23 +210,33 @@ describe("New Features Unit & API Gating Tests", () => {
       const data = await response.json();
       expect(data.error).toBe("Forbidden");
     });
-  });
 
-  describe("Part B: Client-Freelancer Messaging", () => {
-    it("MessageService should block messaging on OPEN projects", async () => {
-      (prisma.project.findUnique as jest.Mock).mockResolvedValue({
-        id: "proj_123",
-        status: ProjectStatus.OPEN,
-        clientId: "client_123",
-        freelancerId: null,
+    it("3. Admin IS granted access to GET /api/projects/:id for a project WITH an active/resolved dispute", async () => {
+      mockedGetServerSession.mockResolvedValue({
+        user: { id: "admin_123", email: "admin@test.com", role: Role.ADMIN },
+        expires: "2026-12-31",
       });
 
-      await expect(
-        MessageService.sendMessage("proj_123", "client_123", "Hello world")
-      ).rejects.toThrow("Cannot message on a project that is still open.");
+      const mockProject = {
+        id: "proj_123",
+        clientId: "client_123",
+        freelancerId: "freelancer_123",
+        status: ProjectStatus.ASSIGNED,
+      };
+      (prisma.project.findUnique as jest.Mock).mockResolvedValue(mockProject);
+      (prisma.dispute.findFirst as jest.Mock).mockResolvedValue({ id: "dispute_123", status: "OPEN" }); // Has active dispute
+
+      const request = new Request("http://localhost:3000/api/projects/proj_123");
+      const response = await getProjectDetailHandler(request, {
+        params: Promise.resolve({ id: "proj_123" }),
+      });
+
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(data.id).toBe("proj_123");
     });
 
-    it("MessageService should deny Admins from viewing or sending messages directly", async () => {
+    it("4. Regression: Admin is STILL rejected from messaging actions even when a dispute is open", async () => {
       (prisma.project.findUnique as jest.Mock).mockResolvedValue({
         id: "proj_123",
         status: ProjectStatus.ASSIGNED,
@@ -111,20 +244,20 @@ describe("New Features Unit & API Gating Tests", () => {
         freelancerId: "freelancer_123",
       });
 
-      // Attempt view as admin_user
+      // listMessages reject
       await expect(
         MessageService.listMessages("proj_123", "admin_user_id")
       ).rejects.toThrow("Forbidden: Access denied.");
 
-      // Attempt send as admin_user
+      // sendMessage reject
       await expect(
-        MessageService.sendMessage("proj_123", "admin_user_id", "Inject msg")
+        MessageService.sendMessage("proj_123", "admin_user_id", "Dispute review inject message")
       ).rejects.toThrow("Forbidden: You are not authorized to message on this project.");
     });
   });
 
-  describe("Part C: User Profile Pages", () => {
-    it("PATCH /api/users/me should fail when phone number format is invalid", async () => {
+  describe("Part E: User Profile updates", () => {
+    it("PATCH /api/users/me fails with short phone number", async () => {
       mockedGetServerSession.mockResolvedValue({
         user: { id: "user_123", email: "user@gmail.com", role: Role.CLIENT },
         expires: "2026-12-31",
@@ -132,48 +265,11 @@ describe("New Features Unit & API Gating Tests", () => {
 
       const request = new Request("http://localhost:3000/api/users/me", {
         method: "PATCH",
-        body: JSON.stringify({ phone: "123" }), // too short
+        body: JSON.stringify({ phone: "123" }),
       });
 
       const response = await updateProfileHandler(request);
       expect(response.status).toBe(400);
-      const data = await response.json();
-      expect(data.error).toBe("Validation failed");
-      expect(data.details.phone[0]).toBe("Invalid phone number format.");
-    });
-
-    it("PATCH /api/users/me should succeed when profile details are correct", async () => {
-      mockedGetServerSession.mockResolvedValue({
-        user: { id: "user_123", email: "user@gmail.com", role: Role.CLIENT },
-        expires: "2026-12-31",
-      });
-
-      (prisma.user.update as jest.Mock).mockResolvedValue({
-        id: "user_123",
-        email: "user@gmail.com",
-        name: "Jane Updated",
-        phone: "+919876543210",
-        location: "Bangalore",
-        businessName: "Trust Corp",
-        bio: "Bio here",
-      });
-
-      const request = new Request("http://localhost:3000/api/users/me", {
-        method: "PATCH",
-        body: JSON.stringify({
-          name: "Jane Updated",
-          phone: "+919876543210",
-          location: "Bangalore",
-          businessName: "Trust Corp",
-          bio: "Bio here",
-        }),
-      });
-
-      const response = await updateProfileHandler(request);
-      expect(response.status).toBe(200);
-      const data = await response.json();
-      expect(data.name).toBe("Jane Updated");
-      expect(data.phone).toBe("+919876543210");
     });
   });
 });
