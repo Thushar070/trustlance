@@ -79,8 +79,8 @@ export default function AdminDisputesPage() {
     return (
       <div className="flex-grow flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-[var(--accent)] animate-spin" />
-          <p className="text-slate-400 text-sm">Loading disputes queue...</p>
+          <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
+          <p className="text-[var(--text-muted)] text-sm">Loading disputes queue...</p>
         </div>
       </div>
     );
@@ -110,8 +110,8 @@ export default function AdminDisputesPage() {
       </div>
 
       {disputes.length === 0 ? (
-        <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
-          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
+          <div className="w-12 h-12 rounded-xl bg-[var(--surface-subtle)] flex items-center justify-center mx-auto mb-4">
             <Shield className="w-6 h-6 text-[var(--status-success-text)]" />
           </div>
           <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">Queue is Empty</h2>
@@ -120,11 +120,11 @@ export default function AdminDisputesPage() {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm overflow-hidden">
+        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="border-b border-[var(--border)] bg-slate-50/50 text-[var(--text-muted)] font-bold uppercase text-[10px] tracking-wider">
+                <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-[var(--text-muted)] font-bold uppercase text-[10px] tracking-wider">
                   <th className="py-4 px-6">Project Title</th>
                   <th className="py-4 px-6">Client</th>
                   <th className="py-4 px-6">Freelancer</th>
@@ -142,7 +142,7 @@ export default function AdminDisputesPage() {
                   const amount = projectObj?.agreedAmount || projectObj?.budget || 0;
 
                   return (
-                    <tr key={dispute.id} className="group hover:bg-slate-50/50 transition-colors duration-150">
+                    <tr key={dispute.id} className="group hover:bg-[var(--surface-subtle)]/50 transition-colors duration-150">
                       <td className="py-4 px-6 font-semibold text-[var(--text-primary)] max-w-xs truncate">
                         {projectObj?.title}
                       </td>
@@ -166,7 +166,7 @@ export default function AdminDisputesPage() {
                       <td className="py-4 px-6 text-right">
                         <Link
                           href={`/disputes/${dispute.id}`}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 border border-[var(--border)] hover:border-[var(--accent)] text-xs font-semibold rounded-lg text-slate-650 hover:text-[var(--accent)] hover:bg-[var(--accent-light)] transition-colors"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 border border-[var(--border)] hover:border-[var(--accent)] text-xs font-semibold rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-[var(--accent-light)] transition-colors"
                         >
                           Review Case <ArrowRight className="w-3 h-3" />
                         </Link>

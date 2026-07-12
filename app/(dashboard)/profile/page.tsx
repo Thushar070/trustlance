@@ -94,8 +94,8 @@ export default function ProfilePage() {
     return (
       <div className="flex-grow flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-[var(--accent)] animate-spin" />
-          <p className="text-slate-400 text-sm">Loading your profile...</p>
+          <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
+          <p className="text-[var(--text-muted)] text-sm">Loading your profile...</p>
         </div>
       </div>
     );
@@ -103,7 +103,7 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-10 relative overflow-hidden">
+      <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-10 relative overflow-hidden">
         <div className="relative">
           <div className="flex items-center gap-2 mb-2">
             <User className="w-5 h-5 text-[var(--accent)]" />
@@ -134,7 +134,7 @@ export default function ProfilePage() {
                 <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Display Name</label>
                 <div className="relative rounded-lg shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="w-3.5 h-3.5 text-slate-400" />
+                    <User className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                   </div>
                   <input
                     type="text"
@@ -154,7 +154,7 @@ export default function ProfilePage() {
                 <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Phone Number</label>
                 <div className="relative rounded-lg shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Phone className="w-3.5 h-3.5 text-slate-400" />
+                    <Phone className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                   </div>
                   <input
                     type="text"
@@ -174,7 +174,7 @@ export default function ProfilePage() {
                 <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Location</label>
                 <div className="relative rounded-lg shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                    <MapPin className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                   </div>
                   <input
                     type="text"
@@ -194,7 +194,7 @@ export default function ProfilePage() {
                 <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Business Name</label>
                 <div className="relative rounded-lg shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Building className="w-3.5 h-3.5 text-slate-400" />
+                    <Building className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                   </div>
                   <input
                     type="text"
@@ -215,7 +215,7 @@ export default function ProfilePage() {
               <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Bio / Professional Summary</label>
               <div className="relative rounded-lg shadow-sm">
                 <div className="absolute top-3 left-3 pointer-events-none">
-                  <FileText className="w-3.5 h-3.5 text-slate-400" />
+                  <FileText className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                 </div>
                 <textarea
                   value={bio}

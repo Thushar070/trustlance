@@ -5,6 +5,18 @@ All notable changes to the TrustLance project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Released] - 2026-07-12
+
+### Added
+- **UI/UX Overhaul: Complete Dark/Light Mode & Responsive Redesign**:
+  - Implemented client-side theme engine with `components/ThemeProvider.tsx` and custom sun/moon/monitor cycle trigger `components/ThemeToggle.tsx`.
+  - Added inline theme flash prevention script inside `app/layout.tsx` to handle hydration-safe loading from local storage.
+  - Refactored `globals.css` to declare light/dark variable sets (including dark-mode status badges and high-contrast form element focus ring borders).
+  - Redesigned public browse filters to convert standard desktop sidebars into a toggleable slide-over drawer modal on mobile viewports.
+  - Upgraded Payments Ledger and Admin Disputes lists to include touch-optimized tables inside horizontal overflow containers.
+  - Transformed disputes two-column evidence split panels into layout-stacking list items on mobile width sizes.
+  - Re-seeded Neon development database with default ADMIN, CLIENT, and FREELANCER user override parameters.
+
 ## [Released] - 2026-07-11
 
 ### Fixed

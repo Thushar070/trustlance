@@ -59,8 +59,8 @@ export default function AdminOverviewPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
-          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-[var(--accent)] animate-spin" />
-          <p className="text-slate-400 text-sm font-medium">Loading platform metrics...</p>
+          <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
+          <p className="text-[var(--text-muted)] text-sm font-medium">Loading platform metrics...</p>
         </div>
       </div>
     );
@@ -90,10 +90,10 @@ export default function AdminOverviewPage() {
       {/* Overview Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Metric 1 */}
-        <div className="bg-white p-6 border border-[var(--border)] rounded-xl shadow-sm flex flex-col justify-between">
+        <div className="bg-[var(--surface)] p-6 border border-[var(--border)] rounded-xl shadow-sm flex flex-col justify-between">
           <div>
             <div className="text-[var(--text-muted)] uppercase text-[10px] font-bold tracking-wider mb-2 flex items-center gap-1.5">
-              <IndianRupee className="w-3.5 h-3.5 text-slate-400" />
+              <IndianRupee className="w-3.5 h-3.5 text-[var(--text-muted)]" />
               Total Financial Volume
             </div>
             <div className="text-2xl font-bold text-[var(--text-primary)]">₹{stats.totalPaymentVolume.toLocaleString()}</div>
@@ -102,10 +102,10 @@ export default function AdminOverviewPage() {
         </div>
 
         {/* Metric 2 */}
-        <div className="bg-white p-6 border border-[var(--border)] rounded-xl shadow-sm flex flex-col justify-between">
+        <div className="bg-[var(--surface)] p-6 border border-[var(--border)] rounded-xl shadow-sm flex flex-col justify-between">
           <div>
             <div className="text-[var(--text-muted)] uppercase text-[10px] font-bold tracking-wider mb-2 flex items-center gap-1.5">
-              <AlertTriangle className="w-3.5 h-3.5 text-slate-400" />
+              <AlertTriangle className="w-3.5 h-3.5 text-[var(--text-muted)]" />
               Active Dispute Tickets
             </div>
             <div className="text-2xl font-bold text-[var(--status-negative-text)]">{stats.openDisputesCount}</div>
@@ -118,10 +118,10 @@ export default function AdminOverviewPage() {
         </div>
 
         {/* Metric 3: Actions */}
-        <div className="bg-white p-6 border border-[var(--border)] rounded-xl shadow-sm flex flex-col justify-between">
+        <div className="bg-[var(--surface)] p-6 border border-[var(--border)] rounded-xl shadow-sm flex flex-col justify-between">
           <div>
             <div className="text-[var(--text-muted)] uppercase text-[10px] font-bold tracking-wider mb-2 flex items-center gap-1.5">
-              <Cpu className="w-3.5 h-3.5 text-slate-400" />
+              <Cpu className="w-3.5 h-3.5 text-[var(--text-muted)]" />
               Cron Maintenance
             </div>
             <p className="text-[11px] text-[var(--text-muted)] font-medium leading-relaxed">Trigger standard auto-release cron cycles manually.</p>
@@ -140,7 +140,7 @@ export default function AdminOverviewPage() {
                 }
               }
             }}
-            className="mt-4 w-full inline-flex justify-center items-center py-2 px-3 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-primary)] bg-white hover:bg-slate-50 hover:border-slate-300 transition-colors cursor-pointer"
+            className="mt-4 w-full inline-flex justify-center items-center py-2 px-3 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-primary)] bg-[var(--surface)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-secondary)] transition-colors cursor-pointer"
           >
             Trigger Auto-Release
           </button>
@@ -148,7 +148,7 @@ export default function AdminOverviewPage() {
       </div>
 
       {/* Projects status distribution */}
-      <div className="bg-white border border-[var(--border)] rounded-xl shadow-sm p-6 max-w-2xl">
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-sm p-6 max-w-2xl">
         <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Project Status Distribution</h2>
         <div className="divide-y divide-[var(--border-subtle)] text-sm">
           {Object.entries(stats.projectsByStatus).map(([status, count]) => (

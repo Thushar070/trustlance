@@ -91,8 +91,8 @@ export default function ClientProjectsPage() {
     return (
       <div className="flex-grow flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-[var(--accent)] animate-spin" />
-          <p className="text-slate-400 text-sm">Loading your projects...</p>
+          <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
+          <p className="text-[var(--text-muted)] text-sm">Loading your projects...</p>
         </div>
       </div>
     );
@@ -100,7 +100,7 @@ export default function ClientProjectsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex justify-between items-center mb-8 gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Your Posted Projects</h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">Manage and track your project escrow lifecycles.</p>
@@ -122,9 +122,9 @@ export default function ClientProjectsPage() {
       )}
 
       {projects.length === 0 ? (
-        <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
-          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-            <Briefcase className="w-6 h-6 text-slate-400" />
+        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
+          <div className="w-12 h-12 rounded-xl bg-[var(--surface-subtle)] flex items-center justify-center mx-auto mb-4">
+            <Briefcase className="w-6 h-6 text-[var(--text-muted)]" />
           </div>
           <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">No Projects Found</h2>
           <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto mb-6">
@@ -139,10 +139,10 @@ export default function ClientProjectsPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm overflow-hidden">
+        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm overflow-hidden">
           <ul className="divide-y divide-[var(--border-subtle)]">
             {projects.map((project) => (
-              <li key={project.id} className="group p-6 hover:bg-slate-50/50 transition-colors duration-150">
+              <li key={project.id} className="group p-6 hover:bg-[var(--surface-subtle)]/50 transition-colors duration-150">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex-grow min-w-0">
                     <div className="flex flex-wrap items-center gap-2.5 mb-2">
@@ -150,7 +150,7 @@ export default function ClientProjectsPage() {
                         {project.status.replace("_", " ")}
                       </span>
                       <span className="text-xs text-[var(--text-muted)] font-medium flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                        <Calendar className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                         Posted {new Date(project.createdAt).toLocaleDateString()}
                       </span>
                     </div>
@@ -165,7 +165,7 @@ export default function ClientProjectsPage() {
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {project.skills.map((s) => (
-                        <span key={s} className="bg-slate-100 text-[var(--text-secondary)] text-[10px] px-2 py-0.5 rounded-md font-semibold">
+                        <span key={s} className="bg-[var(--surface-subtle)] text-[var(--text-secondary)] text-[10px] px-2 py-0.5 rounded-md font-semibold border border-[var(--border-subtle)]">
                           {s}
                         </span>
                       ))}
@@ -187,7 +187,7 @@ export default function ClientProjectsPage() {
                       {project.status === ProjectStatus.OPEN && (
                         <button
                           onClick={() => handleCancelProject(project.id)}
-                          className="px-3 py-1.5 border border-[var(--border)] hover:border-[var(--status-negative-text)] text-xs font-semibold rounded-lg text-slate-500 hover:text-[var(--status-negative-text)] hover:bg-[var(--status-negative-bg)] transition-colors cursor-pointer"
+                          className="px-3 py-1.5 border border-[var(--border)] hover:border-[var(--status-negative-text)] text-xs font-semibold rounded-lg text-[var(--text-muted)] hover:text-[var(--status-negative-text)] hover:bg-[var(--status-negative-bg)] transition-colors cursor-pointer"
                         >
                           Cancel
                         </button>

@@ -55,6 +55,7 @@ export default function BrowseProjectsPage() {
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Filters state
   const [searchTerm, setSearchTerm] = useState("");
@@ -137,157 +138,200 @@ export default function BrowseProjectsPage() {
     deadlineAfter,
   ].filter(Boolean).length;
 
+  // Shared filter sidebar content (used for both desktop and mobile slide-over)
+  const filterContent = (
+    <>
+      <div className="flex justify-between items-center mb-5">
+        <div className="flex items-center gap-1.5">
+          <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+          <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Filters</h2>
+        </div>
+        <div className="flex items-center gap-2">
+          {activeFilterCount > 0 && (
+            <button
+              onClick={clearFilters}
+              className="text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold cursor-pointer transition-colors flex items-center gap-1"
+            >
+              <X className="w-3 h-3" />
+              Clear All
+            </button>
+          )}
+          <button
+            onClick={() => setMobileFiltersOpen(false)}
+            className="lg:hidden p-1.5 rounded-lg text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Status Filter */}
+      <div className="mb-5">
+        <label className="block text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Status</label>
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setPage(1);
+            setStatusFilter(e.target.value);
+          }}
+          className="w-full text-sm px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
+        >
+          <option value="">All Statuses</option>
+          <option value="OPEN">Open (Accepting Proposals)</option>
+          <option value="ASSIGNED">Assigned</option>
+          <option value="IN_PROGRESS">In Progress</option>
+          <option value="UNDER_REVIEW">Under Review</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="CANCELLED">Cancelled</option>
+          <option value="CLOSED">Closed</option>
+        </select>
+      </div>
+
+      {/* Budget range filter */}
+      <div className="mb-5">
+        <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+          <IndianRupee className="w-3 h-3" />
+          Budget Range
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="number"
+            placeholder="Min"
+            value={minBudget}
+            onChange={(e) => {
+              setPage(1);
+              setMinBudget(e.target.value);
+            }}
+            className="w-1/2 text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] transition-all"
+          />
+          <input
+            type="number"
+            placeholder="Max"
+            value={maxBudget}
+            onChange={(e) => {
+              setPage(1);
+              setMaxBudget(e.target.value);
+            }}
+            className="w-1/2 text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] transition-all"
+          />
+        </div>
+      </div>
+
+      {/* Deadline filter */}
+      <div className="mb-5">
+        <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+          <Calendar className="w-3 h-3" />
+          Deadline
+        </label>
+        <div className="space-y-2">
+          <div>
+            <span className="text-[10px] text-[var(--text-muted)] block font-medium mb-1">Due After</span>
+            <input
+              type="date"
+              value={deadlineAfter}
+              onChange={(e) => {
+                setPage(1);
+                setDeadlineAfter(e.target.value);
+              }}
+              className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] transition-all"
+            />
+          </div>
+          <div>
+            <span className="text-[10px] text-[var(--text-muted)] block font-medium mb-1">Due Before</span>
+            <input
+              type="date"
+              value={deadlineBefore}
+              onChange={(e) => {
+                setPage(1);
+                setDeadlineBefore(e.target.value);
+              }}
+              className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] transition-all"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Skills Filter */}
+      <div>
+        <label className="block text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-2">Skills</label>
+        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+          {SKILL_GROUPS.map((group) => (
+            <div key={group.category}>
+              <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1.5">{group.category}</h3>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {group.skills.map((skill) => {
+                  const isSelected = selectedSkills.includes(skill);
+                  return (
+                    <button
+                      key={skill}
+                      onClick={() => toggleSkill(skill)}
+                      className={`text-[10px] px-2 py-1 rounded-md border transition-colors duration-150 cursor-pointer ${
+                        isSelected
+                          ? "bg-[var(--accent-light)] border-[var(--accent)] text-[var(--accent)] font-bold"
+                          : "bg-[var(--surface)] border-[var(--border)] text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)]"
+                      }`}
+                    >
+                      {skill}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Browse Projects</h1>
-        <p className="text-sm text-[var(--text-secondary)] mt-1">
-          Explore freelance opportunities and apply. Escrow funds will be held securely for each job.
-        </p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Browse Projects</h1>
+          <p className="text-sm text-[var(--text-secondary)] mt-1">
+            Explore freelance opportunities and apply. Escrow funds will be held securely for each job.
+          </p>
+        </div>
+        {/* Mobile filter toggle */}
+        <button
+          onClick={() => setMobileFiltersOpen(true)}
+          className="lg:hidden inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold rounded-lg border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer transition-colors self-start"
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5" />
+          Filters
+          {activeFilterCount > 0 && (
+            <span className="bg-[var(--accent)] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Filters Sidebar */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className="bg-white p-5 rounded-xl border border-[var(--border)] shadow-sm sticky top-20">
-            <div className="flex justify-between items-center mb-5">
-              <div className="flex items-center gap-1.5">
-                <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Filters</h2>
-              </div>
-              {activeFilterCount > 0 && (
-                <button
-                  onClick={clearFilters}
-                  className="text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold cursor-pointer transition-colors flex items-center gap-1"
-                >
-                  <X className="w-3 h-3" />
-                  Clear All
-                </button>
-              )}
-            </div>
-
-            {/* Status Filter */}
-            <div className="mb-5">
-              <label className="block text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Status</label>
-              <select
-                value={statusFilter}
-                onChange={(e) => {
-                  setPage(1);
-                  setStatusFilter(e.target.value);
-                }}
-                className="w-full text-sm px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-white transition-all"
-              >
-                <option value="">All Statuses</option>
-                <option value="OPEN">Open (Accepting Proposals)</option>
-                <option value="ASSIGNED">Assigned</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="UNDER_REVIEW">Under Review</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="CANCELLED">Cancelled</option>
-                <option value="CLOSED">Closed</option>
-              </select>
-            </div>
-
-            {/* Budget range filter */}
-            <div className="mb-5">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-2">
-                <IndianRupee className="w-3 h-3" />
-                Budget Range
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={minBudget}
-                  onChange={(e) => {
-                    setPage(1);
-                    setMinBudget(e.target.value);
-                  }}
-                  className="w-1/2 text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-white transition-all"
-                />
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={maxBudget}
-                  onChange={(e) => {
-                    setPage(1);
-                    setMaxBudget(e.target.value);
-                  }}
-                  className="w-1/2 text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-white transition-all"
-                />
-              </div>
-            </div>
-
-            {/* Deadline filter */}
-            <div className="mb-5">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-2">
-                <Calendar className="w-3 h-3" />
-                Deadline
-              </label>
-              <div className="space-y-2">
-                <div>
-                  <span className="text-[10px] text-[var(--text-muted)] block font-medium mb-1">Due After</span>
-                  <input
-                    type="date"
-                    value={deadlineAfter}
-                    onChange={(e) => {
-                      setPage(1);
-                      setDeadlineAfter(e.target.value);
-                    }}
-                    className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-white transition-all"
-                  />
-                </div>
-                <div>
-                  <span className="text-[10px] text-[var(--text-muted)] block font-medium mb-1">Due Before</span>
-                  <input
-                    type="date"
-                    value={deadlineBefore}
-                    onChange={(e) => {
-                      setPage(1);
-                      setDeadlineBefore(e.target.value);
-                    }}
-                    className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-white transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Skills Filter */}
-            <div>
-              <label className="block text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-2">Skills</label>
-              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-                {SKILL_GROUPS.map((group) => (
-                  <div key={group.category}>
-                    <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1.5">{group.category}</h3>
-                    <div className="flex flex-wrap gap-1.5 mb-2">
-                      {group.skills.map((skill) => {
-                        const isSelected = selectedSkills.includes(skill);
-                        return (
-                          <button
-                            key={skill}
-                            onClick={() => toggleSkill(skill)}
-                            className={`text-[10px] px-2 py-1 rounded-md border transition-colors duration-150 cursor-pointer ${
-                              isSelected
-                                ? "bg-[var(--accent-light)] border-[var(--accent)] text-[var(--accent)] font-bold"
-                                : "bg-white border-[var(--border)] text-[var(--text-muted)] hover:bg-slate-50 hover:border-slate-300"
-                            }`}
-                          >
-                            {skill}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+        {/* Desktop Filters Sidebar */}
+        <div className="hidden lg:block lg:col-span-1">
+          <div className="bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)] shadow-sm sticky top-20">
+            {filterContent}
           </div>
         </div>
+
+        {/* Mobile Filters Slide-over */}
+        {mobileFiltersOpen && (
+          <>
+            <div
+              className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm lg:hidden"
+              onClick={() => setMobileFiltersOpen(false)}
+            />
+            <div className="fixed inset-y-0 left-0 z-50 w-[85%] max-w-sm bg-[var(--surface)] border-r border-[var(--border)] shadow-xl overflow-y-auto p-5 lg:hidden">
+              {filterContent}
+            </div>
+          </>
+        )}
 
         {/* Projects List */}
         <div className="lg:col-span-3 space-y-4">
           {/* Search bar */}
-          <div className="bg-white p-3.5 rounded-xl border border-[var(--border)] shadow-sm flex items-center gap-3">
+          <div className="bg-[var(--surface)] p-3.5 rounded-xl border border-[var(--border)] shadow-sm flex items-center gap-3">
             <Search className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0" />
             <input
               type="text"
@@ -305,13 +349,13 @@ export default function BrowseProjectsPage() {
           )}
 
           {loading ? (
-            <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
-              <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-[var(--accent)] animate-spin mx-auto mb-3" />
+            <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
+              <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin mx-auto mb-3" />
               <p className="text-[var(--text-muted)] text-sm">Searching for matching projects...</p>
             </div>
           ) : filteredProjects.length === 0 ? (
-            <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
-              <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+            <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
+              <div className="w-12 h-12 rounded-xl bg-[var(--surface-subtle)] flex items-center justify-center mx-auto mb-4">
                 <FolderSearch className="w-6 h-6 text-[var(--text-muted)]" />
               </div>
               <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">No Projects Match Your Search</h2>
@@ -327,10 +371,10 @@ export default function BrowseProjectsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm overflow-hidden">
+              <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm overflow-hidden">
                 <ul className="divide-y divide-[var(--border-subtle)]">
                   {filteredProjects.map((project) => (
-                    <li key={project.id} className="group p-5 hover:bg-slate-50/50 transition-colors duration-150">
+                    <li key={project.id} className="group p-5 hover:bg-[var(--surface-subtle)]/50 transition-colors duration-150">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div className="flex-grow min-w-0">
                           <div className="flex flex-wrap items-center gap-2.5 mb-2">
@@ -353,7 +397,7 @@ export default function BrowseProjectsPage() {
                           </p>
                           <div className="flex flex-wrap gap-1.5">
                             {project.skills.map((s) => (
-                              <span key={s} className="bg-slate-100 text-[var(--text-secondary)] text-[10px] px-2 py-0.5 rounded-md font-medium">
+                              <span key={s} className="bg-[var(--surface-subtle)] text-[var(--text-secondary)] text-[10px] px-2 py-0.5 rounded-md font-medium border border-[var(--border-subtle)]">
                                 {s}
                               </span>
                             ))}
@@ -380,11 +424,11 @@ export default function BrowseProjectsPage() {
 
               {/* Pagination controls */}
               {totalPages > 1 && (
-                <div className="flex justify-between items-center bg-white px-5 py-3.5 rounded-xl border border-[var(--border)] shadow-sm text-sm">
+                <div className="flex justify-between items-center bg-[var(--surface)] px-5 py-3.5 rounded-xl border border-[var(--border)] shadow-sm text-sm">
                   <button
                     disabled={page === 1}
                     onClick={() => setPage(page - 1)}
-                    className="px-3.5 py-1.5 border border-[var(--border)] rounded-lg hover:bg-slate-50 disabled:opacity-40 cursor-pointer font-semibold text-[var(--text-secondary)] transition-colors flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 border border-[var(--border)] rounded-lg hover:bg-[var(--surface-subtle)] disabled:opacity-40 cursor-pointer font-semibold text-[var(--text-secondary)] transition-colors flex items-center gap-1.5"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     Previous
@@ -395,7 +439,7 @@ export default function BrowseProjectsPage() {
                   <button
                     disabled={page === totalPages}
                     onClick={() => setPage(page + 1)}
-                    className="px-3.5 py-1.5 border border-[var(--border)] rounded-lg hover:bg-slate-50 disabled:opacity-40 cursor-pointer font-semibold text-[var(--text-secondary)] transition-colors flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 border border-[var(--border)] rounded-lg hover:bg-[var(--surface-subtle)] disabled:opacity-40 cursor-pointer font-semibold text-[var(--text-secondary)] transition-colors flex items-center gap-1.5"
                   >
                     Next
                     <ArrowRight className="w-3.5 h-3.5" />

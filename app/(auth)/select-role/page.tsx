@@ -39,9 +39,9 @@ export default function SelectRolePage() {
   };
 
   return (
-    <div className="flex-grow flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-[var(--background)]">
+    <div className="flex-grow flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[var(--background)]">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center shadow-lg shadow-indigo-200/60 mb-6">
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)] flex items-center justify-center shadow-lg mb-6">
           <Shield className="w-7 h-7 text-white" />
         </div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">
@@ -52,8 +52,8 @@ export default function SelectRolePage() {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-3xl px-4">
-        <div className="bg-white py-8 px-6 sm:px-10 shadow-sm border border-[var(--border)] rounded-xl">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-3xl">
+        <div className="bg-[var(--surface)] py-8 px-6 sm:px-10 shadow-sm border border-[var(--border)] rounded-xl">
           {error && (
             <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg flex items-start gap-3">
               <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
@@ -63,7 +63,7 @@ export default function SelectRolePage() {
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {/* Client Option Card */}
-            <div className="group border border-[var(--border)] rounded-xl p-6 flex flex-col justify-between hover:border-[var(--accent)] hover:shadow-md transition-all duration-200 bg-white">
+            <div className="group border border-[var(--border)] rounded-xl p-6 flex flex-col justify-between hover:border-[var(--accent)] hover:shadow-md transition-all duration-200 bg-[var(--surface)]">
               <div>
                 <div className="h-12 w-12 rounded-xl bg-[var(--accent-light)] flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-200">
                   <Briefcase className="w-6 h-6 text-[var(--accent)]" />
@@ -83,10 +83,10 @@ export default function SelectRolePage() {
             </div>
 
             {/* Freelancer Option Card */}
-            <div className="group border border-[var(--border)] rounded-xl p-6 flex flex-col justify-between hover:border-emerald-500 hover:shadow-md transition-all duration-200 bg-white">
+            <div className="group border border-[var(--border)] rounded-xl p-6 flex flex-col justify-between hover:border-[var(--status-success-text)] hover:shadow-md transition-all duration-200 bg-[var(--surface)]">
               <div>
-                <div className="h-12 w-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-200">
-                  <Wrench className="w-6 h-6 text-emerald-600" />
+                <div className="h-12 w-12 rounded-xl bg-[var(--status-success-bg)] flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-200">
+                  <Wrench className="w-6 h-6 text-[var(--status-success-text)]" />
                 </div>
                 <h3 className="text-lg font-semibold text-[var(--text-primary)]">I am a Freelancer</h3>
                 <p className="mt-2 text-sm text-[var(--text-secondary)] leading-relaxed">
@@ -96,7 +96,7 @@ export default function SelectRolePage() {
               <button
                 disabled={loading}
                 onClick={() => handleSelectRole("FREELANCER")}
-                className="mt-6 w-full inline-flex justify-center items-center px-4 py-2.5 text-sm font-semibold rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 cursor-pointer transition-colors duration-150"
+                className="mt-6 w-full inline-flex justify-center items-center px-4 py-2.5 text-sm font-semibold rounded-lg text-white bg-[var(--status-success-text)] hover:brightness-110 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--status-success-text)] disabled:opacity-50 cursor-pointer transition-colors duration-150"
               >
                 {loading ? "Processing..." : "Select Freelancer"}
               </button>

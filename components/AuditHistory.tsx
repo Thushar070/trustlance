@@ -57,35 +57,35 @@ export default function AuditHistory({ entityId, entityType }: AuditHistoryProps
   if (!isAdmin) return null;
 
   return (
-    <div className="mt-8 border border-[var(--border)] rounded-xl bg-slate-50/50 p-4">
+    <div className="mt-8 border border-[var(--border)] rounded-xl bg-[var(--surface-subtle)] p-4">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider hover:text-slate-700 transition-colors focus:outline-none cursor-pointer"
+        className="w-full flex items-center justify-between text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider hover:text-[var(--text-primary)] transition-colors focus:outline-none cursor-pointer"
         id="toggle-audit-history"
       >
         <span className="flex items-center gap-1.5">
-          <History className="w-3.5 h-3.5 text-slate-400" />
+          <History className="w-3.5 h-3.5 text-[var(--text-muted)]" />
           Audit History Log (Admin Only)
         </span>
         <ChevronDown
-          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-[var(--text-muted)] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
 
       {isOpen && (
         <div className="mt-4 pt-3 border-t border-[var(--border-subtle)]">
           {loading && (
-            <p className="text-xs text-slate-400 font-mono italic animate-pulse">Loading audit trail...</p>
+            <p className="text-xs text-[var(--text-muted)] font-mono italic animate-pulse">Loading audit trail...</p>
           )}
           {error && (
             <p className="text-xs text-[var(--status-negative-text)] font-mono">Error: {error}</p>
           )}
           {!loading && !error && logs.length === 0 && (
-            <p className="text-xs text-slate-400 font-mono italic">No audit log records found for this {entityType.toLowerCase()}.</p>
+            <p className="text-xs text-[var(--text-muted)] font-mono italic">No audit log records found for this {entityType.toLowerCase()}.</p>
           )}
 
           {!loading && !error && logs.length > 0 && (
-            <div className="space-y-1.5 font-mono text-[11px] leading-relaxed text-slate-600 max-h-[300px] overflow-y-auto pr-1">
+            <div className="space-y-1.5 font-mono text-[11px] leading-relaxed text-[var(--text-secondary)] max-h-[300px] overflow-y-auto pr-1">
               {logs.map((log) => {
                 const dateStr = new Date(log.createdAt).toISOString();
                 const isExpanded = expandedLogId === log.id;
@@ -101,42 +101,42 @@ export default function AuditHistory({ entityId, entityType }: AuditHistoryProps
                 };
 
                 return (
-                  <div key={log.id} className="border-b border-slate-100/50 pb-1 last:border-b-0">
+                  <div key={log.id} className="border-b border-[var(--border-subtle)] pb-1 last:border-b-0">
                     <div
                       onClick={() => setExpandedLogId(isExpanded ? null : log.id)}
-                      className="flex items-start gap-3 py-1 cursor-pointer hover:bg-slate-100/70 rounded px-1.5 transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-start gap-1.5 sm:gap-3 py-1.5 sm:py-1 cursor-pointer hover:bg-[var(--surface-elevated)] rounded px-1.5 transition-colors"
                     >
-                      <span className="text-slate-400 select-none whitespace-nowrap shrink-0 flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-slate-300" />
+                      <span className="text-[var(--text-muted)] select-none whitespace-nowrap shrink-0 flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-[var(--text-muted)]" />
                         {dateStr}
                       </span>
-                      <span className="shrink-0 text-slate-500 flex items-center gap-0.5">
-                        <User className="w-3 h-3 text-slate-300" />
-                        actor: <span className="font-bold text-slate-800">{getActorDisplayName(log.actorId)}</span>
+                      <span className="shrink-0 text-[var(--text-secondary)] flex items-center gap-0.5">
+                        <User className="w-3 h-3 text-[var(--text-muted)]" />
+                        actor: <span className="font-bold text-[var(--text-primary)]">{getActorDisplayName(log.actorId)}</span>
                       </span>
-                      <span className="font-semibold text-slate-700 shrink-0">{log.action}</span>
+                      <span className="font-semibold text-[var(--text-primary)] shrink-0">{log.action}</span>
 
-                      <span className="text-slate-400 overflow-hidden text-ellipsis whitespace-nowrap">
+                      <span className="text-[var(--text-muted)] overflow-hidden text-ellipsis whitespace-nowrap">
                         {log.prevState !== null || log.newState !== null ? (
                           <span className="flex items-center gap-1">
-                            state: <span className="text-slate-500">{log.prevState ?? "none"}</span>
-                            <ArrowRight className="w-2.5 h-2.5 inline text-slate-300" />
-                            <span className="text-slate-700 font-medium">{log.newState ?? "none"}</span>
+                            state: <span className="text-[var(--text-secondary)]">{log.prevState ?? "none"}</span>
+                            <ArrowRight className="w-2.5 h-2.5 inline text-[var(--text-muted)]" />
+                            <span className="text-[var(--text-primary)] font-medium">{log.newState ?? "none"}</span>
                           </span>
                         ) : null}
                       </span>
                     </div>
 
                     {isExpanded && (
-                      <div className="mt-1 ml-4 p-3 bg-slate-100 rounded-lg text-[10px] text-slate-500 overflow-x-auto border border-slate-200">
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 max-w-lg">
-                          <div><span className="text-slate-400">Log ID:</span> {log.id}</div>
-                          <div><span className="text-slate-400">Entity:</span> {log.entityType} ({log.entityId})</div>
-                          <div><span className="text-slate-400">Action:</span> {log.action}</div>
-                          <div><span className="text-slate-400">Actor:</span> {getActorDisplayName(log.actorId)}</div>
-                          <div><span className="text-slate-400">Prev State:</span> {log.prevState ?? "null"}</div>
-                          <div><span className="text-slate-400">New State:</span> {log.newState ?? "null"}</div>
-                          <div><span className="text-slate-400">Timestamp:</span> {log.createdAt}</div>
+                      <div className="mt-1 ml-4 p-3 bg-[var(--surface-elevated)] rounded-lg text-[10px] text-[var(--text-secondary)] overflow-x-auto border border-[var(--border)]">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 max-w-lg">
+                          <div><span className="text-[var(--text-muted)]">Log ID:</span> {log.id}</div>
+                          <div><span className="text-[var(--text-muted)]">Entity:</span> {log.entityType} ({log.entityId})</div>
+                          <div><span className="text-[var(--text-muted)]">Action:</span> {log.action}</div>
+                          <div><span className="text-[var(--text-muted)]">Actor:</span> {getActorDisplayName(log.actorId)}</div>
+                          <div><span className="text-[var(--text-muted)]">Prev State:</span> {log.prevState ?? "null"}</div>
+                          <div><span className="text-[var(--text-muted)]">New State:</span> {log.newState ?? "null"}</div>
+                          <div><span className="text-[var(--text-muted)]">Timestamp:</span> {log.createdAt}</div>
                         </div>
                       </div>
                     )}

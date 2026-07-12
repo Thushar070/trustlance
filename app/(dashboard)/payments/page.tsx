@@ -54,7 +54,7 @@ export default function PaymentsHistoryPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col items-center justify-center min-h-[300px]">
-          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-[var(--accent)] animate-spin" />
+          <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
         </div>
       </div>
     );
@@ -80,9 +80,9 @@ export default function PaymentsHistoryPage() {
       )}
 
       {payments.length === 0 ? (
-        <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
-          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-            <CreditCard className="w-6 h-6 text-slate-400" />
+        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
+          <div className="w-12 h-12 rounded-xl bg-[var(--surface-subtle)] flex items-center justify-center mx-auto mb-4">
+            <CreditCard className="w-6 h-6 text-[var(--text-muted)]" />
           </div>
           <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">No Payments Found</h2>
           <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto">
@@ -90,10 +90,10 @@ export default function PaymentsHistoryPage() {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm overflow-hidden">
+        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
-              <thead className="bg-slate-50/50 text-[var(--text-muted)] font-bold uppercase tracking-wider text-[10px] text-left">
+              <thead className="bg-[var(--surface-subtle)] text-[var(--text-muted)] font-bold uppercase tracking-wider text-[10px] text-left">
                 <tr>
                   <th className="px-6 py-4">Project</th>
                   <th className="px-6 py-4">Transaction Amount</th>
@@ -103,7 +103,7 @@ export default function PaymentsHistoryPage() {
               </thead>
               <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--text-secondary)]">
                 {payments.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                  <tr key={p.id} className="hover:bg-[var(--surface-subtle)]/50 transition-colors">
                     <td className="px-6 py-4 font-semibold text-[var(--text-primary)]">
                       <Link href={`/projects/${p.projectId}`} className="hover:text-[var(--accent)] transition-colors inline-flex items-center gap-1">
                         {p.projectTitle}

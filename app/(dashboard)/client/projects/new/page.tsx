@@ -69,7 +69,7 @@ export default function NewProjectPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-10 relative overflow-hidden">
+      <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-10 relative overflow-hidden">
         <div className="relative">
           <div className="flex items-center gap-2 mb-2">
             <Briefcase className="w-5 h-5 text-[var(--accent)]" />
@@ -125,7 +125,7 @@ export default function NewProjectPage() {
                 <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Budget (INR)</label>
                 <div className="relative rounded-lg shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <IndianRupee className="w-3.5 h-3.5 text-slate-400" />
+                    <IndianRupee className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                   </div>
                   <input
                     type="number"
@@ -147,14 +147,14 @@ export default function NewProjectPage() {
                 <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Deadline</label>
                 <div className="relative rounded-lg shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <Calendar className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                   </div>
                   <input
                     type="date"
                     required
                     value={deadline}
                     onChange={(e) => setDeadline(e.target.value)}
-                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all text-slate-700"
+                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all text-[var(--text-secondary)]"
                   />
                 </div>
                 {errors.deadline && (
@@ -171,10 +171,10 @@ export default function NewProjectPage() {
                 <p className="mb-3 text-xs text-[var(--status-negative-text)] font-medium">{errors.skills[0]}</p>
               )}
 
-              <div className="space-y-4 border border-[var(--border)] rounded-lg p-4 bg-slate-50/50 max-h-80 overflow-y-auto">
+              <div className="space-y-4 border border-[var(--border)] rounded-lg p-4 bg-[var(--surface-subtle)] max-h-80 overflow-y-auto">
                 {SKILL_GROUPS.map((group) => (
                   <div key={group.category}>
-                    <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">{group.category}</h3>
+                    <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">{group.category}</h3>
                     <div className="flex flex-wrap gap-1.5">
                       {group.skills.map((skill) => {
                         const isSelected = selectedSkills.includes(skill);
@@ -186,7 +186,7 @@ export default function NewProjectPage() {
                             className={`text-[10px] px-2.5 py-1 rounded-md border font-medium cursor-pointer transition-all duration-150 ${
                               isSelected
                                 ? "bg-[var(--accent-light)] border-[var(--accent)] text-[var(--accent)] font-bold shadow-sm"
-                                : "bg-white border-[var(--border)] text-slate-500 hover:bg-slate-50 hover:border-slate-300"
+                                : "bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)]"
                             }`}
                           >
                             {skill}
@@ -204,7 +204,7 @@ export default function NewProjectPage() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="inline-flex items-center gap-1 px-4 py-2.5 border border-[var(--border)] rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors"
+                className="inline-flex items-center gap-1 px-4 py-2.5 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 Cancel

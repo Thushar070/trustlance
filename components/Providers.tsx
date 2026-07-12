@@ -1,6 +1,7 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import React, { useEffect } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -22,5 +23,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  return <SessionProvider>{children}</SessionProvider>;
+  return (
+    <SessionProvider>
+      <ThemeProvider>{children}</ThemeProvider>
+    </SessionProvider>
+  );
 }

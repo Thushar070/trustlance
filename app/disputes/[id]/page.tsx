@@ -237,8 +237,8 @@ export default function DisputeDetailPage() {
     return (
       <div className="flex-grow flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-[var(--accent)] animate-spin" />
-          <p className="text-slate-400 text-sm">Loading case file...</p>
+          <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
+          <p className="text-[var(--text-muted)] text-sm">Loading case file...</p>
         </div>
       </div>
     );
@@ -251,7 +251,7 @@ export default function DisputeDetailPage() {
           <p className="text-sm text-[var(--status-negative-text)] font-semibold mb-3">{errorMsg || "Dispute not found"}</p>
           <button
             onClick={() => router.push("/projects")}
-            className="text-xs px-4 py-2 bg-white hover:bg-slate-50 text-[var(--status-negative-text)] font-bold rounded-lg border border-red-200 transition-colors cursor-pointer"
+            className="text-xs px-4 py-2 bg-[var(--surface)] hover:bg-[var(--surface-subtle)] text-[var(--status-negative-text)] font-bold rounded-lg border border-[var(--border)] transition-colors cursor-pointer"
           >
             Back to dashboard
           </button>
@@ -279,7 +279,7 @@ export default function DisputeDetailPage() {
       {/* Dispute Header Case File branding */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-[var(--border)] pb-6 mb-8 gap-4">
         <div>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
+          <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest block mb-1">
             Escrow Case File #{dispute.id.slice(-6).toUpperCase()}
           </span>
           <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
@@ -302,13 +302,13 @@ export default function DisputeDetailPage() {
         {/* Main Case Details (Columns client vs freelancer) */}
         <div className="lg:col-span-2 space-y-6">
           {/* Dispute details reason */}
-          <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
+          <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
             <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Initial Dispute Reason</h2>
-            <div className="text-[var(--text-secondary)] text-sm leading-relaxed whitespace-pre-wrap bg-slate-50 border border-slate-100 rounded-lg p-5">
+            <div className="text-[var(--text-secondary)] text-sm leading-relaxed whitespace-pre-wrap bg-[var(--surface-subtle)] border border-[var(--border)] rounded-lg p-5">
               <span className="font-bold text-[var(--text-primary)] block mb-2 text-xs uppercase tracking-wider">
                 Raised by {dispute.raisedBy === project.clientId ? "Client" : "Freelancer"} on {new Date(dispute.createdAt).toLocaleString()}
               </span>
-              <p className="italic text-slate-650 leading-relaxed">&ldquo;{dispute.reason}&rdquo;</p>
+              <p className="italic text-[var(--text-secondary)] leading-relaxed">&ldquo;{dispute.reason}&rdquo;</p>
             </div>
           </div>
 
@@ -322,15 +322,15 @@ export default function DisputeDetailPage() {
               </div>
 
               {clientEvidence.length === 0 ? (
-                <div className="bg-slate-50/50 border border-dashed border-slate-250 rounded-xl p-6 text-center text-xs text-[var(--text-muted)] italic">
+                <div className="bg-[var(--surface-subtle)] border border-dashed border-[var(--border)] rounded-xl p-6 text-center text-xs text-[var(--text-muted)] italic">
                   No evidence uploaded by client yet.
                 </div>
               ) : (
                 <div className="space-y-2.5">
                   {clientEvidence.map((ev) => (
-                    <div key={ev.id} className="bg-white border border-[var(--border)] rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div key={ev.id} className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-start gap-3">
-                        <span className="text-slate-400 mt-0.5">
+                        <span className="text-[var(--text-muted)] mt-0.5">
                           {ev.type === "file" ? <FileText className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
                         </span>
                         <div className="min-w-0 flex-grow">
@@ -361,15 +361,15 @@ export default function DisputeDetailPage() {
               </div>
 
               {freelancerEvidence.length === 0 ? (
-                <div className="bg-slate-50/50 border border-dashed border-slate-250 rounded-xl p-6 text-center text-xs text-[var(--text-muted)] italic">
+                <div className="bg-[var(--surface-subtle)] border border-dashed border-[var(--border)] rounded-xl p-6 text-center text-xs text-[var(--text-muted)] italic">
                   No evidence uploaded by freelancer yet.
                 </div>
               ) : (
                 <div className="space-y-2.5">
                   {freelancerEvidence.map((ev) => (
-                    <div key={ev.id} className="bg-white border border-[var(--border)] rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div key={ev.id} className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-start gap-3">
-                        <span className="text-slate-400 mt-0.5">
+                        <span className="text-[var(--text-muted)] mt-0.5">
                           {ev.type === "file" ? <FileText className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
                         </span>
                         <div className="min-w-0 flex-grow">
@@ -395,7 +395,7 @@ export default function DisputeDetailPage() {
 
           {/* Evidence Upload Area */}
           {(isClient || isFreelancer) && !isResolved && (
-            <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
+            <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
               <div className="mb-4">
                 <h3 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">Upload Supporting Evidence</h3>
                 <p className="text-xs text-[var(--text-muted)] mt-1">
@@ -418,12 +418,12 @@ export default function DisputeDetailPage() {
                 <form onSubmit={handleEvidenceUpload} className="space-y-4">
                   {/* File Selector */}
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Deliverable file (ZIP, PDF, PNG, JPG - Max 50MB)</label>
+                    <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Deliverable file (ZIP, PDF, PNG, JPG - Max 50MB)</label>
                     <input
                       type="file"
                       onChange={handleFileChange}
                       disabled={submittingEvidence}
-                      className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-indigo-50 file:text-[var(--accent)] hover:file:bg-indigo-105 cursor-pointer disabled:opacity-50"
+                      className="w-full text-xs text-[var(--text-secondary)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-[var(--accent-light)] file:text-[var(--accent)] hover:file:opacity-90 cursor-pointer disabled:opacity-50"
                     />
                     {selectedFile && (
                       <p className="mt-1.5 text-xs text-[var(--status-success-text)] font-semibold">
@@ -433,22 +433,22 @@ export default function DisputeDetailPage() {
                   </div>
 
                   {/* Divider */}
-                  <div className="flex items-center text-xs text-slate-400 font-medium my-4">
+                  <div className="flex items-center text-xs text-[var(--text-muted)] font-medium my-4">
                     <div className="flex-grow border-t border-[var(--border-subtle)]" />
-                    <span className="px-3 uppercase text-[10px] tracking-wider text-slate-400">OR</span>
+                    <span className="px-3 uppercase text-[10px] tracking-wider text-[var(--text-muted)]">OR</span>
                     <div className="flex-grow border-t border-[var(--border-subtle)]" />
                   </div>
 
                   {/* Link Input */}
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Evidence URL/Link (Alternative to file upload)</label>
+                    <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Evidence URL/Link (Alternative to file upload)</label>
                     <input
                       type="url"
                       placeholder="e.g. https://github.com/username/repo or hosted site link"
                       value={linkUrl}
                       onChange={(e) => setLinkUrl(e.target.value)}
                       disabled={submittingEvidence}
-                      className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all disabled:opacity-50"
+                      className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all disabled:opacity-50 bg-[var(--input-bg)]"
                     />
                   </div>
 
@@ -471,7 +471,7 @@ export default function DisputeDetailPage() {
         {/* Sidebar details & Admin controls */}
         <div className="lg:col-span-1 space-y-6">
           {/* Dispute Contract Specs Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 text-[var(--text-secondary)]">
+          <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 text-[var(--text-secondary)]">
             <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Project Contract Information</h3>
             <div className="space-y-3.5 text-sm">
               <div className="flex justify-between items-center">
@@ -495,7 +495,7 @@ export default function DisputeDetailPage() {
 
           {/* Admin Adjudication Card */}
           {isAdmin && !isResolved && (
-            <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6">
+            <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6">
               <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Adjudicate Dispute</h3>
 
               {resolveError && (
@@ -508,7 +508,7 @@ export default function DisputeDetailPage() {
                 {confirmAction === null ? (
                   <>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">Resolution Notes (Required)</label>
+                      <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Resolution Notes (Required)</label>
                       <textarea
                         placeholder="Provide details and justification explaining the resolution decision..."
                         rows={4}
@@ -516,7 +516,7 @@ export default function DisputeDetailPage() {
                         value={resolutionNotes}
                         onChange={(e) => setResolutionNotes(e.target.value)}
                         disabled={resolvingAction !== null}
-                        className="w-full px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-xs transition-all leading-relaxed"
+                        className="w-full px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-xs transition-all leading-relaxed bg-[var(--input-bg)]"
                       />
                     </div>
 
@@ -524,7 +524,7 @@ export default function DisputeDetailPage() {
                       <button
                         onClick={() => setConfirmAction("RELEASE")}
                         disabled={!resolutionNotes.trim()}
-                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white bg-[var(--status-success-text)] hover:bg-emerald-800 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
+                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white bg-[var(--status-success-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
                       >
                         <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
                         Release to Freelancer
@@ -532,7 +532,7 @@ export default function DisputeDetailPage() {
                       <button
                         onClick={() => setConfirmAction("REFUND")}
                         disabled={!resolutionNotes.trim()}
-                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:bg-rose-800 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
+                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
                       >
                         <XCircle className="w-3.5 h-3.5 mr-1.5" />
                         Refund to Client
@@ -589,20 +589,20 @@ export default function DisputeDetailPage() {
 
           {/* Resolution Outcome Display Card */}
           {isResolved && (
-            <div className="bg-slate-55 border border-slate-200 rounded-xl p-6">
+            <div className="bg-[var(--surface-subtle)] border border-[var(--border)] rounded-xl p-6">
               <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Resolution Outcome</h3>
               <div className="space-y-4 text-xs text-[var(--text-secondary)] leading-relaxed">
                 <div>
-                  <span className="font-bold text-slate-400 block uppercase tracking-wider mb-1">Decision</span>
+                  <span className="font-bold text-[var(--text-muted)] block uppercase tracking-wider mb-1">Decision</span>
                   <span className={`font-bold uppercase tracking-wider text-sm ${
                     dispute.escrow?.status === EscrowStatus.RELEASED ? "text-[var(--status-success-text)]" : "text-[var(--status-negative-text)]"
                   }`}>
                     {dispute.escrow?.status === EscrowStatus.RELEASED ? "Released to Freelancer" : "Refunded to Client"}
                   </span>
                 </div>
-                <div className="border-t border-slate-200/60 pt-3">
-                  <span className="font-bold text-slate-400 block uppercase tracking-wider mb-1.5">Resolution Notes</span>
-                  <p className="bg-white border border-slate-100 rounded-lg p-3.5 font-medium text-slate-800 whitespace-pre-wrap leading-relaxed">
+                <div className="border-t border-[var(--border-subtle)] pt-3">
+                  <span className="font-bold text-[var(--text-muted)] block uppercase tracking-wider mb-1.5">Resolution Notes</span>
+                  <p className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-3.5 font-medium text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed">
                     {dispute.resolution || "No notes recorded."}
                   </p>
                 </div>

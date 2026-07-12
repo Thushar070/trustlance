@@ -19,6 +19,7 @@
   /* ---- Surfaces ---- */
   --surface: #ffffff;
   --surface-elevated: #ffffff;
+  --surface-subtle: #f8fafc;
 
   /* ---- Borders ---- */
   --border: #e2e8f0;
@@ -28,6 +29,9 @@
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #94a3b8;
+
+  /* ---- Inputs ---- */
+  --input-bg: #ffffff;
 
   /* ---- Status: Available / Accepting ---- */
   --status-open-bg: #f0f9ff;
@@ -63,6 +67,78 @@
   --status-neutral-bg: #f1f5f9;
   --status-neutral-text: #475569;
   --status-neutral-border: #cbd5e1;
+
+  /* ---- Scrollbar ---- */
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-thumb-hover: #94a3b8;
+
+  /* ---- Gradient accent shades ---- */
+  --gradient-from: #4f46e5;
+  --gradient-to: #3730a3;
+  --gradient-subtle-from: #eef2ff;
+  --gradient-subtle-to: #e0e7ff;
+}
+
+/* =============================================
+   Dark Theme — Independently Designed Palette
+   ============================================= */
+
+.dark {
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  --accent: #818cf8;
+  --accent-hover: #6366f1;
+  --accent-light: #312e81;
+
+  --surface: #1e293b;
+  --surface-elevated: #334155;
+  --surface-subtle: #1e293b;
+
+  --border: #334155;
+  --border-subtle: #1e293b;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --input-bg: #1e293b;
+
+  /* ---- Status (dark-optimized for readability on dark bg) ---- */
+  --status-open-bg: #0c4a6e;
+  --status-open-text: #38bdf8;
+  --status-open-border: #0369a1;
+
+  --status-progress-bg: #78350f;
+  --status-progress-text: #fbbf24;
+  --status-progress-border: #b45309;
+
+  --status-review-bg: #4c1d95;
+  --status-review-text: #a78bfa;
+  --status-review-border: #6d28d9;
+
+  --status-success-bg: #064e3b;
+  --status-success-text: #34d399;
+  --status-success-border: #047857;
+
+  --status-disputed-bg: #7c2d12;
+  --status-disputed-text: #fb923c;
+  --status-disputed-border: #c2410c;
+
+  --status-negative-bg: #881337;
+  --status-negative-text: #fb7185;
+  --status-negative-border: #be123c;
+
+  --status-neutral-bg: #1e293b;
+  --status-neutral-text: #94a3b8;
+  --status-neutral-border: #475569;
+
+  --scrollbar-thumb: #475569;
+  --scrollbar-thumb-hover: #64748b;
+
+  --gradient-from: #818cf8;
+  --gradient-to: #6366f1;
+  --gradient-subtle-from: #312e81;
+  --gradient-subtle-to: #3730a3;
 }
 
 @theme inline {
@@ -88,6 +164,15 @@ a, button {
   transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
+/* Theme transition (only on theme toggle, not initial load) */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+  transition-delay: 0s !important;
+}
+
 /* Subtle focus ring for accessibility */
 *:focus-visible {
   outline: 2px solid var(--accent);
@@ -104,11 +189,11 @@ a, button {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--scrollbar-thumb);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* Skeleton loading shimmer animation */
@@ -118,8 +203,30 @@ a, button {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background: linear-gradient(90deg, var(--border-subtle) 25%, var(--border) 50%, var(--border-subtle) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: 8px;
+}
+
+/* Form inputs global dark mode support */
+input, textarea, select {
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* Date input icon color fix for dark mode */
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* File input dark mode */
+.dark input[type="file"]::file-selector-button {
+  background-color: var(--surface-elevated);
+  color: var(--text-primary);
+  border-color: var(--border);
 }

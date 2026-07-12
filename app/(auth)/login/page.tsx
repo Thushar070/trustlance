@@ -15,9 +15,9 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex-grow flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-[var(--background)]">
+    <div className="flex-grow flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[var(--background)]">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center shadow-lg shadow-indigo-200/60 mb-6">
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)] flex items-center justify-center shadow-lg mb-6">
           <Shield className="w-7 h-7 text-white" />
         </div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">
@@ -28,8 +28,8 @@ function LoginForm() {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <div className="bg-white py-8 px-6 shadow-sm border border-[var(--border)] rounded-xl">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-[var(--surface)] py-8 px-6 shadow-sm border border-[var(--border)] rounded-xl">
           {error && (
             <div className="mb-5 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg flex items-start gap-3">
               <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
@@ -44,7 +44,7 @@ function LoginForm() {
           <div className="space-y-4">
             <button
               onClick={handleGoogleLogin}
-              className="w-full flex justify-center items-center py-3 px-4 border border-[var(--border)] rounded-lg bg-white text-sm font-semibold text-[var(--text-primary)] hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent)] cursor-pointer transition-all duration-150"
+              className="w-full flex justify-center items-center py-3 px-4 border border-[var(--border)] rounded-lg bg-[var(--surface)] text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)] hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent)] cursor-pointer transition-all duration-150"
             >
               <svg className="h-5 w-5 mr-3" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -71,7 +71,7 @@ export default function LoginPage() {
   return (
     <Suspense fallback={
       <div className="flex-grow flex items-center justify-center">
-        <div className="w-5 h-5 rounded-full border-2 border-slate-200 border-t-[var(--accent)] animate-spin" />
+        <div className="w-5 h-5 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
       </div>
     }>
       <LoginForm />

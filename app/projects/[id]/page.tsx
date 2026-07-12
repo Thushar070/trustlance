@@ -832,8 +832,8 @@ export default function ProjectDetailPage() {
     return (
       <div className="flex-grow flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-6 h-6 rounded-full border-2 border-slate-200 border-t-[var(--accent)] animate-spin" />
-          <p className="text-slate-400 text-sm">Loading project details...</p>
+          <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
+          <p className="text-[var(--text-muted)] text-sm">Loading project details...</p>
         </div>
       </div>
     );
@@ -846,7 +846,7 @@ export default function ProjectDetailPage() {
           <p className="text-sm text-[var(--status-negative-text)] font-semibold mb-3">{errorMsg}</p>
           <button
             onClick={() => router.push("/projects")}
-            className="text-xs px-4 py-2 bg-white hover:bg-slate-50 text-[var(--status-negative-text)] font-bold rounded-lg border border-red-200 cursor-pointer transition-colors"
+            className="text-xs px-4 py-2 bg-[var(--surface)] hover:bg-[var(--surface-subtle)] text-[var(--status-negative-text)] font-bold rounded-lg border border-[var(--border)] cursor-pointer transition-colors"
           >
             Back to browse
           </button>
@@ -866,7 +866,7 @@ export default function ProjectDetailPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {editMode ? (
         // Inline Edit Mode Panel (Client project editor)
-        <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-10 max-w-4xl mx-auto">
+        <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-10 max-w-4xl mx-auto">
           <div className="flex items-center gap-2 mb-6">
             <Briefcase className="w-5 h-5 text-[var(--accent)]" />
             <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">Edit Project Details</h1>
@@ -884,7 +884,7 @@ export default function ProjectDetailPage() {
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all"
+                className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
               />
               {validationErrors.title && (
                 <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.title[0]}</p>
@@ -898,7 +898,7 @@ export default function ProjectDetailPage() {
                 rows={6}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed"
+                className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
               />
               {validationErrors.description && (
                 <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.description[0]}</p>
@@ -910,7 +910,7 @@ export default function ProjectDetailPage() {
                 <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Budget (INR)</label>
                 <div className="relative rounded-lg shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <IndianRupee className="w-3.5 h-3.5 text-slate-400" />
+                    <IndianRupee className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                   </div>
                   <input
                     type="number"
@@ -918,7 +918,7 @@ export default function ProjectDetailPage() {
                     min="1"
                     value={budget}
                     onChange={(e) => setBudget(e.target.value)}
-                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all"
+                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
                   />
                 </div>
                 {validationErrors.budget && (
@@ -933,7 +933,7 @@ export default function ProjectDetailPage() {
                   required
                   value={deadline}
                   onChange={(e) => setDeadline(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all"
+                  className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
                 />
                 {validationErrors.deadline && (
                   <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.deadline[0]}</p>
@@ -946,10 +946,10 @@ export default function ProjectDetailPage() {
               {validationErrors.skills && (
                 <p className="mb-3 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.skills[0]}</p>
               )}
-              <div className="space-y-4 border border-[var(--border)] rounded-lg p-4 bg-slate-50/50 max-h-60 overflow-y-auto">
+              <div className="space-y-4 border border-[var(--border)] rounded-lg p-4 bg-[var(--surface-subtle)] max-h-60 overflow-y-auto">
                 {SKILL_GROUPS.map((group) => (
                   <div key={group.category}>
-                    <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">{group.category}</h3>
+                    <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">{group.category}</h3>
                     <div className="flex flex-wrap gap-1.5">
                       {group.skills.map((skill) => {
                         const isSelected = selectedSkills.includes(skill);
@@ -961,7 +961,7 @@ export default function ProjectDetailPage() {
                             className={`text-[10px] px-2.5 py-1 rounded-md border font-medium cursor-pointer transition-all duration-150 ${
                               isSelected
                                 ? "bg-[var(--accent-light)] border-[var(--accent)] text-[var(--accent)] font-bold shadow-sm"
-                                : "bg-white border-[var(--border)] text-slate-600 hover:bg-slate-50 hover:border-slate-300"
+                                : "bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)]"
                             }`}
                           >
                             {skill}
@@ -978,7 +978,7 @@ export default function ProjectDetailPage() {
               <button
                 type="button"
                 onClick={() => setEditMode(false)}
-                className="px-4 py-2 border border-[var(--border)] rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
+                className="px-4 py-2 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer transition-colors"
               >
                 Cancel
               </button>
@@ -998,7 +998,7 @@ export default function ProjectDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             <div className="lg:col-span-2 space-y-6">
               {/* Title & Description Box */}
-              <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
+              <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
                 <div className="flex flex-wrap items-center gap-3 mb-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadgeClass(project.status)}`}>
                     {project.status.replace("_", " ")}
@@ -1014,7 +1014,7 @@ export default function ProjectDetailPage() {
 
                 <div className="prose max-w-none text-[var(--text-secondary)] text-sm leading-relaxed whitespace-pre-wrap">
                   <h3 className="text-[var(--text-primary)] font-bold text-sm uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <FileText className="w-4 h-4 text-slate-400" />
+                    <FileText className="w-4 h-4 text-[var(--text-muted)]" />
                     Project Description
                   </h3>
                   <div className="border-t border-[var(--border-subtle)] pt-3 text-[var(--text-secondary)]">
@@ -1024,13 +1024,13 @@ export default function ProjectDetailPage() {
               </div>
 
               {/* Skills Box */}
-              <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6">
+              <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6">
                 <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3.5">Skills Required</h3>
                 <div className="flex flex-wrap gap-1.5">
                   {project.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="bg-indigo-50 text-[var(--accent)] text-[10px] px-2.5 py-1 rounded-md border border-indigo-100 font-bold"
+                      className="bg-[var(--accent-light)] text-[var(--accent)] text-[10px] px-2.5 py-1 rounded-md border border-[var(--border)] font-bold"
                     >
                       {skill}
                     </span>
@@ -1040,7 +1040,7 @@ export default function ProjectDetailPage() {
 
               {/* Client Review & Actions Panel */}
               {isOwner && project.status === ProjectStatus.UNDER_REVIEW && (
-                <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm p-6 sm:p-8 space-y-6">
+                <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-6 sm:p-8 space-y-6">
                   <div>
                     <h3 className="text-[var(--text-primary)] font-bold text-base tracking-tight mb-1">Project Review Decisions</h3>
                     <p className="text-xs text-[var(--text-muted)] font-medium leading-relaxed">
@@ -1059,7 +1059,7 @@ export default function ProjectDetailPage() {
                       <button
                         onClick={handleApprove}
                         disabled={reviewActionLoading}
-                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-success-text)] hover:bg-emerald-800 disabled:opacity-50 cursor-pointer shadow-sm transition-colors"
+                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-success-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-sm transition-colors"
                       >
                         <Check className="w-3.5 h-3.5" /> Approve Project
                       </button>
@@ -1069,7 +1069,7 @@ export default function ProjectDetailPage() {
                           setReviewActionError(null);
                         }}
                         disabled={reviewActionLoading}
-                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-progress-text)] hover:bg-amber-800 disabled:opacity-50 cursor-pointer shadow-sm transition-colors"
+                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-progress-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-sm transition-colors"
                       >
                         <RefreshCw className="w-3.5 h-3.5" /> Request Changes
                       </button>
@@ -1079,7 +1079,7 @@ export default function ProjectDetailPage() {
                           setReviewActionError(null);
                         }}
                         disabled={reviewActionLoading}
-                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:bg-rose-800 disabled:opacity-50 cursor-pointer shadow-sm transition-colors"
+                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-sm transition-colors"
                       >
                         <AlertTriangle className="w-3.5 h-3.5" /> Raise Dispute
                       </button>
@@ -1089,28 +1089,28 @@ export default function ProjectDetailPage() {
                   {activeReviewAction === "REQUEST_CHANGES" && (
                     <form onSubmit={handleRequestChanges} className="space-y-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">Adjustments & Feedback Required</label>
+                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Adjustments & Feedback Required</label>
                         <textarea
                           placeholder="Provide detailed instructions on what changes are needed to resume progress..."
                           rows={4}
                           required
                           value={reviewFeedback}
                           onChange={(e) => setReviewFeedback(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed"
+                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
                         />
                       </div>
                       <div className="flex justify-end gap-2.5">
                         <button
                           type="button"
                           onClick={() => setActiveReviewAction(null)}
-                          className="px-4 py-2 border border-[var(--border)] rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors"
+                          className="px-4 py-2 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer transition-colors"
                         >
                           Cancel
                         </button>
                         <button
                           type="submit"
                           disabled={reviewActionLoading}
-                          className="px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-progress-text)] hover:bg-amber-850 disabled:opacity-50 cursor-pointer transition-colors"
+                          className="px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-progress-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer transition-colors"
                         >
                           {reviewActionLoading ? "Submitting..." : "Send Request"}
                         </button>
@@ -1121,28 +1121,28 @@ export default function ProjectDetailPage() {
                   {activeReviewAction === "DISPUTE" && (
                     <form onSubmit={handleRaiseDispute} className="space-y-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">Reason for Dispute Escalation</label>
+                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Reason for Dispute Escalation</label>
                         <textarea
                           placeholder="Describe the issues, discrepancies, or reasons for escalating to a formal dispute..."
                           rows={4}
                           required
                           value={disputeReason}
                           onChange={(e) => setDisputeReason(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed"
+                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
                         />
                       </div>
                       <div className="flex justify-end gap-2.5">
                         <button
                           type="button"
                           onClick={() => setActiveReviewAction(null)}
-                          className="px-4 py-2 border border-[var(--border)] rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors"
+                          className="px-4 py-2 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer transition-colors"
                         >
                           Cancel
                         </button>
                         <button
                           type="submit"
                           disabled={reviewActionLoading}
-                          className="px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:bg-rose-850 disabled:opacity-50 cursor-pointer transition-colors"
+                          className="px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer transition-colors"
                         >
                           {reviewActionLoading ? "Escalating..." : "Raise Dispute"}
                         </button>
@@ -1154,7 +1154,7 @@ export default function ProjectDetailPage() {
 
               {/* Freelancer Dispute Trigger */}
               {isFreelancerHired && project.status === ProjectStatus.UNDER_REVIEW && (
-                <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm p-6 sm:p-8 space-y-4">
+                <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-6 sm:p-8 space-y-4">
                   <div>
                     <h3 className="text-[var(--text-primary)] font-bold text-base tracking-tight mb-1">Project is Under Review</h3>
                     <p className="text-xs text-[var(--text-muted)] font-medium leading-relaxed">
@@ -1174,35 +1174,35 @@ export default function ProjectDetailPage() {
                         setActiveReviewAction("DISPUTE");
                         setReviewActionError(null);
                       }}
-                      className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:bg-rose-800 cursor-pointer transition-colors shadow-sm"
+                      className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:opacity-90 cursor-pointer transition-colors shadow-sm"
                     >
                       <AlertTriangle className="w-3.5 h-3.5" /> Raise Dispute
                     </button>
                   ) : (
                     <form onSubmit={handleRaiseDispute} className="space-y-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">Reason for Dispute Escalation</label>
+                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Reason for Dispute Escalation</label>
                         <textarea
                           placeholder="Describe the issues or reasons for escalating to a formal dispute..."
                           rows={4}
                           required
                           value={disputeReason}
                           onChange={(e) => setDisputeReason(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed"
+                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
                         />
                       </div>
                       <div className="flex justify-end gap-2.5">
                         <button
                           type="button"
                           onClick={() => setActiveReviewAction(null)}
-                          className="px-4 py-2 border border-[var(--border)] rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors"
+                          className="px-4 py-2 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer transition-colors"
                         >
                           Cancel
                         </button>
                         <button
                           type="submit"
                           disabled={reviewActionLoading}
-                          className="px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:bg-rose-850 disabled:opacity-50 cursor-pointer transition-colors"
+                          className="px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer transition-colors"
                         >
                           {reviewActionLoading ? "Escalating..." : "Raise Dispute"}
                         </button>
@@ -1215,7 +1215,7 @@ export default function ProjectDetailPage() {
               {/* Freelancer Work Submission Form */}
               {isFreelancerHired &&
                 (project.status === ProjectStatus.ASSIGNED || project.status === ProjectStatus.IN_PROGRESS) && (
-                  <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
+                  <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
                     <h3 className="text-[var(--text-primary)] font-bold text-base tracking-tight mb-1">Submit Deliverables</h3>
                     <p className="text-xs text-[var(--text-muted)] font-medium leading-relaxed mb-6">
                       Upload your project files or provide repository and demo links. At least one of File, GitHub Link, or Demo Link is required.
@@ -1237,11 +1237,11 @@ export default function ProjectDetailPage() {
 
                     <form onSubmit={handleWorkSubmission} className="space-y-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">Deliverable File (ZIP, TAR.GZ, PDF, PNG, JPG, DOCX - Max 50MB)</label>
+                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Deliverable File (ZIP, TAR.GZ, PDF, PNG, JPG, DOCX - Max 50MB)</label>
                         <input
                           type="file"
                           onChange={handleFileChange}
-                          className="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border file:border-slate-200 file:text-[11px] file:font-semibold file:bg-slate-50 hover:file:bg-slate-100 cursor-pointer transition-colors"
+                          className="w-full text-xs text-[var(--text-secondary)] file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border file:border-[var(--border)] file:text-[11px] file:font-semibold file:bg-[var(--surface-subtle)] hover:file:opacity-90 cursor-pointer transition-colors"
                         />
                         {selectedFile && (
                           <p className="mt-1.5 text-xs text-[var(--status-success-text)] font-semibold">
@@ -1251,35 +1251,35 @@ export default function ProjectDetailPage() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">GitHub Link (Optional)</label>
+                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">GitHub Link (Optional)</label>
                         <input
                           type="url"
                           placeholder="https://github.com/username/repo"
                           value={githubLink}
                           onChange={(e) => setGithubLink(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all"
+                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">Demo Link (Optional)</label>
+                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Demo Link (Optional)</label>
                         <input
                           type="url"
                           placeholder="https://my-demo-app.com"
                           value={demoLink}
                           onChange={(e) => setDemoLink(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all"
+                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">Submission Notes (Optional)</label>
+                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Submission Notes (Optional)</label>
                         <textarea
                           placeholder="Add any instructions, notes, or details about this submission..."
                           rows={4}
                           value={submissionNotes}
                           onChange={(e) => setSubmissionNotes(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed"
+                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
                         />
                       </div>
 
@@ -1298,17 +1298,17 @@ export default function ProjectDetailPage() {
 
               {/* Submission History View */}
               {(isOwner || isFreelancerHired) && submissions.length > 0 && (
-                <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
+                <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
                   <h3 className="text-[var(--text-primary)] font-bold text-base tracking-tight mb-6">Submission History</h3>
-                  <div className="relative border-l border-slate-100 ml-2.5 space-y-8 pb-2">
+                  <div className="relative border-l border-[var(--border-subtle)] ml-2.5 space-y-8 pb-2">
                     {submissions.map((sub, index) => (
                       <div key={sub.id} className="relative pl-6">
                         {/* Timeline node dot */}
-                        <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-[var(--accent)] ring-4 ring-white" />
+                        <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-[var(--accent)] ring-4 ring-[var(--surface)]" />
 
                         <div className="space-y-3">
                           <div className="flex items-center justify-between gap-4">
-                            <span className="text-xs font-bold text-[var(--text-primary)] bg-slate-50 border border-slate-150 px-2 py-0.5 rounded-md">
+                            <span className="text-xs font-bold text-[var(--text-primary)] bg-[var(--surface-subtle)] border border-[var(--border)] px-2 py-0.5 rounded-md">
                               Round {submissions.length - index}
                             </span>
                             <span className="text-[10px] text-[var(--text-muted)] font-semibold flex items-center gap-1">
@@ -1318,7 +1318,7 @@ export default function ProjectDetailPage() {
                           </div>
 
                           {sub.notes && (
-                            <p className="text-sm text-[var(--text-secondary)] bg-slate-50/70 p-3.5 rounded-lg border border-slate-100 whitespace-pre-wrap leading-relaxed">
+                            <p className="text-sm text-[var(--text-secondary)] bg-[var(--surface-subtle)]/70 p-3.5 rounded-lg border border-[var(--border)] whitespace-pre-wrap leading-relaxed">
                               {sub.notes}
                             </p>
                           )}
@@ -1336,7 +1336,7 @@ export default function ProjectDetailPage() {
                                 href={sub.fileUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 hover:underline bg-[var(--accent-light)] text-[var(--accent)] text-[10px] font-bold px-2.5 py-1.5 rounded-md border border-indigo-100 transition-colors"
+                                className="inline-flex items-center gap-1.5 hover:underline bg-[var(--accent-light)] text-[var(--accent)] text-[10px] font-bold px-2.5 py-1.5 rounded-md border border-[var(--border)] transition-colors"
                               >
                                 <FileDown className="w-3.5 h-3.5" /> Download Deliverable File
                               </a>
@@ -1346,7 +1346,7 @@ export default function ProjectDetailPage() {
                                 href={sub.githubLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 hover:underline bg-slate-50 hover:bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1.5 rounded-md border border-slate-200 transition-colors"
+                                className="inline-flex items-center gap-1.5 hover:underline bg-[var(--surface-subtle)] hover:bg-[var(--surface-elevated)] text-[var(--text-secondary)] text-[10px] font-bold px-2.5 py-1.5 rounded-md border border-[var(--border)] transition-colors"
                               >
                                 <Code2 className="w-3.5 h-3.5" /> GitHub Repository
                               </a>
@@ -1356,7 +1356,7 @@ export default function ProjectDetailPage() {
                                 href={sub.demoLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 hover:underline bg-slate-50 hover:bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1.5 rounded-md border border-slate-200 transition-colors"
+                                className="inline-flex items-center gap-1.5 hover:underline bg-[var(--surface-subtle)] hover:bg-[var(--surface-elevated)] text-[var(--text-secondary)] text-[10px] font-bold px-2.5 py-1.5 rounded-md border border-[var(--border)] transition-colors"
                               >
                                 <Globe className="w-3.5 h-3.5" /> Live Demo URL
                               </a>
@@ -1371,7 +1371,7 @@ export default function ProjectDetailPage() {
 
               {/* Private Client-Freelancer Messaging Panel */}
               {(isOwner || isFreelancerHired) && project.status !== ProjectStatus.OPEN && (
-                <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8 space-y-4">
+                <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8 space-y-4">
                   <div>
                     <h3 className="text-[var(--text-primary)] font-bold text-base tracking-tight mb-1 flex items-center gap-2">
                       <Send className="w-4 h-4 text-[var(--accent)]" />
@@ -1388,7 +1388,7 @@ export default function ProjectDetailPage() {
                     </div>
                   )}
 
-                  <div className="border border-[var(--border-subtle)] rounded-lg p-4 bg-slate-50/30 max-h-[350px] overflow-y-auto space-y-4">
+                  <div className="border border-[var(--border-subtle)] rounded-lg p-4 bg-[var(--surface-subtle)]/30 max-h-[350px] overflow-y-auto space-y-4">
                     {messages.length === 0 ? (
                       <p className="text-xs text-[var(--text-muted)] italic text-center py-6">No messages sent in this workspace channel yet.</p>
                     ) : (
@@ -1411,7 +1411,7 @@ export default function ProjectDetailPage() {
                               className={`p-3 rounded-lg text-sm leading-relaxed ${
                                 isMe
                                   ? "bg-[var(--accent)] text-white rounded-tr-none shadow-sm"
-                                  : "bg-white border border-[var(--border)] text-[var(--text-secondary)] rounded-tl-none shadow-sm"
+                                  : "bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] rounded-tl-none shadow-sm"
                               }`}
                             >
                               <p className="whitespace-pre-wrap">{msg.content}</p>
@@ -1429,7 +1429,7 @@ export default function ProjectDetailPage() {
                       value={messageInput}
                       onChange={(e) => setMessageInput(e.target.value)}
                       disabled={sendingMessage}
-                      className="flex-grow px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all"
+                      className="flex-grow px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
                     />
                     <button
                       type="submit"
@@ -1446,7 +1446,7 @@ export default function ProjectDetailPage() {
             {/* Details Sidebar */}
             <div className="lg:col-span-1 space-y-6">
               {/* Budget & Actions Card */}
-              <div className="bg-white rounded-xl shadow-sm border border-[var(--border)] p-6 text-center sticky top-20">
+              <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 text-center sticky top-20">
                 <span className="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-wider block mb-1">
                   {project.agreedAmount ? "Agreed Contract Price" : "Project Budget"}
                 </span>
@@ -1458,14 +1458,14 @@ export default function ProjectDetailPage() {
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-[var(--text-secondary)] font-medium">Deadline</span>
                     <span className="font-semibold text-[var(--text-primary)] flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      <Calendar className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                       {new Date(project.deadline).toLocaleDateString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-[var(--text-secondary)] font-medium">Client Owner</span>
                     <span className="font-semibold text-[var(--text-primary)] flex items-center gap-1">
-                      <User className="w-3.5 h-3.5 text-slate-400" />
+                      <User className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                       {project.client.name || "Client"}
                     </span>
                   </div>
@@ -1511,7 +1511,7 @@ export default function ProjectDetailPage() {
                     </button>
                     <button
                       onClick={handleCancelProject}
-                      className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:bg-rose-800 cursor-pointer transition-colors"
+                      className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:opacity-90 cursor-pointer transition-colors"
                     >
                       Cancel Project
                     </button>
@@ -1535,13 +1535,13 @@ export default function ProjectDetailPage() {
 
           {/* Client Proposal Review Panel */}
           {isOwner && (
-            <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm p-6 sm:p-8">
+            <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-6 sm:p-8">
               <div className="flex justify-between items-center border-b border-[var(--border-subtle)] pb-4 mb-6">
                 <div>
                   <h2 className="text-base font-bold text-[var(--text-primary)] tracking-tight">Received Proposals</h2>
                   <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">Review submissions and hire the appropriate freelancer.</p>
                 </div>
-                <span className="bg-[var(--accent-light)] text-[var(--accent)] font-bold text-[10px] px-2.5 py-1 rounded-md border border-indigo-150 uppercase tracking-wider">
+                <span className="bg-[var(--accent-light)] text-[var(--accent)] font-bold text-[10px] px-2.5 py-1 rounded-md border border-[var(--border)] uppercase tracking-wider">
                   {proposals.length} Bids
                 </span>
               </div>
@@ -1551,7 +1551,7 @@ export default function ProjectDetailPage() {
               ) : (
                 <div className="space-y-4">
                   {proposals.map((prop) => (
-                    <div key={prop.id} className="border border-[var(--border)] rounded-xl p-5 hover:bg-slate-50/50 transition-all duration-150">
+                    <div key={prop.id} className="border border-[var(--border)] rounded-xl p-5 hover:bg-[var(--surface-subtle)]/50 transition-all duration-150 bg-[var(--surface)]">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 pb-4 border-b border-[var(--border-subtle)]">
                         <div>
                           <span className="font-bold text-[var(--text-primary)] text-sm block">
@@ -1565,13 +1565,13 @@ export default function ProjectDetailPage() {
                             <span className="text-sm font-bold text-[var(--text-primary)]">
                               ₹{prop.price.toLocaleString()}{" "}
                               {prop.price !== project.budget && (
-                                <span className="text-[9px] font-bold text-[var(--accent)] bg-[var(--accent-light)] border border-indigo-100 px-1.5 py-0.5 rounded-full ml-1 uppercase">
+                                <span className="text-[9px] font-bold text-[var(--accent)] bg-[var(--accent-light)] border border-[var(--border)] px-1.5 py-0.5 rounded-full ml-1 uppercase">
                                   Counter-offer
                                 </span>
                               )}
                             </span>
                           </div>
-                          <div className="text-left sm:text-right border-l border-slate-100 pl-4">
+                          <div className="text-left sm:text-right border-l border-[var(--border-subtle)] pl-4">
                             <span className="text-[10px] text-[var(--text-muted)] uppercase font-semibold block tracking-wider mb-0.5">Est. Delivery</span>
                             <span className="text-sm font-bold text-[var(--text-primary)]">{prop.estimatedDays} days</span>
                           </div>
@@ -1603,7 +1603,7 @@ export default function ProjectDetailPage() {
 
           {/* Freelancer Apply / View Proposal Panel */}
           {isFreelancer && (
-            <div className="bg-white rounded-xl border border-[var(--border)] shadow-sm p-6 sm:p-8">
+            <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-6 sm:p-8">
               {myProposal ? (
                 // Freelancer Has Already Applied
                 <div className="space-y-6">
@@ -1625,28 +1625,28 @@ export default function ProjectDetailPage() {
                       )}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">Bid Price (Counter-Offer, INR)</label>
+                          <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Bid Price (Counter-Offer, INR)</label>
                           <input
                             type="number"
                             required
                             min="1"
                             value={editProposalPrice}
                             onChange={(e) => setEditProposalPrice(e.target.value)}
-                            className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)]"
+                            className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                           />
                           {proposalValidationErrors.price && (
                             <p className="text-[10px] text-[var(--status-negative-text)] mt-0.5">{proposalValidationErrors.price[0]}</p>
                           )}
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">Estimated Days</label>
+                          <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Estimated Days</label>
                           <input
                             type="number"
                             required
                             min="1"
                             value={editProposalDays}
                             onChange={(e) => setEditProposalDays(e.target.value)}
-                            className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)]"
+                            className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                           />
                           {proposalValidationErrors.estimatedDays && (
                             <p className="text-[10px] text-[var(--status-negative-text)] mt-0.5">{proposalValidationErrors.estimatedDays[0]}</p>
@@ -1654,13 +1654,13 @@ export default function ProjectDetailPage() {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">Cover Message</label>
+                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Cover Message</label>
                         <textarea
                           required
                           rows={4}
                           value={editProposalMessage}
                           onChange={(e) => setEditProposalMessage(e.target.value)}
-                          className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] leading-relaxed"
+                          className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
                         />
                         {proposalValidationErrors.message && (
                           <p className="text-[10px] text-[var(--status-negative-text)] mt-0.5">{proposalValidationErrors.message[0]}</p>
@@ -1670,7 +1670,7 @@ export default function ProjectDetailPage() {
                         <button
                           type="button"
                           onClick={() => setEditProposalMode(false)}
-                          className="px-4 py-2 border border-[var(--border)] hover:bg-slate-50 text-xs font-semibold text-slate-600 rounded-lg cursor-pointer transition-colors"
+                          className="px-4 py-2 border border-[var(--border)] text-xs font-semibold text-[var(--text-secondary)] rounded-lg cursor-pointer transition-colors"
                         >
                           Cancel
                         </button>
@@ -1686,19 +1686,19 @@ export default function ProjectDetailPage() {
                   ) : (
                     // Freelancer Proposal View Details
                     <div className="space-y-4">
-                      <div className="flex flex-wrap gap-4 bg-slate-50/70 p-4 rounded-xl border border-slate-100 text-sm">
+                      <div className="flex flex-wrap gap-4 bg-[var(--surface-subtle)]/75 p-4 rounded-xl border border-[var(--border)] text-sm">
                         <div>
                           <span className="text-[10px] text-[var(--text-muted)] block font-semibold uppercase tracking-wider mb-0.5">Your Bid Amount</span>
                           <span className="font-bold text-[var(--text-primary)]">₹{myProposal.price.toLocaleString()}</span>
                         </div>
-                        <div className="border-l border-slate-200 pl-4">
+                        <div className="border-l border-[var(--border-subtle)] pl-4">
                           <span className="text-[10px] text-[var(--text-muted)] block font-semibold uppercase tracking-wider mb-0.5">Delivery Time</span>
                           <span className="font-bold text-[var(--text-primary)]">{myProposal.estimatedDays} days</span>
                         </div>
                       </div>
                       <div>
                         <span className="text-[10px] text-[var(--text-muted)] block font-semibold uppercase tracking-wider mb-1.5">Cover Message</span>
-                        <p className="text-sm text-[var(--text-secondary)] leading-relaxed bg-white border border-slate-100 rounded-lg p-4 whitespace-pre-wrap">
+                        <p className="text-sm text-[var(--text-secondary)] leading-relaxed bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4 whitespace-pre-wrap">
                           {myProposal.message}
                         </p>
                       </div>
@@ -1714,7 +1714,7 @@ export default function ProjectDetailPage() {
                           <button
                             onClick={handleWithdrawProposal}
                             disabled={proposalActionLoading}
-                            className="px-4 py-2 border border-[var(--border)] hover:bg-slate-50 text-xs font-semibold text-[var(--status-negative-text)] rounded-lg cursor-pointer disabled:opacity-50 transition-all duration-150"
+                            className="px-4 py-2 border border-[var(--border)] text-xs font-semibold text-[var(--status-negative-text)] rounded-lg cursor-pointer disabled:opacity-50 transition-all duration-150"
                           >
                             Withdraw Proposal
                           </button>
@@ -1738,12 +1738,12 @@ export default function ProjectDetailPage() {
                   <form onSubmit={handleApply} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">
+                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                           Counter-Offer Price (INR, Optional)
                         </label>
                         <div className="relative rounded-lg shadow-sm">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <IndianRupee className="w-3.5 h-3.5 text-slate-400" />
+                            <IndianRupee className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                           </div>
                           <input
                             type="number"
@@ -1751,7 +1751,7 @@ export default function ProjectDetailPage() {
                             value={proposalPrice}
                             onChange={(e) => setProposalPrice(e.target.value)}
                             placeholder={project.budget.toString()}
-                            className="w-full pl-7 pr-3 py-2 text-sm border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)]"
+                            className="w-full pl-7 pr-3 py-2 text-sm border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                           />
                         </div>
                         {proposalValidationErrors.price && (
@@ -1759,7 +1759,7 @@ export default function ProjectDetailPage() {
                         )}
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">
+                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                           Estimated Days to Complete (Required)
                         </label>
                         <input
@@ -1769,7 +1769,7 @@ export default function ProjectDetailPage() {
                           value={proposalDays}
                           onChange={(e) => setProposalDays(e.target.value)}
                           placeholder="e.g. 5"
-                          className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)]"
+                          className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                         />
                         {proposalValidationErrors.estimatedDays && (
                           <p className="text-[10px] text-[var(--status-negative-text)] mt-0.5">{proposalValidationErrors.estimatedDays[0]}</p>
@@ -1777,7 +1777,7 @@ export default function ProjectDetailPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-650 uppercase tracking-wider mb-2">
+                      <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                         Cover Letter / Proposal Details (Min 10 chars)
                       </label>
                       <textarea
@@ -1786,7 +1786,7 @@ export default function ProjectDetailPage() {
                         value={proposalMessage}
                         onChange={(e) => setProposalMessage(e.target.value)}
                         placeholder="Introduce yourself and explain how you will complete the project deliverables..."
-                        className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] leading-relaxed"
+                        className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
                       />
                       {proposalValidationErrors.message && (
                         <p className="text-[10px] text-[var(--status-negative-text)] mt-0.5">{proposalValidationErrors.message[0]}</p>
@@ -1805,7 +1805,7 @@ export default function ProjectDetailPage() {
                 </div>
               ) : (
                 // Freelancer Has Not Applied & Project Is Not Open
-                <div className="bg-slate-50 border border-slate-150 rounded-xl p-6 text-center">
+                <div className="bg-[var(--surface-subtle)] border border-[var(--border)] rounded-xl p-6 text-center">
                   <p className="text-sm text-[var(--text-muted)] italic">This project is no longer accepting proposal applications.</p>
                 </div>
               )}
