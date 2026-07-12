@@ -11,39 +11,98 @@ export async function middleware(request: NextRequest) {
   const isWebhook = pathname.startsWith("/api/webhooks");
   const isPublicFile = pathname.includes(".") || pathname.startsWith("/_next");
 
-  // Allow static files, auth endpoints, webhooks, etc.
+  // 1. Exclude static assets, NextAuth routes, and webhooks
   if (isApiAuth || isPublicFile || isWebhook) {
     return NextResponse.next();
   }
 
-  // If user is NOT authenticated
+  // 2. If user is NOT authenticated
   if (!token) {
-    if (isAuthPage) {
+    if (isAuthPage || pathname === "/") {
       return NextResponse.next();
     }
-    // API requests return 401 JSON, regular page requests redirect to login
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized: Please log in." }, { status: 401 });
     }
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // User IS authenticated
-  const hasRole = token.role !== null && token.role !== undefined;
+  // 3. User IS authenticated: Resolve role and onboarding state
+  const role = token.role;
+  const profileCompleted = token.profileCompleted;
+
   const isSelectRolePage = pathname === "/select-role";
   const isSelectRoleApi = pathname === "/api/auth/select-role";
+  const isCompleteProfilePage = pathname === "/complete-profile";
+  const isCompleteProfileApi = pathname === "/api/users/complete-profile";
 
-  if (!hasRole) {
-    // Redirect to select-role page if no role selection exists yet
-    if (!isSelectRolePage && !isSelectRoleApi) {
-      return NextResponse.redirect(new URL("/select-role", request.url));
+  // STATE A: Role is not selected yet
+  if (!role) {
+    if (isSelectRolePage || isSelectRoleApi) {
+      return NextResponse.next();
     }
-    return NextResponse.next();
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json(
+        { error: "Forbidden: Role selection required." },
+        { status: 403 }
+      );
+    }
+    return NextResponse.redirect(new URL("/select-role", request.url));
   }
 
-  // User has a role already: prevent re-visiting login or role-selection
-  if (isAuthPage || isSelectRolePage) {
+  // STATE B: Role selected, but profile is not completed
+  if (!profileCompleted) {
+    if (isCompleteProfilePage || isCompleteProfileApi) {
+      return NextResponse.next();
+    }
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json(
+        { error: "Forbidden: Profile completion required." },
+        { status: 403 }
+      );
+    }
+    return NextResponse.redirect(new URL("/complete-profile", request.url));
+  }
+
+  // STATE C: Fully onboarded user (has role and profile Completed)
+  // Prevent re-visiting onboarding pages
+  if (isAuthPage || isSelectRolePage || isCompleteProfilePage) {
     return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // 4. Role-based Gating of Pages & API routes
+  if (pathname.startsWith("/admin/")) {
+    if (role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
+  if (pathname.startsWith("/client/")) {
+    if (role !== "CLIENT") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
+  if (pathname === "/projects") {
+    if (role === "CLIENT") {
+      return NextResponse.redirect(new URL("/client/projects", request.url));
+    }
+    if (role === "ADMIN") {
+      return NextResponse.redirect(new URL("/admin/assignments", request.url));
+    }
+  }
+
+  if (pathname === "/payments") {
+    if (role === "ADMIN") {
+      return NextResponse.redirect(new URL("/admin/assignments", request.url));
+    }
+  }
+
+  // API Gating for Admin endpoints
+  if (pathname.startsWith("/api/admin/")) {
+    if (role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden: Admin access required." }, { status: 403 });
+    }
   }
 
   return NextResponse.next();

@@ -44,12 +44,13 @@ describe("Authentication & RBAC Integration Tests", () => {
       expect(response!.headers.get("location")).toBe("http://localhost:3000/select-role");
     });
 
-    it("should allow request if user already has a role", async () => {
+    it("should allow request if user already has a role and profile is complete", async () => {
       // Mock session token with CLIENT role
       mockedGetToken.mockResolvedValue({
         email: "client@gmail.com",
         name: "Client User",
         role: Role.CLIENT,
+        profileCompleted: true,
       });
 
       const request = new NextRequest("http://localhost:3000/dashboard");
@@ -60,12 +61,13 @@ describe("Authentication & RBAC Integration Tests", () => {
       }
     });
 
-    it("should redirect from /select-role to home if user already has a role", async () => {
+    it("should redirect from /select-role to home if user already has a role and profile is complete", async () => {
       // Mock session token with FREELANCER role
       mockedGetToken.mockResolvedValue({
         email: "freelancer@gmail.com",
         name: "Freelancer User",
         role: Role.FREELANCER,
+        profileCompleted: true,
       });
 
       const request = new NextRequest("http://localhost:3000/select-role");

@@ -89,7 +89,7 @@ export default function Navbar() {
                   </span>
                 </Link>
               </div>
-              {session && (
+              {session && session.user?.profileCompleted && (
                 <div className="hidden md:ml-8 md:flex md:space-x-5">
                   {navLinks.map((link) => (
                     <Link key={link.href} href={link.href} className={getLinkClass(link.href, link.exact)}>
@@ -134,12 +134,14 @@ export default function Navbar() {
                   </button>
 
                   {/* Mobile menu toggle */}
-                  <button
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] hover:text-[var(--text-primary)] cursor-pointer focus:outline-none"
-                  >
-                    {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                  </button>
+                  {session?.user?.profileCompleted && (
+                    <button
+                      onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                      className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] hover:text-[var(--text-primary)] cursor-pointer focus:outline-none"
+                    >
+                      {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                    </button>
+                  )}
                 </div>
               ) : (
                 <Link

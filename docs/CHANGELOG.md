@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Released] - 2026-07-12
 
 ### Added
+- **Public Landing, Security Hardening & Onboarding Pass**:
+  - Re-implemented root `/` route as a public-facing marketing landing page with functional descriptions, "How it Works" section, and "Get Started" triggers.
+  - Implemented automatic redirection: authenticated users hitting root `/` are redirected to their default dashboard page.
+  - Reinforced page-level role gating inside `middleware.ts` to block and redirect unauthorized roles attempting to load `/admin/*` and `/client/*` views.
+  - Hardened `/api/admin/*` API endpoints, reconcile-escrow triggers, and `/api/audit-logs/*` routing to strictly enforce the `ADMIN` role.
+  - Introduced `profileCompleted` state flag in Prisma schema User model to handle onboarding progression.
+  - Wired a three-state onboarding logic in `middleware.ts` routing to redirect incomplete profiles to `/complete-profile`.
+  - Created `/complete-profile` onboarding form page gating Client (Business Name) and Freelancer (Bio) inputs.
+  - Excluded Google Fonts build-time downloads to guarantee offline compile-safe deployments.
+
 - **Access Control & Email Overhaul Pass**:
   - Restricted Client project search visibility: clients now only see their own projects, public project lists are restricted to Freelancers, and browse links are removed from Client Navbar.
   - Implemented Client redirect warnings when clients try to navigate to `/projects` directly.

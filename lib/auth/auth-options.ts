@@ -42,6 +42,7 @@ export const authOptions: NextAuthOptions = {
         if (dbUser) {
           token.role = dbUser.role;
           token.id = dbUser.id;
+          token.profileCompleted = dbUser.role === "ADMIN" ? true : dbUser.profileCompleted;
         }
       }
       return token;
@@ -50,6 +51,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.role = token.role;
         session.user.id = token.id;
+        session.user.profileCompleted = token.profileCompleted;
       }
       return session;
     },
