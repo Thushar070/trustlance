@@ -78,11 +78,11 @@ export default function CompleteProfilePage() {
       const data = await res.json();
 
       if (!res.ok) {
-        if (data.details) {
+        if (data.details && typeof data.details === "object" && !Array.isArray(data.details)) {
           setFieldErrors(data.details);
           throw new Error("Please correct the validation errors below.");
         }
-        throw new Error(data.error || "Failed to complete profile.");
+        throw new Error(data.error || (typeof data.details === "string" ? data.details : "Failed to complete profile."));
       }
 
       // Update nextauth session state
