@@ -69,6 +69,7 @@ export async function GET(request: Request) {
         businessName: true,
         bio: true,
         location: true,
+        createdAt: true,
         proposals: {
           include: {
             project: {
@@ -123,6 +124,7 @@ export async function GET(request: Request) {
           skills,
           averageRating,
           completedProjectCount,
+          createdAt: user.createdAt,
         };
       })
     );

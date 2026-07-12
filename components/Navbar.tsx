@@ -18,6 +18,7 @@ import {
   User,
   ChevronDown,
   Search,
+  Users,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -92,6 +93,7 @@ export default function Navbar() {
         ],
         more: [
           { href: "/admin/disputes", label: "Disputes", icon: AlertTriangle, exact: false },
+          { href: "/admin/reports", label: "Reports", icon: Shield, exact: false },
           { href: "/payments", label: "Payments", icon: CreditCard, exact: false },
         ]
       };
@@ -101,6 +103,7 @@ export default function Navbar() {
         critical: [
           { href: "/client/projects", label: "My Projects", icon: Briefcase, exact: false },
           { href: "/search", label: "Search", icon: Search, exact: false },
+          { href: "/connections", label: "Connections", icon: Users, exact: false },
           { href: "/payments", label: "Payments", icon: CreditCard, exact: false },
         ],
         more: []
@@ -111,6 +114,7 @@ export default function Navbar() {
         critical: [
           { href: "/projects", label: "Browse Projects", icon: FolderSearch, exact: false },
           { href: "/search", label: "Search", icon: Search, exact: false },
+          { href: "/connections", label: "Connections", icon: Users, exact: false },
           { href: "/payments", label: "Payments", icon: CreditCard, exact: false },
         ],
         more: []
@@ -126,18 +130,21 @@ export default function Navbar() {
         { href: "/admin/overview", label: "Admin Overview", icon: LayoutDashboard, exact: true },
         { href: "/admin/assignments", label: "Assignments", icon: Briefcase, exact: false },
         { href: "/admin/disputes", label: "Disputes", icon: AlertTriangle, exact: false },
+        { href: "/admin/reports", label: "Reports Audit", icon: Shield, exact: false },
         { href: "/payments", label: "Payments Ledger", icon: CreditCard, exact: false }
       );
     } else if (isClient) {
       links.push(
         { href: "/client/projects", label: "My Projects", icon: Briefcase, exact: false },
         { href: "/search", label: "Search Directory", icon: Search, exact: false },
+        { href: "/connections", label: "Connections Inbox", icon: Users, exact: false },
         { href: "/payments", label: "Payments Ledger", icon: CreditCard, exact: false }
       );
     } else if (isFreelancer) {
       links.push(
         { href: "/projects", label: "Browse Projects", icon: FolderSearch, exact: false },
         { href: "/search", label: "Search Directory", icon: Search, exact: false },
+        { href: "/connections", label: "Connections Inbox", icon: Users, exact: false },
         { href: "/payments", label: "Payments Ledger", icon: CreditCard, exact: false }
       );
     }

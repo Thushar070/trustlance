@@ -200,3 +200,28 @@ model Rating {
 
   @@unique([projectId, raterId])
 }
+
+model Connection {
+  id           String           @id @default(cuid())
+  requesterId  String
+  addresseeId  String
+  status       ConnectionStatus
+  createdAt    DateTime         @default(now())
+  respondedAt  DateTime?
+
+  @@unique([requesterId, addresseeId])
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model Report {
+  id             String   @id @default(cuid())
+  reporterId     String
+  reportedUserId String
+  reason         String
+  createdAt      DateTime @default(now())
+}

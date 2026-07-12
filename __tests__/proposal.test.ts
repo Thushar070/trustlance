@@ -23,6 +23,7 @@ jest.mock("@/lib/prisma", () => {
       update: jest.fn(),
       updateMany: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn().mockResolvedValue(0),
     },
     $transaction: jest.fn((callback) => callback(mockPrisma)),
   };

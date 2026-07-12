@@ -21,6 +21,19 @@ export class ProposalService {
       throw new Error("Forbidden: You can only apply to projects that are currently OPEN.");
     }
 
+    // Rate limit check: max 10 proposal submissions per hour
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const hourlyProposalCount = await prisma.proposal.count({
+      where: {
+        freelancerId,
+        createdAt: { gte: oneHourAgo },
+      },
+    });
+
+    if (hourlyProposalCount >= 10) {
+      throw new Error("Rate limit exceeded: Maximum of 10 proposal submissions per hour.");
+    }
+
     // Check for duplicate application
     const existingProposal = await prisma.proposal.findFirst({
       where: {
@@ -36,7 +49,7 @@ export class ProposalService {
     // Default price to project budget if not explicitly provided
     const finalPrice = data.price !== undefined ? data.price : project.budget;
 
-    return prisma.proposal.create({
+    const proposal = await prisma.proposal.create({
       data: {
         projectId,
         freelancerId,
@@ -46,6 +59,11 @@ export class ProposalService {
         status: ProposalStatus.PENDING,
       },
     });
+
+    // Notify client owner about new proposal
+    await NotificationService.notify("PROPOSAL_SUBMITTED", { projectId });
+
+    return proposal;
   }
 
   /**

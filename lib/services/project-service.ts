@@ -40,13 +40,36 @@ export class ProjectService {
       return project;
     };
 
+    let project;
     if (prisma.$transaction) {
-      return prisma.$transaction(async (tx) => {
+      project = await prisma.$transaction(async (tx) => {
         return execute(tx);
       });
+    } else {
+      project = await execute(prisma);
     }
 
-    return execute(prisma);
+    // Notify connected freelancers about the new open project (safely guarded for mock environments)
+    try {
+      if (prisma.connection) {
+        const connCount = await prisma.connection.count({
+          where: {
+            status: "ACCEPTED",
+            OR: [
+              { requesterId: project.clientId },
+              { addresseeId: project.clientId },
+            ],
+          },
+        });
+        if (connCount > 0) {
+          await NotificationService.notify("NEW_PROJECT_FROM_CONNECTION", { projectId: project.id });
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to check connections for new project notification:", e);
+    }
+
+    return project;
   }
 
   /**

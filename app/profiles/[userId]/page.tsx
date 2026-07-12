@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { 
   User as UserIcon, 
   MapPin, 
@@ -13,7 +14,11 @@ import {
   MessageSquare,
   ArrowLeft,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  ShieldAlert,
+  Clock,
+  Check,
+  X
 } from "lucide-react";
 
 interface ReviewItem {
@@ -39,49 +44,146 @@ interface UserProfileData {
   email?: string;
   phone?: string;
   isContactVisible: boolean;
+  connection?: {
+    status: string;
+    id: string | null;
+    requesterId: string | null;
+  };
 }
 
 export default function PublicProfilePage() {
   const params = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
+  
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [connected, setConnected] = useState(false);
+  
+  // Connection states
+  const [connStatus, setConnStatus] = useState<string>("NONE");
+  const [connId, setConnId] = useState<string | null>(null);
+  const [connRequesterId, setConnRequesterId] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
 
+  // Report Modal states
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reporting, setReporting] = useState(false);
+  const [reportSuccess, setReportSuccess] = useState(false);
+
   const userId = params.userId as string;
+  const callerId = session?.user?.id;
+  const isOwnProfile = callerId === userId;
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/users/${userId}/public-profile`);
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || "Profile not found.");
-        }
-        const data = await res.json();
-        setProfile(data);
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : "Could not load public profile.";
-        setErrorMsg(msg);
-      } finally {
-        setLoading(false);
+  const fetchProfile = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/users/${userId}/public-profile`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Profile not found.");
       }
-    };
-
-    if (userId) {
-      fetchProfile();
+      const data = await res.json();
+      setProfile(data);
+      if (data.connection) {
+        setConnStatus(data.connection.status);
+        setConnId(data.connection.id);
+        setConnRequesterId(data.connection.requesterId);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Could not load public profile.";
+      setErrorMsg(msg);
+    } finally {
+      setLoading(false);
     }
   }, [userId]);
 
-  const handleConnectToggle = () => {
+  useEffect(() => {
+    if (userId) {
+      Promise.resolve().then(() => {
+        fetchProfile();
+      });
+    }
+  }, [userId, fetchProfile]);
+
+  const handleConnect = async () => {
+    if (!profile) return;
     setConnecting(true);
-    setTimeout(() => {
-      setConnected(!connected);
+    try {
+      const res = await fetch("/api/connections", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetUserId: profile.id }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to send connection request.");
+      }
+      const data = await res.json();
+      setConnStatus("PENDING");
+      setConnId(data.id);
+      setConnRequesterId(callerId || null);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error sending request.";
+      alert(msg);
+    } finally {
       setConnecting(false);
-    }, 800);
+    }
+  };
+
+  const handleRespond = async (response: "ACCEPTED" | "DECLINED") => {
+    if (!connId) return;
+    setConnecting(true);
+    try {
+      const res = await fetch(`/api/connections/${connId}/respond`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ response }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to respond.");
+      }
+      setConnStatus(response);
+      if (response === "ACCEPTED") {
+        // Reload public profile to load newly unmasked contact credentials
+        await fetchProfile();
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error responding to request.";
+      alert(msg);
+    } finally {
+      setConnecting(false);
+    }
+  };
+
+  const handleReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reportReason.trim() || !profile) return;
+    setReporting(true);
+    try {
+      const res = await fetch(`/api/users/${profile.id}/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: reportReason }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to submit report.");
+      }
+      setReportSuccess(true);
+      setReportReason("");
+      setTimeout(() => {
+        setReportOpen(false);
+        setReportSuccess(false);
+      }, 1500);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error submitting report.";
+      alert(msg);
+    } finally {
+      setReporting(false);
+    }
   };
 
   if (loading) {
@@ -114,18 +216,93 @@ export default function PublicProfilePage() {
     );
   }
 
+  // Determine Connect Button display states
+  const renderConnectActions = () => {
+    if (isOwnProfile) return null; // A user cannot connect to themselves
+
+    if (connStatus === "ACCEPTED") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[var(--status-success-bg)] text-[var(--status-success-text)] border border-[var(--status-success-border)] rounded-xl text-xs font-bold shrink-0">
+          <CheckCircle2 className="w-4 h-4 text-[var(--status-success-text)]" />
+          Connected
+        </span>
+      );
+    }
+
+    if (connStatus === "PENDING") {
+      if (connRequesterId === callerId) {
+        return (
+          <button
+            disabled
+            className="inline-flex items-center gap-1.5 px-4.5 py-2.5 bg-[var(--surface-subtle)] text-[var(--text-muted)] border border-[var(--border)] rounded-xl text-xs font-bold cursor-not-allowed shrink-0"
+          >
+            <Clock className="w-4 h-4 text-[var(--text-muted)] animate-pulse" />
+            Request Pending
+          </button>
+        );
+      } else {
+        return (
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs font-semibold text-[var(--text-secondary)] mr-1 hidden sm:inline">Incoming Request:</span>
+            <button
+              onClick={() => handleRespond("ACCEPTED")}
+              disabled={connecting}
+              className="inline-flex items-center gap-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
+            >
+              <Check className="w-3.5 h-3.5" />
+              Accept
+            </button>
+            <button
+              onClick={() => handleRespond("DECLINED")}
+              disabled={connecting}
+              className="inline-flex items-center gap-1 px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+              Decline
+            </button>
+          </div>
+        );
+      }
+    }
+
+    // Default "Connect" (for NONE or DECLINED status)
+    return (
+      <button
+        onClick={handleConnect}
+        disabled={connecting}
+        className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white border border-transparent shadow-sm rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0"
+      >
+        <UserIcon className="w-4 h-4 text-white" />
+        {connecting ? "Connecting..." : "Connect"}
+      </button>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] py-8 relative">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full min-w-0">
         
-        {/* Back Link */}
-        <button
-          onClick={() => router.back()}
-          className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-6 transition-colors cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Directory
-        </button>
+        {/* Navigation Toolbar */}
+        <div className="flex justify-between items-center mb-6">
+          <button
+            onClick={() => router.back()}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
+          
+          {/* Flag/Report Trigger (only for other users) */}
+          {!isOwnProfile && (
+            <button
+              onClick={() => setReportOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[var(--status-negative-border)] text-[var(--status-negative-text)] hover:bg-[var(--status-negative-bg)] rounded-lg text-xs font-bold transition-colors cursor-pointer"
+            >
+              <ShieldAlert className="w-4 h-4" />
+              Report User
+            </button>
+          )}
+        </div>
 
         {/* Profile Card Header */}
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-sm mb-6 relative overflow-hidden">
@@ -157,35 +334,15 @@ export default function PublicProfilePage() {
               </div>
             </div>
 
-            {/* Actions: Connect / Direct message */}
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <button
-                onClick={handleConnectToggle}
-                disabled={connecting}
-                className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4.5 py-2.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
-                  connected
-                    ? "bg-[var(--status-success-bg)] text-[var(--status-success-text)] border-[var(--status-success-border)]"
-                    : "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white border-transparent shadow-sm"
-                }`}
-              >
-                {connected ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Connected</span>
-                  </>
-                ) : (
-                  <>
-                    <UserIcon className="w-4 h-4" />
-                    <span>{connecting ? "Connecting..." : "Connect"}</span>
-                  </>
-                )}
-              </button>
+            {/* Render dynamically managed Connection button workflow */}
+            <div className="w-full sm:w-auto">
+              {renderConnectActions()}
             </div>
           </div>
 
           {/* Stats Bar */}
           <div className="grid grid-cols-2 gap-4 pt-6">
-            <div className="flex items-center gap-3 bg-[var(--surface-subtle)] p-4 rounded-xl border border-[var(--border-subtle)]">
+            <div className="flex items-center gap-3 bg-[var(--surface-subtle)] p-4 rounded-xl border border-[var(--border-subtle)] font-medium">
               <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
                 <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
               </div>
@@ -199,7 +356,7 @@ export default function PublicProfilePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 bg-[var(--surface-subtle)] p-4 rounded-xl border border-[var(--border-subtle)]">
+            <div className="flex items-center gap-3 bg-[var(--surface-subtle)] p-4 rounded-xl border border-[var(--border-subtle)] font-medium">
               <div className="w-10 h-10 rounded-lg bg-[var(--accent-light)] flex items-center justify-center">
                 <Award className="w-5 h-5 text-[var(--accent)]" />
               </div>
@@ -215,10 +372,9 @@ export default function PublicProfilePage() {
           </div>
         </div>
 
-        {/* Main Grid: Bio & Reviews */}
+        {/* Main Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
-          {/* Left Column: Bio & Skills */}
+          {/* Left Column */}
           <div className="lg:col-span-8 space-y-6">
             
             {/* Bio Card */}
@@ -303,7 +459,7 @@ export default function PublicProfilePage() {
             </div>
           </div>
 
-          {/* Right Column: Contact details (visible only if associated) */}
+          {/* Right Column */}
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 shadow-sm">
               <h2 className="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4">
@@ -346,7 +502,7 @@ export default function PublicProfilePage() {
                       Contact credentials are encrypted.
                     </p>
                     <p className="text-[10px] text-[var(--text-muted)] leading-relaxed">
-                      Direct phone and email details are only exchanged when a verified client-freelancer contract relationship (active proposal or escrow assignment) is initiated.
+                      Direct phone and email details are only exchanged when a verified client-freelancer contract relationship (active proposal, escrow assignment, or accepted connection request) is initiated.
                     </p>
                   </div>
                 </div>
@@ -356,6 +512,63 @@ export default function PublicProfilePage() {
         </div>
 
       </div>
+
+      {/* Flag/Report Modal Dialogue */}
+      {reportOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl max-w-md w-full p-6 shadow-xl relative animate-in fade-in zoom-in duration-200">
+            <h3 className="text-base font-bold text-[var(--text-primary)] mb-2 flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-[var(--status-negative-text)]" />
+              Report Marketplace Participant
+            </h3>
+            <p className="text-xs text-[var(--text-secondary)] mb-4 leading-relaxed">
+              Flag this user profile for review by the administrators. Please specify a clear explanation detailing the violation or conflict.
+            </p>
+
+            {reportSuccess ? (
+              <div className="bg-emerald-600/10 border border-emerald-500/20 text-emerald-500 p-4 rounded-xl text-xs font-bold text-center">
+                Report successfully submitted to administrators.
+              </div>
+            ) : (
+              <form onSubmit={handleReport} className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">
+                    Explanation / Reason
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    placeholder="Describe the issue in detail..."
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    className="w-full px-3 py-2 text-xs border border-[var(--border)] rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all bg-[var(--input-bg)] text-[var(--text-primary)] resize-none"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReportOpen(false);
+                      setReportReason("");
+                    }}
+                    className="px-4 py-2 border border-[var(--border)] hover:bg-[var(--surface-subtle)] text-xs font-semibold rounded-lg transition-colors cursor-pointer text-[var(--text-secondary)]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={reporting}
+                    className="px-4 py-2 bg-[var(--status-negative-text)] hover:bg-rose-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {reporting ? "Submitting..." : "Submit Report"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

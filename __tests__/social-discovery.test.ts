@@ -20,6 +20,9 @@ jest.mock("@/lib/prisma", () => ({
     rating: {
       findMany: jest.fn(),
     },
+    connection: {
+      findFirst: jest.fn(),
+    },
   },
 }));
 

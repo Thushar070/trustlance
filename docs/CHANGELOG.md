@@ -5,6 +5,38 @@ All notable changes to the TrustLance project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Released] - 2026-07-12 (Social, Notifications, Payments Overhaul)
+
+### Added
+- **Bidirectional Social Connections**:
+  - Implemented the `Connection` database model and `ConnectionStatus` enum (`PENDING`, `ACCEPTED`, `DECLINED`) with unique constraint on `[requesterId, addresseeId]`.
+  - Added connection invite, respond (accept/decline), list accepted, and list pending helpers in `lib/services/connection-service.ts`.
+  - Built connection API routes: `POST /api/connections` (send), `GET /api/connections` (list), and `POST /api/connections/[id]/respond` (resolve).
+  - Developed connections inbox UI at `/connections` allowing clients/freelancers to manage requests.
+  - Linked Connections Inbox in mobile drawer and desktop navbar.
+  - Added `__tests__/connections-security.test.ts` to test connections security, merge protection, rate limits, and responder authorization.
+- **Reporting & Flagging Profiles**:
+  - Implemented the `Report` database model.
+  - Added report submission helper in `ReportService` and `POST /api/users/[id]/report` API endpoint.
+  - Built an Admin-only Flagged Reports Console page at `/admin/reports` to inspect conflicts and linked it under Admin navbar actions.
+- **Four New Transactional Notifications**:
+  - `PROPOSAL_SUBMITTED`: Notifies client on proposal submissions.
+  - `CONNECTION_REQUEST_RECEIVED`: Notifies addressee of incoming connections.
+  - `CONNECTION_ACCEPTED`: Notifies requester on acceptance.
+  - `NEW_PROJECT_FROM_CONNECTION`: Notifies connected freelancers when a client creates an open project.
+  - Integrated rate limit limits (20/hour for connections, 10/hour for proposals) in service layers.
+  - Added `__tests__/new-notifications-dispatch.test.ts` unit tests for email events and assignment regressions.
+
+### Redesigned
+- **Payments Ledger Overhaul**:
+  - Added metric cards displaying Total Paid/Received, Pending Escrow, and Completed Transfers at the top of the Payments page.
+  - Ensured ledger entries default sort descending by creation date.
+  - Designed responsive mobile cards and desktop tables.
+  - Added a clean empty-state layout when no ledger records are found.
+- **Search Page Sorting**:
+  - Sorted search results by reputation rating (default, highest first).
+  - Added sort toggle to search by Rating or Recent Activity.
+
 ## [Released] - 2026-07-12
 
 ### Redesigned

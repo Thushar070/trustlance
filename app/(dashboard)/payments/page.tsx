@@ -2,7 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { CreditCard, AlertCircle, ArrowRight } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { 
+  CreditCard, 
+  AlertCircle, 
+  ArrowRight,
+  Clock,
+  CheckCircle2,
+  ArrowUpRight
+} from "lucide-react";
 
 interface PaymentHistoryItem {
   id: string;
@@ -14,6 +22,7 @@ interface PaymentHistoryItem {
 }
 
 export default function PaymentsHistoryPage() {
+  const { data: session } = useSession();
   const [payments, setPayments] = useState<PaymentHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -60,8 +69,28 @@ export default function PaymentsHistoryPage() {
     );
   }
 
+  // Sort payments descending by date (recent first)
+  const sortedPayments = [...payments].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  // Compute metrics
+  const isClient = session?.user?.role === "CLIENT";
+  const labelTotal = isClient ? "Total Paid" : "Total Received";
+
+  const totalSuccessAmount = payments
+    .filter((p) => p.status === "SUCCESS")
+    .reduce((sum, p) => sum + p.amount, 0);
+
+  const totalPendingAmount = payments
+    .filter((p) => p.status === "PENDING")
+    .reduce((sum, p) => sum + p.amount, 0);
+
+  const completedTransactionsCount = payments.filter((p) => p.status === "SUCCESS").length;
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0">
+      {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-1">
           <CreditCard className="w-5 h-5 text-[var(--accent)]" />
@@ -79,14 +108,63 @@ export default function PaymentsHistoryPage() {
         </div>
       )}
 
-      {payments.length === 0 ? (
+      {/* Metrics Cards Dashboard (styled like Admin overview cards) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* Metric 1: Total Paid / Received */}
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm flex items-center justify-between font-medium">
+          <div>
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">
+              {labelTotal}
+            </span>
+            <span className="text-2xl font-black text-[var(--text-primary)] block mt-1">
+              ₹{totalSuccessAmount.toLocaleString()}
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+            <ArrowUpRight className="w-5 h-5 text-emerald-500" />
+          </div>
+        </div>
+
+        {/* Metric 2: Pending Escrow */}
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm flex items-center justify-between font-medium">
+          <div>
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">
+              Pending Escrow
+            </span>
+            <span className="text-2xl font-black text-[var(--text-primary)] block mt-1">
+              ₹{totalPendingAmount.toLocaleString()}
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+            <Clock className="w-5 h-5 text-amber-500" />
+          </div>
+        </div>
+
+        {/* Metric 3: Completed Transactions Count */}
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm flex items-center justify-between font-medium">
+          <div>
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">
+              Completed Transfers
+            </span>
+            <span className="text-2xl font-black text-[var(--text-primary)] block mt-1">
+              {completedTransactionsCount} <span className="text-xs text-[var(--text-muted)] font-bold">payments</span>
+            </span>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-[var(--accent-light)] flex items-center justify-center">
+            <CheckCircle2 className="w-5 h-5 text-[var(--accent)]" />
+          </div>
+        </div>
+      </div>
+
+      {sortedPayments.length === 0 ? (
+        /* Overhauled Empty State */
         <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
-          <div className="w-12 h-12 rounded-xl bg-[var(--surface-subtle)] flex items-center justify-center mx-auto mb-4">
+          <div className="w-12 h-12 rounded-xl bg-[var(--surface-subtle)] flex items-center justify-center mx-auto mb-4 border border-[var(--border)]">
             <CreditCard className="w-6 h-6 text-[var(--text-muted)]" />
           </div>
-          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">No Payments Found</h2>
-          <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto">
-            You don&apos;t have any payment transactions registered yet on the platform.
+          <h2 className="text-base font-bold text-[var(--text-primary)] mb-1">No Ledger Transactions</h2>
+          <p className="text-xs text-[var(--text-secondary)] max-w-xs mx-auto">
+            You don&apos;t have any payment actions registered yet on TrustLance.
           </p>
         </div>
       ) : (
@@ -104,12 +182,12 @@ export default function PaymentsHistoryPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--text-secondary)]">
-                  {payments.map((p) => (
+                  {sortedPayments.map((p) => (
                     <tr key={p.id} className="hover:bg-[var(--surface-subtle)]/50 transition-colors">
                       <td className="px-6 py-4 font-semibold text-[var(--text-primary)]">
                         <Link href={`/projects/${p.projectId}`} className="hover:text-[var(--accent)] transition-colors inline-flex items-center gap-1">
                           {p.projectTitle}
-                          <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ArrowRight className="w-3.5 h-3.5 text-[var(--accent)]" />
                         </Link>
                       </td>
                       <td className="px-6 py-4 font-bold text-[var(--text-primary)]">
@@ -120,7 +198,7 @@ export default function PaymentsHistoryPage() {
                           {p.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-[var(--text-muted)] font-medium">
+                      <td className="px-6 py-4 text-[var(--text-muted)] font-semibold text-xs">
                         {new Date(p.createdAt).toLocaleDateString(undefined, {
                           year: "numeric",
                           month: "short",
@@ -138,13 +216,13 @@ export default function PaymentsHistoryPage() {
 
           {/* Mobile / Tablet Card View */}
           <div className="block lg:hidden space-y-4">
-            {payments.map((p) => (
+            {sortedPayments.map((p) => (
               <div
                 key={p.id}
                 className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-5 shadow-sm space-y-3"
               >
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-[var(--text-muted)] font-medium">
+                  <span className="text-xs text-[var(--text-muted)] font-semibold">
                     {new Date(p.createdAt).toLocaleDateString(undefined, {
                       year: "numeric",
                       month: "short",

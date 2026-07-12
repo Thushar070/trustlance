@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/get-server-session";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
+import { ConnectionService } from "@/lib/services/connection-service";
 
 // Checks if a project relationship exists (active/past assignment or proposal)
 async function hasProjectRelationship(viewerId: string, profileUserId: string): Promise<boolean> {
@@ -116,6 +117,8 @@ export async function GET(
     const isOwner = viewerId === profileUserId;
     const isAssociated = isOwner || (await hasProjectRelationship(viewerId, profileUserId));
 
+    const conn = await ConnectionService.getConnectionStatus(viewerId, profileUserId);
+
     const responseData: {
       id: string;
       name: string | null;
@@ -137,6 +140,11 @@ export async function GET(
       email?: string | null;
       phone?: string | null;
       isContactVisible: boolean;
+      connection: {
+        status: string;
+        id: string | null;
+        requesterId: string | null;
+      };
     } = {
       id: user.id,
       name: user.name,
@@ -149,6 +157,7 @@ export async function GET(
       completedProjectCount,
       reviews,
       isContactVisible: false,
+      connection: conn,
     };
 
     if (isAssociated) {

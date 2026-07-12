@@ -10,14 +10,20 @@ export type NotificationEvent =
   | "DISPUTE_RESOLVED"
   | "PAYMENT_RELEASED"
   | "REFUND_ISSUED"
-  | "AUTO_RELEASE_WARNING";
+  | "AUTO_RELEASE_WARNING"
+  | "PROPOSAL_SUBMITTED"
+  | "CONNECTION_REQUEST_RECEIVED"
+  | "CONNECTION_ACCEPTED"
+  | "NEW_PROJECT_FROM_CONNECTION";
 
 export interface NotificationPayload {
-  projectId: string;
+  projectId?: string;
   feedback?: string;
   reason?: string;
   resolution?: string;
   notes?: string;
+  requesterId?: string;
+  addresseeId?: string;
 }
 
 export const NotificationService = {
@@ -27,25 +33,32 @@ export const NotificationService = {
    */
   async notify(event: NotificationEvent, payload: NotificationPayload): Promise<void> {
     try {
-      const { projectId, feedback, reason, resolution, notes } = payload;
+      const { projectId, feedback, reason, resolution, notes, requesterId, addresseeId } = payload;
 
-      const project = await prisma.project.findUnique({
-        where: { id: projectId },
-        include: {
-          client: true,
-          freelancer: true,
-        },
-      });
+      let project = null;
+      let clientEmail: string | null = null;
+      let freelancerEmail: string | null = null;
+      let projectTitle = "";
+      let projectLink = "";
 
-      if (!project) {
-        console.warn(`[Notification WARNING] Project ${projectId} not found. Skipping notification.`);
-        return;
+      if (projectId) {
+        project = await prisma.project.findUnique({
+          where: { id: projectId },
+          include: {
+            client: true,
+            freelancer: true,
+          },
+        });
+
+        if (project) {
+          clientEmail = project.client?.email || null;
+          freelancerEmail = project.freelancer?.email || null;
+          projectTitle = project.title;
+          projectLink = `http://localhost:3000/projects/${project.id}`;
+        } else {
+          console.warn(`[Notification WARNING] Project ${projectId} not found.`);
+        }
       }
-
-      const clientEmail = project.client?.email || null;
-      const freelancerEmail = project.freelancer?.email || null;
-      const projectTitle = project.title;
-      const projectLink = `http://localhost:3000/projects/${project.id}`;
 
       switch (event) {
         case "PAYMENT_RECEIVED": {
@@ -162,6 +175,74 @@ export const NotificationService = {
           }
           if (freelancerEmail) {
             await Mailer.sendEmail(freelancerEmail, subject, body);
+          }
+          break;
+        }
+
+        case "PROPOSAL_SUBMITTED": {
+          if (clientEmail) {
+            const subject = `[TrustLance] New proposal submitted for project: ${projectTitle}`;
+            const body = `A freelancer has submitted a new proposal on your project: ${projectTitle}.\n\nView details: ${projectLink}`;
+            await Mailer.sendEmail(clientEmail, subject, body);
+          }
+          break;
+        }
+
+        case "CONNECTION_REQUEST_RECEIVED": {
+          if (requesterId && addresseeId) {
+            const requester = await prisma.user.findUnique({ where: { id: requesterId } });
+            const addressee = await prisma.user.findUnique({ where: { id: addresseeId } });
+            if (requester && addressee && addressee.email) {
+              const subject = `[TrustLance] New connection request from ${requester.name}`;
+              const body = `Hello ${addressee.name},\n\n${requester.name} has sent you a connection request on TrustLance.\n\nView pending requests: http://localhost:3000/connections`;
+              await Mailer.sendEmail(addressee.email, subject, body);
+            }
+          }
+          break;
+        }
+
+        case "CONNECTION_ACCEPTED": {
+          if (requesterId && addresseeId) {
+            const requester = await prisma.user.findUnique({ where: { id: requesterId } });
+            const addressee = await prisma.user.findUnique({ where: { id: addresseeId } });
+            if (requester && addressee && requester.email) {
+              const subject = `[TrustLance] Connection request accepted by ${addressee.name}`;
+              const body = `Hello ${requester.name},\n\nGood news! ${addressee.name} has accepted your connection request on TrustLance.\n\nView your connections: http://localhost:3000/connections`;
+              await Mailer.sendEmail(requester.email, subject, body);
+            }
+          }
+          break;
+        }
+
+        case "NEW_PROJECT_FROM_CONNECTION": {
+          if (project && project.clientId && prisma.connection) {
+            const clientName = project.client?.name || "A Client";
+            const connections = await prisma.connection.findMany({
+              where: {
+                status: "ACCEPTED",
+                OR: [
+                  { requesterId: project.clientId },
+                  { addresseeId: project.clientId },
+                ],
+              },
+            });
+            const partnerIds = connections.map((c) =>
+              c.requesterId === project.clientId ? c.addresseeId : c.requesterId
+            );
+            const partners = await prisma.user.findMany({
+              where: {
+                id: { in: partnerIds },
+                role: "FREELANCER",
+              },
+              select: { email: true, name: true },
+            });
+            const subject = `[TrustLance] New project from connection: ${projectTitle}`;
+            for (const partner of partners) {
+              if (partner.email) {
+                const body = `Hello ${partner.name || "Freelancer"},\n\n${clientName} has posted a new open project: ${projectTitle}.\n\nView details: ${projectLink}`;
+                await Mailer.sendEmail(partner.email, subject, body);
+              }
+            }
           }
           break;
         }

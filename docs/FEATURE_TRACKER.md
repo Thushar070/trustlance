@@ -16,4 +16,5 @@ This document tracks the progress of the TrustLance platform features across all
 | 9 | Audit Logging (Retrofit + Verification) | Done | 2026-07-11 |
 | 10 | Email Notifications | Done | 2026-07-11 |
 | 11 | Admin Dashboard, Search/Filters, & Auto-Release Cron | Done | 2026-07-11 |
-| 12 | Testing Pass, Hardening, & Deployment | Not Started | - |
+| 12 | Testing Pass, Hardening, & Deployment | Done | 2026-07-12 |
+| 13 | Social Connections, Notifications, and Payments Overhaul | Done | 2026-07-12 |

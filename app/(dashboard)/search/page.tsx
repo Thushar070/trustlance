@@ -15,6 +15,7 @@ interface SearchResultUser {
   skills: string[];
   averageRating: number;
   completedProjectCount: number;
+  createdAt?: string;
 }
 
 export default function SearchPage() {
@@ -27,6 +28,7 @@ export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [skill, setSkill] = useState("");
   const [minRating, setMinRating] = useState("0");
+  const [sortBy, setSortBy] = useState<"rating" | "activity">("rating");
 
   const isClient = session?.user?.role === "CLIENT";
   const isFreelancer = session?.user?.role === "FREELANCER";
@@ -204,9 +206,39 @@ export default function SearchPage() {
             Try adjusting your keywords, selecting different rating limits, or expanding the skill search query.
           </p>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {results.map((user) => (
+      ) : (() => {
+        const sortedResults = [...results].sort((a, b) => {
+          if (sortBy === "rating") {
+            if (b.averageRating !== a.averageRating) {
+              return b.averageRating - a.averageRating;
+            }
+            return b.completedProjectCount - a.completedProjectCount;
+          } else {
+            return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+          }
+        });
+
+        return (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-[var(--border-subtle)] pb-4">
+              <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                Search Results ({sortedResults.length})
+              </div>
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                <span className="text-xs font-semibold text-[var(--text-muted)]">Sort By:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as "rating" | "activity")}
+                  className="px-3 py-1.5 text-xs border border-[var(--border)] rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all bg-[var(--surface)] text-[var(--text-primary)] cursor-pointer font-medium"
+                >
+                  <option value="rating">Highest Rating</option>
+                  <option value="activity">Recent Activity</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sortedResults.map((user) => (
             <div
               key={user.id}
               className="bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent)] rounded-xl p-5 shadow-sm transition-all flex flex-col justify-between group"
@@ -292,7 +324,9 @@ export default function SearchPage() {
             </div>
           ))}
         </div>
-      )}
+      </div>
+    );
+  })()}
     </div>
   );
 }
