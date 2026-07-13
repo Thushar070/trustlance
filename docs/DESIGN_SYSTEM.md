@@ -10,10 +10,10 @@ For a professional escrow and payment workspace, the brand tone relies on deep, 
 
 | Token | Variable | Light Value | Dark Value | Description |
 |---|---|---|---|---|
-| Background | `var(--background)` | `#F8FAFC` | `#000000` | Main background of the app |
+| Background | `var(--background)` | `#F8F7FF` | `#000000` | Main background of the app (soft lavender tint in light) |
 | Surface | `var(--surface)` | `#FFFFFF` | `#111111` | Card and component container background |
 | Surface Elevated | `var(--surface-elevated)` | `#FFFFFF` | `#1a1a1a` | Dropdown and modal container background |
-| Surface Subtle | `var(--surface-subtle)` | `#F8FAFC` | `#0a0a0a` | Secondary layout container background |
+| Surface Subtle | `var(--surface-subtle)` | `#F3F1FF` | `#0a0a0a` | Secondary layout container background (deeper lavender in light) |
 | Accent (Primary) | `var(--accent)` | `#4F46E5` | `#6366F1` | Primary actions and brand highlights |
 | Accent Hover | `var(--accent-hover)` | `#3730A3` | `#4F46E5` | Hover state for primary actions |
 | Accent Light | `var(--accent-light)` | `#EEF2FF` | `rgba(99, 102, 241, 0.12)` | Tinted background for tags & subtle alerts |
@@ -22,6 +22,8 @@ For a professional escrow and payment workspace, the brand tone relies on deep, 
 | Text Primary | `var(--text-primary)` | `#0F172A` | `#f5f5f5` | Main typography color |
 | Text Secondary | `var(--text-secondary)` | `#64748B` | `#a0a0a0` | Secondary details / metadata |
 | Text Muted | `var(--text-muted)` | `#94A3B8` | `#64748B` | Dates, disabled tags, placeholders |
+| Card Shadow | `var(--card-shadow)` | `0 1px 3px rgba(0,0,0,0.05)…` | `0 1px 2px rgba(0,0,0,0.2)` | Default card elevation |
+| Card Shadow Hover | `var(--card-shadow-hover)` | `0 4px 12px rgba(0,0,0,0.08)…` | `0 4px 12px rgba(0,0,0,0.3)` | Hovered card elevation |
 
 ---
 

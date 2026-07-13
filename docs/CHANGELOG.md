@@ -5,6 +5,22 @@ All notable changes to the TrustLance project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Released] - 2026-07-12 (Stitch-Inspired Visual Restyle)
+
+### Changed
+- **Global Design Tokens**: Light-mode background shifted from cool slate (`#F8FAFC`) to soft lavender tint (`#F8F7FF`). Surface-subtle updated to `#F3F1FF`. Added `--card-shadow` and `--card-shadow-hover` elevation tokens. Dark mode (`#000000`) unchanged.
+- **Select Role Page** (`/select-role`): Replaced two separate button-per-card layout with a radio-card selection pattern featuring selection indicators, illustration zones, and a single "Continue →" CTA. Added "Already have an account?" footer link.
+- **Landing Page** (`/`): Redesigned hero section with accent-colored "Elite Freelancing" keyword, sticky top navigation bar, "Engineered for Trust" 3-feature card section with shadow elevation, and numbered "How TrustLance Works" 3-step section. Removed the old "Platform Dispute Resolution" bottom card.
+- **Client My Projects** (`/client/projects`): Replaced flat list with card grid featuring colored left-border per status, status pill badge, stat-block rows (Budget/Proposals/Deadline for active projects, Paid/Completed On for terminal states), freelancer avatar footers, and tab filters (All/Open/Active Contracts/Completed).
+- **Browse Projects** (`/projects`): Project cards now have colored left-border + status badge, accent-colored "Fixed Budget" label, rounded skill pill tags, "View Details" button with arrow icon, numbered pagination with page buttons (replacing prev/next text), result count header, and active skill pills displayed as removable tags in the filter sidebar.
+- **DESIGN_SYSTEM.md**: Updated to reflect refined light-mode token values and new elevation tokens.
+
+### Unchanged
+- Dark mode palette (true black `#000000`).
+- All business logic, API routes, services, and Prisma schema.
+- Navigation structure (top navbar, no sidebar switch).
+- Mobile responsive behavior and slide-over filter panel.
+
 ## [Released] - 2026-07-12 (Social, Notifications, Payments Overhaul)
 
 ### Added
