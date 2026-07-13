@@ -338,6 +338,7 @@ describe("Phase 10: Email Notification Tests", () => {
             id: "pay_captured_123",
             order_id: "order_123",
             status: "captured",
+            amount: 500000,
           },
         },
       },
@@ -346,6 +347,7 @@ describe("Phase 10: Email Notification Tests", () => {
       id: "pay_lifecycle",
       projectId: "proj_lifecycle",
       razorpayOrderId: "order_123",
+      amount: 5000,
       status: PaymentStatus.PENDING,
     };
 

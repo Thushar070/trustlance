@@ -5,10 +5,12 @@ import { ProjectStatus } from "@prisma/client";
 export const createProjectSchema = z.object({
   title: z
     .string()
+    .trim()
     .min(5, "Title must be at least 5 characters long.")
     .max(100, "Title must be at most 100 characters long."),
   description: z
     .string()
+    .trim()
     .min(20, "Description must be at least 20 characters long.")
     .max(2000, "Description must be at most 2000 characters long."),
   budget: z

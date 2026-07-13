@@ -10,6 +10,20 @@ export class MessageService {
       throw new Error("Message content cannot be empty.");
     }
 
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
+    const minuteMessageCount = prisma.message.count
+      ? await prisma.message.count({
+          where: {
+            senderId,
+            createdAt: { gte: oneMinuteAgo },
+          },
+        })
+      : 0;
+
+    if (minuteMessageCount >= 60) {
+      throw new Error("Rate limit exceeded: Maximum of 60 messages per minute.");
+    }
+
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       select: {
@@ -80,7 +94,7 @@ export class MessageService {
     }
 
     const parsedPage = Math.max(1, page);
-    const parsedLimit = Math.max(1, limit);
+    const parsedLimit = Math.min(100, Math.max(1, limit));
     const skip = (parsedPage - 1) * parsedLimit;
 
     const [total, items] = await Promise.all([

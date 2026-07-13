@@ -3,6 +3,7 @@ import { z } from "zod";
 export const submitProposalSchema = z.object({
   message: z
     .string()
+    .trim()
     .min(10, "Proposal cover message must be at least 10 characters long.")
     .max(1000, "Proposal cover message must be at most 1000 characters long."),
   estimatedDays: z

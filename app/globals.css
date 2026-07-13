@@ -14,6 +14,7 @@
   --accent: #4f46e5;
   --accent-hover: #3730a3;
   --accent-light: #eef2ff;
+  --brand-primary: #1e1b4b;
 
   /* ---- Surfaces ---- */
   --surface: #ffffff;
@@ -95,6 +96,7 @@
 
   --surface: #111111;
   --surface-elevated: #1a1a1a;
+  --brand-primary: #818cf8;
   --surface-subtle: #0a0a0a;
 
   --border: rgba(255, 255, 255, 0.08);

@@ -64,6 +64,12 @@ describe("requireRole Unit Tests", () => {
 });
 
 describe("Admin Role Safety Check", () => {
+  const originalNodeEnv = process.env.NODE_ENV;
+
+  afterEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
+  });
+
   it("should confirm that only the specific hardcoded developer email receives the ADMIN role override", () => {
     // Retrieve all emails matching ADMIN role override
     const adminEmails = Object.keys(ROLE_OVERRIDES).filter(
@@ -76,5 +82,14 @@ describe("Admin Role Safety Check", () => {
     // Verify a random/arbitrary email does not return any override
     expect(getRoleOverride("other-email@gmail.com")).toBeNull();
     expect(getRoleOverride("admin-attacker@ssn.edu.in")).toBeNull();
+  });
+
+  it("should return null for role override in production environment", () => {
+    process.env.NODE_ENV = "production";
+
+    // Even the developer email should return null in production
+    expect(getRoleOverride("thusharyyy@gmail.com")).toBeNull();
+    expect(getRoleOverride("thushar2410612@ssn.edu.in")).toBeNull();
+    expect(getRoleOverride("thushar.tl.dev@gmail.com")).toBeNull();
   });
 });

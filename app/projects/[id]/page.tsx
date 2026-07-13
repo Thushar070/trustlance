@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { ProjectStatus, ProposalStatus, EscrowStatus } from "@prisma/client";
 import { SKILL_GROUPS } from "@/lib/constants/skills";
+import Link from "next/link";
 import AuditHistory from "@/components/AuditHistory";
 import {
   Clock,
@@ -20,6 +21,7 @@ import {
   FileText,
   Check,
   Send,
+  ShieldCheck,
 } from "lucide-react";
 
 interface ClientDetails {
@@ -142,6 +144,7 @@ export default function ProjectDetailPage() {
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [clientStats, setClientStats] = useState<{ completedProjectsCount: number; rating: number } | null>(null);
 
   // Submissions State
   const [submissions, setSubmissions] = useState<SubmissionDetails[]>([]);
@@ -568,6 +571,26 @@ export default function ProjectDetailPage() {
         const { myProposal: attachedProposal, ...projDetails } = data;
         setProject(projDetails);
         setMyProposal(attachedProposal);
+
+        // Fetch client public profile details
+        try {
+          fetch(`/api/users/${projDetails.clientId}/public-profile`)
+            .then((res) => {
+              if (res.ok) return res.json();
+              return null;
+            })
+            .then((profileData) => {
+              if (profileData) {
+                setClientStats({
+                  completedProjectsCount: profileData.completedProjectsCount || 0,
+                  rating: profileData.rating || 0,
+                });
+              }
+            })
+            .catch(() => {});
+        } catch {
+          // Ignore
+        }
 
         // Initialize edit project fields
         setTitle(projDetails.title);
@@ -1011,10 +1034,16 @@ export default function ProjectDetailPage() {
       ) : (
         // Standard View Mode Layout
         <div className="space-y-6">
+          <div className="flex items-center gap-2 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+            <Link href="/projects" className="hover:text-[var(--accent)] transition-colors">Projects</Link>
+            <span>/</span>
+            <span className="text-[var(--text-secondary)]">Details</span>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             <div className="lg:col-span-2 space-y-6">
               {/* Title & Description Box */}
-              <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 sm:p-8 shadow-sm">
                 <div className="flex flex-wrap items-center gap-3 mb-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadgeClass(project.status)}`}>
                     {project.status.replace("_", " ")}
@@ -1464,33 +1493,55 @@ export default function ProjectDetailPage() {
             {/* Details Sidebar */}
             <div className="lg:col-span-1 space-y-6">
               {/* Budget & Actions Card */}
-              <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 text-center sticky top-20">
-                <span className="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-wider block mb-1">
-                  {project.agreedAmount ? "Agreed Contract Price" : "Project Budget"}
-                </span>
-                <span className="text-2xl font-black text-[var(--text-primary)] block mb-5">
-                  ₹{(project.agreedAmount || project.budget).toLocaleString()}
-                </span>
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm text-center sticky top-20 space-y-5">
+                <div>
+                  <span className="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-wider block mb-1">
+                    {project.agreedAmount ? "Agreed Contract Price" : "Project Budget"}
+                  </span>
+                  <span className="text-2xl font-black text-[var(--text-primary)] block">
+                    ₹{(project.agreedAmount || project.budget).toLocaleString()}
+                  </span>
+                </div>
 
-                <div className="border-t border-[var(--border-subtle)] pt-5 text-left space-y-3.5">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-[var(--text-secondary)] font-medium">Deadline</span>
-                    <span className="font-semibold text-[var(--text-primary)] flex items-center gap-1">
+                {/* Escrow Progress Bar */}
+                <div className="pt-4 border-t border-[var(--border-subtle)] text-left">
+                  <div className="flex justify-between items-center text-[10px] font-bold mb-1.5 uppercase tracking-wider">
+                    <span className="text-[var(--text-secondary)]">Escrow Container</span>
+                    {project.payment?.status === "SUCCESS" || project.escrow ? (
+                      <span className="text-emerald-500 font-extrabold">100% Secured</span>
+                    ) : (
+                      <span className="text-[var(--text-muted)] font-extrabold">0% Funded</span>
+                    )}
+                  </div>
+                  <div className="w-full bg-[var(--border)] h-1.5 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        project.payment?.status === "SUCCESS" || project.escrow ? "bg-emerald-500" : "bg-[var(--border)]"
+                      }`} 
+                      style={{ width: project.payment?.status === "SUCCESS" || project.escrow ? "100%" : "0%" }} 
+                    />
+                  </div>
+                </div>
+
+                <div className="border-t border-[var(--border-subtle)] pt-4 text-left space-y-3.5">
+                  <div className="flex justify-between items-center text-xs font-medium">
+                    <span className="text-[var(--text-secondary)]">Deadline</span>
+                    <span className="font-bold text-[var(--text-primary)] flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                       {new Date(project.deadline).toLocaleDateString()}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-[var(--text-secondary)] font-medium">Client Owner</span>
-                    <span className="font-semibold text-[var(--text-primary)] flex items-center gap-1">
+                  <div className="flex justify-between items-center text-xs font-medium">
+                    <span className="text-[var(--text-secondary)]">Client Corporate</span>
+                    <span className="font-bold text-[var(--text-primary)] flex items-center gap-1">
                       <User className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                       {project.client.name || "Client"}
                     </span>
                   </div>
                   {project.payment && (
-                    <div className="flex justify-between text-sm items-center font-medium">
+                    <div className="flex justify-between text-xs items-center font-medium">
                       <span className="text-[var(--text-secondary)]">Payment Status</span>
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                      <span className={`px-2.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${
                         project.payment.status === "SUCCESS"
                           ? "bg-[var(--status-success-bg)] text-[var(--status-success-text)] border-[var(--status-success-border)]"
                           : project.payment.status === "FAILED"
@@ -1502,9 +1553,9 @@ export default function ProjectDetailPage() {
                     </div>
                   )}
                   {project.escrow && (
-                    <div className="flex justify-between text-sm items-center font-medium">
+                    <div className="flex justify-between text-xs items-center font-medium">
                       <span className="text-[var(--text-secondary)]">Escrow Status</span>
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                      <span className={`px-2.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${
                         project.escrow.status === "RELEASED"
                           ? "bg-[var(--status-success-bg)] text-[var(--status-success-text)] border-[var(--status-success-border)]"
                           : project.escrow.status === "REFUNDED"
@@ -1547,6 +1598,35 @@ export default function ProjectDetailPage() {
                     </button>
                   </div>
                 )}
+              </div>
+
+              {/* About the Client Card */}
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm space-y-4">
+                <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-[var(--accent)]" />
+                  <span>About the Client</span>
+                </h3>
+                
+                <div className="space-y-3.5 border-t border-[var(--border-subtle)] pt-4">
+                  <div className="flex justify-between items-center text-xs font-medium">
+                    <span className="text-[var(--text-secondary)]">Verification</span>
+                    <span className="font-bold text-emerald-500 flex items-center gap-1 uppercase text-[9px]">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Vetted Status
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs font-medium">
+                    <span className="text-[var(--text-secondary)]">Contracts Completed</span>
+                    <span className="font-bold text-[var(--text-primary)]">
+                      {clientStats ? clientStats.completedProjectsCount : "—"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs font-medium">
+                    <span className="text-[var(--text-secondary)]">Reputation Rating</span>
+                    <span className="font-bold text-[var(--text-primary)]">
+                      {clientStats ? `⭐ ${clientStats.rating.toFixed(1)} / 5.0` : "—"}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -14,8 +14,12 @@ export const ROLE_OVERRIDES: Record<string, Role> = {
 
 /**
  * Helper to check if an email has a predefined role override.
+ * Only active in non-production environments (development and test).
  */
 export function getRoleOverride(email: string | null | undefined): Role | null {
+  if (process.env.NODE_ENV === "production") {
+    return null;
+  }
   if (!email) return null;
   return ROLE_OVERRIDES[email] || null;
 }

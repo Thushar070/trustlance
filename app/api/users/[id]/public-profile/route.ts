@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/get-server-session";
 import { prisma } from "@/lib/prisma";
-import { Role } from "@prisma/client";
+import { Role, ConnectionStatus } from "@prisma/client";
 import { ConnectionService } from "@/lib/services/connection-service";
 
 // Checks if a project relationship exists (active/past assignment or proposal)
@@ -113,11 +113,14 @@ export async function GET(
       })
     );
 
-    // Visibility rule check: owner or associated users see full details
-    const isOwner = viewerId === profileUserId;
-    const isAssociated = isOwner || (await hasProjectRelationship(viewerId, profileUserId));
-
     const conn = await ConnectionService.getConnectionStatus(viewerId, profileUserId);
+
+    // Visibility rule check: owner, associated users, or accepted connection partners see full details
+    const isOwner = viewerId === profileUserId;
+    const isAssociated =
+      isOwner ||
+      (await hasProjectRelationship(viewerId, profileUserId)) ||
+      conn.status === ConnectionStatus.ACCEPTED;
 
     const responseData: {
       id: string;

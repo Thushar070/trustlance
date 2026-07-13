@@ -10,6 +10,20 @@ export class ProjectService {
    * Creates a new project in the database.
    */
   static async createProject(clientId: string, data: CreateProjectInput) {
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const hourlyProjectCount = prisma.project.count
+      ? await prisma.project.count({
+          where: {
+            clientId,
+            createdAt: { gte: oneHourAgo },
+          },
+        })
+      : 0;
+
+    if (hourlyProjectCount >= 5) {
+      throw new Error("Rate limit exceeded: Maximum of 5 project creations per hour.");
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const execute = async (client: any) => {
       const project = await client.project.create({
@@ -117,7 +131,7 @@ export class ProjectService {
     currentUserId?: string;
   }) {
     const page = Math.max(1, filters.page || 1);
-    const limit = Math.max(1, filters.limit || 10);
+    const limit = Math.min(100, Math.max(1, filters.limit || 10));
     const skip = (page - 1) * limit;
 
     const where: Prisma.ProjectWhereInput = {};

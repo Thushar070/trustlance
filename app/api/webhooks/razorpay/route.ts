@@ -39,6 +39,7 @@ export async function POST(request: Request) {
           entity?: {
             id?: string;
             order_id?: string;
+            amount?: number;
           };
         };
       };
@@ -76,6 +77,7 @@ export async function POST(request: Request) {
     const paymentEntity = payload.payload?.payment?.entity;
     const orderId = paymentEntity?.order_id;
     const paymentId = paymentEntity?.id;
+    const paymentAmount = paymentEntity?.amount;
 
     if (!orderId) {
       return NextResponse.json({ message: "Event ignored: missing order_id." }, { status: 200 });
@@ -90,6 +92,20 @@ export async function POST(request: Request) {
     }
 
     if (eventName === "payment.captured") {
+      if (paymentAmount === undefined || paymentAmount === null) {
+        return NextResponse.json({ error: "Missing amount in webhook payload." }, { status: 400 });
+      }
+      const expectedAmountInPaise = dbPayment.amount * 100;
+      if (paymentAmount !== expectedAmountInPaise) {
+        console.error(
+          `[FRAUD WARNING] Payment amount mismatch for Order ID ${orderId}. Webhook paid amount: ${paymentAmount} paise, DB expected amount: ${expectedAmountInPaise} paise.`
+        );
+        return NextResponse.json(
+          { error: "Payment verification failed: Amount mismatch." },
+          { status: 400 }
+        );
+      }
+
       await prisma.$transaction(async (tx) => {
         // Update Payment to SUCCESS if it's not already
         if (dbPayment.status !== PaymentStatus.SUCCESS) {

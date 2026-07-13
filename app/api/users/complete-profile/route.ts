@@ -15,6 +15,26 @@ export async function POST(request: Request) {
     }
 
     const userId = session.user.id;
+
+    // Profile updates rate limit check (max 10 per hour)
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const hourlyProfileUpdates = prisma.auditLog && prisma.auditLog.count
+      ? await prisma.auditLog.count({
+          where: {
+            actorId: userId,
+            action: "COMPLETE_PROFILE",
+            createdAt: { gte: oneHourAgo },
+          },
+        })
+      : 0;
+
+    if (hourlyProfileUpdates >= 10) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded: Maximum of 10 profile updates per hour." },
+        { status: 429 }
+      );
+    }
+
     const dbUser = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -73,14 +93,33 @@ export async function POST(request: Request) {
       validatedData = {};
     }
 
-    // Update user profile and set profileCompleted to true
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        ...validatedData,
-        profileCompleted: true,
-      },
-    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const executeUpdate = async (client: any) => {
+      await client.user.update({
+        where: { id: userId },
+        data: {
+          ...validatedData,
+          profileCompleted: true,
+        },
+      });
+
+      if (client.auditLog && client.auditLog.create) {
+        await client.auditLog.create({
+          data: {
+            entityType: "User",
+            entityId: userId,
+            action: "COMPLETE_PROFILE",
+            actorId: userId,
+          },
+        });
+      }
+    };
+
+    if (prisma.$transaction) {
+      await prisma.$transaction(async (tx) => executeUpdate(tx));
+    } else {
+      await executeUpdate(prisma);
+    }
 
     return NextResponse.json({ success: true, message: "Profile completed successfully." });
   } catch (error: unknown) {

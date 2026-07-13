@@ -3,11 +3,31 @@ import { getServerSession } from "@/lib/auth/get-server-session";
 import { prisma } from "@/lib/prisma";
 import { Role, Prisma } from "@prisma/client";
 
+const searchRateLimits = new Map<string, { count: number; windowStart: number }>();
+
 export async function GET(request: Request) {
   try {
     const session = await getServerSession();
     if (!session || !session.user || !session.user.id) {
       return NextResponse.json({ error: "Unauthorized: Please log in." }, { status: 401 });
+    }
+
+    const userId = session.user.id;
+    const now = Date.now();
+    const limit = 100;
+    const windowMs = 60 * 1000;
+
+    const record = searchRateLimits.get(userId);
+    if (!record || now - record.windowStart > windowMs) {
+      searchRateLimits.set(userId, { count: 1, windowStart: now });
+    } else {
+      if (record.count >= limit) {
+        return NextResponse.json(
+          { error: "Rate limit exceeded: Maximum of 100 search queries per minute." },
+          { status: 429 }
+        );
+      }
+      record.count += 1;
     }
 
     const callerRole = session.user.role;
@@ -82,52 +102,87 @@ export async function GET(request: Request) {
       },
     });
 
-    // Compute stats & skills-via-proposals
-    const usersWithStats = await Promise.all(
-      users.map(async (user) => {
-        // Extract skills
-        const skills = Array.from(new Set(user.proposals.flatMap((p) => p.project?.skills || [])));
+    // Compute stats & skills-via-proposals by batch fetching to avoid N+1 query patterns
+    const userIds = users.map((u) => u.id);
 
-        // Completed project count
-        let completedProjectCount = 0;
-        if (user.role === Role.FREELANCER) {
-          completedProjectCount = await prisma.project.count({
-            where: {
-              freelancerId: user.id,
-              status: "COMPLETED",
-            },
-          });
-        } else if (user.role === Role.CLIENT) {
-          completedProjectCount = await prisma.project.count({
-            where: {
-              clientId: user.id,
-              status: "COMPLETED",
-            },
-          });
-        }
+    const [freelancerProjectCounts, clientProjectCounts, allRatings] = await Promise.all([
+      prisma.project.groupBy ? await prisma.project.groupBy({
+        by: ["freelancerId"],
+        where: {
+          freelancerId: { in: userIds },
+          status: "COMPLETED",
+        },
+        _count: {
+          id: true,
+        },
+      }) : [],
+      prisma.project.groupBy ? await prisma.project.groupBy({
+        by: ["clientId"],
+        where: {
+          clientId: { in: userIds },
+          status: "COMPLETED",
+        },
+        _count: {
+          id: true,
+        },
+      }) : [],
+      prisma.rating.findMany ? await prisma.rating.findMany({
+        where: { rateeId: { in: userIds } },
+        select: { rateeId: true, score: true },
+      }) : [],
+    ]);
 
-        // Average Rating
-        const ratings = await prisma.rating.findMany({
-          where: { rateeId: user.id },
-          select: { score: true },
-        });
-        const totalScore = ratings.reduce((sum, r) => sum + r.score, 0);
-        const averageRating = ratings.length > 0 ? parseFloat((totalScore / ratings.length).toFixed(1)) : 0;
+    const freelancerCountMap = new Map<string, number>();
+    for (const item of freelancerProjectCounts) {
+      if (item.freelancerId) {
+        freelancerCountMap.set(item.freelancerId, item._count.id);
+      }
+    }
 
-        return {
-          id: user.id,
-          name: user.name,
-          role: user.role,
-          businessName: user.businessName,
-          bio: user.bio,
-          location: user.location,
-          skills,
-          averageRating,
-          completedProjectCount,
-          createdAt: user.createdAt,
-        };
-      })
-    );
+    const clientCountMap = new Map<string, number>();
+    for (const item of clientProjectCounts) {
+      if (item.clientId) {
+        clientCountMap.set(item.clientId, item._count.id);
+      }
+    }
+
+    const ratingsMap = new Map<string, number[]>();
+    for (const r of allRatings) {
+      const list = ratingsMap.get(r.rateeId) || [];
+      list.push(r.score);
+      ratingsMap.set(r.rateeId, list);
+    }
+
+    const usersWithStats = users.map((user) => {
+      // Extract skills
+      const skills = Array.from(new Set(user.proposals.flatMap((p) => p.project?.skills || [])));
+
+      // Completed project count
+      let completedProjectCount = 0;
+      if (user.role === Role.FREELANCER) {
+        completedProjectCount = freelancerCountMap.get(user.id) || 0;
+      } else if (user.role === Role.CLIENT) {
+        completedProjectCount = clientCountMap.get(user.id) || 0;
+      }
+
+      // Average Rating
+      const userScores = ratingsMap.get(user.id) || [];
+      const totalScore = userScores.reduce((sum, s) => sum + s, 0);
+      const averageRating = userScores.length > 0 ? parseFloat((totalScore / userScores.length).toFixed(1)) : 0;
+
+      return {
+        id: user.id,
+        name: user.name,
+        role: user.role,
+        businessName: user.businessName,
+        bio: user.bio,
+        location: user.location,
+        skills,
+        averageRating,
+        completedProjectCount,
+        createdAt: user.createdAt,
+      };
+    });
 
     // Apply minRating filtering in-memory
     const filteredUsers = usersWithStats.filter((u) => u.averageRating >= minRating);

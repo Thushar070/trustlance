@@ -161,6 +161,7 @@ describe("Escrow State Machine & Webhooks Tests", () => {
             entity: {
               id: "pay_captured",
               order_id: "order_captured",
+              amount: 500000,
             },
           },
         },
@@ -175,6 +176,7 @@ describe("Escrow State Machine & Webhooks Tests", () => {
         id: "pay_db_1",
         projectId: "proj_db_1",
         razorpayOrderId: "order_captured",
+        amount: 5000,
         status: PaymentStatus.PENDING,
       });
       (prisma.payment.update as jest.Mock).mockResolvedValue({

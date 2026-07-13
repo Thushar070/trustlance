@@ -52,18 +52,18 @@ enum DisputeStatus {
 }
 
 model User {
-  id                   String     @id @default(cuid())
-  email                String     @unique
-  name                 String?
-  role                 Role?      // Nullable initially until role selection
-  profileCompleted     Boolean    @default(false)
-  createdAt            DateTime   @default(now())
+  id               String   @id @default(cuid())
+  email            String   @unique
+  name             String?
+  role             Role? // Nullable initially until role selection
+  profileCompleted Boolean  @default(false)
+  createdAt        DateTime @default(now())
 
   // Profiles
-  phone                String?
-  location             String?
-  businessName         String?
-  bio                  String?
+  phone        String?
+  location     String?
+  businessName String?
+  bio          String?
 
   projectsAsClient     Project[]  @relation("ClientProjects")
   projectsAsFreelancer Project[]  @relation("FreelancerProjects")
@@ -85,20 +85,20 @@ model Project {
   freelancer   User?         @relation("FreelancerProjects", fields: [freelancerId], references: [id])
   agreedAmount Int?
 
-  proposals    Proposal[]
-  escrow       Escrow?
-  payment      Payment?
-  submissions  Submission[]
-  messages     Message[]
-  createdAt    DateTime      @default(now())
+  proposals   Proposal[]
+  escrow      Escrow?
+  payment     Payment?
+  submissions Submission[]
+  messages    Message[]
+  createdAt   DateTime     @default(now())
 }
 
 model Proposal {
-  id            String   @id @default(cuid())
+  id            String         @id @default(cuid())
   projectId     String
-  project       Project  @relation(fields: [projectId], references: [id])
+  project       Project        @relation(fields: [projectId], references: [id])
   freelancerId  String
-  freelancer    User     @relation(fields: [freelancerId], references: [id])
+  freelancer    User           @relation(fields: [freelancerId], references: [id])
   message       String
   estimatedDays Int
   price         Int?
@@ -125,14 +125,14 @@ model Escrow {
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 
-  dispute   Dispute?
+  dispute Dispute?
 }
 
 model Dispute {
   id         String        @id @default(cuid())
   escrowId   String        @unique
   escrow     Escrow        @relation(fields: [escrowId], references: [id])
-  raisedBy   String        // userId or system
+  raisedBy   String // userId or system
   reason     String
   status     DisputeStatus @default(OPEN)
   resolution String?
@@ -145,17 +145,17 @@ model Evidence {
   disputeId String
   dispute   Dispute  @relation(fields: [disputeId], references: [id])
   userId    String
-  type      String   // "file" | "link" | "screenshot"
+  type      String // "file" | "link" | "screenshot"
   url       String
   createdAt DateTime @default(now())
 }
 
 model AuditLog {
   id         String   @id @default(cuid())
-  entityType String   // "Escrow" | "Project" | "Dispute"
+  entityType String // "Escrow" | "Project" | "Dispute"
   entityId   String
   action     String
-  actorId    String   // String to allow "SYSTEM_AUTO_RELEASE" or userId
+  actorId    String // String to allow "SYSTEM_AUTO_RELEASE" or userId
   prevState  String?
   newState   String?
   createdAt  DateTime @default(now())
@@ -187,6 +187,8 @@ model Message {
   sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
   content   String
   createdAt DateTime @default(now())
+
+  @@index([projectId])
 }
 
 model Rating {
@@ -194,22 +196,25 @@ model Rating {
   projectId String
   raterId   String
   rateeId   String
-  score     Int      // 1-5
+  score     Int // 1-5
   comment   String?
   createdAt DateTime @default(now())
 
   @@unique([projectId, raterId])
+  @@index([rateeId])
 }
 
 model Connection {
-  id           String           @id @default(cuid())
-  requesterId  String
-  addresseeId  String
-  status       ConnectionStatus
-  createdAt    DateTime         @default(now())
-  respondedAt  DateTime?
+  id          String           @id @default(cuid())
+  requesterId String
+  addresseeId String
+  status      ConnectionStatus
+  createdAt   DateTime         @default(now())
+  respondedAt DateTime?
 
   @@unique([requesterId, addresseeId])
+  @@index([addresseeId])
+  @@index([status])
 }
 
 enum ConnectionStatus {

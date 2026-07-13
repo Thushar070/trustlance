@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "../prisma";
 import { getRoleOverride } from "./role-overrides";
+import { TokenBlacklist } from "./blacklist";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -13,6 +14,13 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
+  },
+  events: {
+    async signOut({ token }) {
+      if (token && typeof token.jti === "string") {
+        TokenBlacklist.blacklist(token.jti);
+      }
+    },
   },
   callbacks: {
     async signIn({ user }) {
@@ -36,6 +44,9 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token }) {
+      if (token && typeof token.jti === "string" && TokenBlacklist.isBlacklisted(token.jti)) {
+        return { jti: token.jti };
+      }
       if (token.email) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email },
@@ -50,6 +61,11 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
+        if (!token.id) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (session as any).user = null;
+          return session;
+        }
         session.user.role = token.role;
         session.user.id = token.id;
         session.user.profileCompleted = token.profileCompleted;

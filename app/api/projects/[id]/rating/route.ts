@@ -15,6 +15,24 @@ export async function POST(
     const { id: projectId } = await params;
     const raterId = session.user.id;
 
+    // Rate limit check: max 5 ratings per minute
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
+    const minuteRatingCount = prisma.rating && prisma.rating.count
+      ? await prisma.rating.count({
+          where: {
+            raterId,
+            createdAt: { gte: oneMinuteAgo },
+          },
+        })
+      : 0;
+
+    if (minuteRatingCount >= 5) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded: Maximum of 5 ratings per minute." },
+        { status: 429 }
+      );
+    }
+
     // Fetch project details
     const project = await prisma.project.findUnique({
       where: { id: projectId },

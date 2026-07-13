@@ -65,7 +65,7 @@ Configure the following variables in the **Vercel Project Settings > Environment
 
 | Variable | Description / Value |
 | --- | --- |
-| `DATABASE_URL` | Neon/Supabase PostgreSQL connection string (including connection pooling parameters). |
+| `DATABASE_URL` | Neon/Supabase PostgreSQL connection string. **CRITICAL**: For serverless production environments (like Vercel), you MUST use a pooled connection string (with transaction pooling enabled, e.g., pgBouncer / Neon pooler mode) to avoid connection exhaustion under concurrent load. |
 | `NEXTAUTH_URL` | Your production application base URL (e.g. `https://trustlance.vercel.app`). |
 | `NEXTAUTH_SECRET` | A secure random string (generate using `openssl rand -base64 32`). |
 | `GOOGLE_CLIENT_ID` | Production Client ID from Google Cloud Console. |
