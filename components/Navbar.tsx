@@ -175,7 +175,7 @@ export default function Navbar() {
               </Link>
 
               {/* Desktop links */}
-              {session && session.user?.profileCompleted && (
+              {session && session.user?.profileCompleted ? (
                 <div className="hidden lg:flex items-center space-x-2">
                   {desktopLinks.critical.map((link) => (
                     <Link
@@ -221,6 +221,29 @@ export default function Navbar() {
                     </div>
                   )}
                 </div>
+              ) : (
+                !session && (
+                  <div className="hidden sm:flex items-center gap-6 ml-6">
+                    <Link
+                      href="/"
+                      className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                    >
+                      Home
+                    </Link>
+                    <Link
+                      href={pathname === "/" ? "#how-it-works" : "/#how-it-works"}
+                      className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                    >
+                      How It Works
+                    </Link>
+                    <Link
+                      href={pathname === "/" ? "#opportunities" : "/#opportunities"}
+                      className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                    >
+                      Opportunities
+                    </Link>
+                  </div>
+                )
               )}
             </div>
 
@@ -291,13 +314,21 @@ export default function Navbar() {
                   )}
                 </>
               ) : (
-                <Link
-                  href="/login"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-sm"
-                >
-                  <Shield className="w-3.5 h-3.5" />
-                  Sign In
-                </Link>
+                <div className="flex items-center gap-4">
+                  <Link
+                    href="/login"
+                    className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors px-3 py-1.5"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-lg transition-all shadow-[var(--card-shadow)]"
+                  >
+                    <Shield className="w-3.5 h-3.5" />
+                    Sign Up
+                  </Link>
+                </div>
               )}
             </div>
           </div>
