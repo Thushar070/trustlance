@@ -18,9 +18,11 @@
 *.test.js
 *.spec.ts
 *.spec.js
+/scratch/
 
 # documentation
 /docs/
+/PROJECT_OVERVIEW_FOR_DESIGN.md
 
 # logs
 /logs/
