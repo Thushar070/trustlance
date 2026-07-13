@@ -12,6 +12,19 @@
 
 # testing
 /coverage
+/__tests__/
+/jest.config.js
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+
+# documentation
+/docs/
+
+# logs
+/logs/
+*.log
 
 # next.js
 /.next/
@@ -30,8 +43,16 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# keep env template
+!.env.example
 
 # vercel
 .vercel
@@ -40,4 +61,19 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# prisma
 /app/generated/prisma
+
+# IDEs and editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# system files
+Thumbs.db
+desktop.ini
+
