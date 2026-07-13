@@ -1,0 +1,282 @@
+import sgMail from "@sendgrid/mail";
+
+// Sane retry policy for transient errors (429, 5xx, or network timeouts)
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  triggerName: string,
+  recipient: string,
+  maxRetries = 3,
+  initialDelayMs = 1000
+): Promise<T> {
+  let delay = initialDelayMs;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (err: unknown) {
+      const error = err as { code?: string | number; message?: string; response?: { statusCode?: number } };
+      // Check for transient codes or network issues
+      const statusCode = error.code || error.response?.statusCode;
+      const isTransient =
+        statusCode === 429 ||
+        (typeof statusCode === "number" && statusCode >= 500 && statusCode < 600) ||
+        error.message?.includes("timeout") ||
+        error.message?.includes("ESOCKETTIMEDOUT") ||
+        error.code === "ETIMEDOUT";
+
+      if (!isTransient || attempt === maxRetries) {
+        throw err;
+      }
+
+      console.warn(
+        `[SendGrid WARNING] Attempt ${attempt} failed for trigger "${triggerName}" to ${recipient}. ` +
+          `Transient error (status: ${statusCode || "unknown"}). Retrying in ${delay}ms...`
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      delay *= 2; // Exponential backoff
+    }
+  }
+  throw new Error("Retry bounds exceeded");
+}
+
+// Low-level helper to send mail via SendGrid
+async function sendMailHelper(
+  triggerName: string,
+  to: string,
+  subject: string,
+  text: string
+): Promise<boolean> {
+  const apiKey = process.env.SENDGRID_API_KEY;
+  const fromAddress = process.env.EMAIL_FROM_ADDRESS;
+  const fromName = process.env.EMAIL_FROM_NAME || "TrustLance";
+
+  // 1. Env validation
+  if (!apiKey || !fromAddress) {
+    const errorMsg = `Email configuration error: ${!apiKey ? "SENDGRID_API_KEY" : "EMAIL_FROM_ADDRESS"} is missing.`;
+    if (process.env.NODE_ENV !== "production") {
+      throw new Error(errorMsg);
+    }
+    console.error(`[SendGrid ERROR] ${errorMsg}`);
+    return false;
+  }
+
+  // 2. Set API Key
+  sgMail.setApiKey(apiKey);
+
+  const msg = {
+    to,
+    from: {
+      email: fromAddress,
+      name: fromName,
+    },
+    subject,
+    text,
+    // Add simple HTML styling wrapper to match professional enterprise trust design system
+    html: `
+      <div style="font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; rounded: 12px; background-color: #ffffff;">
+        <div style="margin-bottom: 24px;">
+          <span style="font-size: 18px; font-weight: bold; color: #1e1b4b; letter-spacing: -0.025em;">
+            Trust<span style="color: #4f46e5;">Lance</span>
+          </span>
+        </div>
+        <div style="font-size: 14px; line-height: 1.6; color: #334155; white-space: pre-line;">
+          ${text}
+        </div>
+        <div style="margin-top: 32px; padding-top: 16px; border-t: 1px solid #e2e8f0; font-size: 11px; color: #64748b; text-align: center;">
+          © 2026 TrustLance. Secure Escrow Freelance Workspace. All rights reserved.
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await retryWithBackoff(
+      () => sgMail.send(msg),
+      triggerName,
+      to
+    );
+    return true;
+  } catch (err: unknown) {
+    const error = err as { code?: string | number; message?: string; response?: { statusCode?: number; body?: unknown } };
+    const statusCode = error.response?.statusCode || error.code;
+    const responseBody = JSON.stringify(error.response?.body || error.message || error);
+    
+    // Log failure with context but exclude sensitive details (e.g. dispute text content/body)
+    console.error(
+      `[SendGrid ERROR] Final delivery failure for trigger "${triggerName}" to recipient: "${to}". ` +
+        `Response status: ${statusCode || "unknown"}. Details: ${responseBody.slice(0, 300)}`
+    );
+    return false;
+  }
+}
+
+export const SendGridService = {
+  async sendPaymentReceived(
+    to: string,
+    recipientName: string,
+    projectTitle: string,
+    projectLink: string,
+    isClient: boolean
+  ): Promise<boolean> {
+    const subject = `[TrustLance] Payment received for project: ${projectTitle}`;
+    const text = isClient
+      ? `Hello ${recipientName},\n\nPayment has been successfully received and is now held in escrow for project: ${projectTitle}.\n\nView details: ${projectLink}`
+      : `Hello ${recipientName},\n\nPayment has been received and held in escrow for project: ${projectTitle}. You can start working on the deliverables now.\n\nView details: ${projectLink}`;
+
+    return sendMailHelper("PAYMENT_RECEIVED", to, subject, text);
+  },
+
+  async sendFreelancerAssigned(
+    to: string,
+    recipientName: string,
+    projectTitle: string,
+    projectLink: string
+  ): Promise<boolean> {
+    const subject = `[TrustLance] You have been assigned to project: ${projectTitle}`;
+    const text = `Hello ${recipientName},\n\nYou have been selected and assigned as the freelancer for project: ${projectTitle}.\n\nView details: ${projectLink}`;
+
+    return sendMailHelper("FREELANCER_ASSIGNED", to, subject, text);
+  },
+
+  async sendWorkSubmitted(
+    to: string,
+    recipientName: string,
+    projectTitle: string,
+    projectLink: string
+  ): Promise<boolean> {
+    const subject = `[TrustLance] Deliverables submitted for project: ${projectTitle}`;
+    const text = `Hello ${recipientName},\n\nThe freelancer has submitted work deliverables for project: ${projectTitle}. Please review the submission.\n\nView details: ${projectLink}`;
+
+    return sendMailHelper("WORK_SUBMITTED", to, subject, text);
+  },
+
+  async sendChangesRequested(
+    to: string,
+    recipientName: string,
+    projectTitle: string,
+    projectLink: string,
+    feedback: string
+  ): Promise<boolean> {
+    const subject = `[TrustLance] Changes requested for project: ${projectTitle}`;
+    const text = `Hello ${recipientName},\n\nThe client has requested changes on your submission for project: ${projectTitle}.\n\nFeedback:\n${
+      feedback || "No feedback details provided."
+    }\n\nView details: ${projectLink}`;
+
+    return sendMailHelper("CHANGES_REQUESTED", to, subject, text);
+  },
+
+  async sendDisputeRaised(
+    to: string,
+    recipientName: string,
+    projectTitle: string,
+    projectLink: string,
+    reason: string
+  ): Promise<boolean> {
+    const subject = `[TrustLance] Dispute raised for project: ${projectTitle}`;
+    const text = `Hello ${recipientName},\n\nA dispute has been raised for project: ${projectTitle}.\n\nReason: ${
+      reason || "No reason provided."
+    }\n\nView details: ${projectLink}`;
+
+    return sendMailHelper("DISPUTE_RAISED", to, subject, text);
+  },
+
+  async sendDisputeResolved(
+    to: string,
+    recipientName: string,
+    projectTitle: string,
+    projectLink: string,
+    resolution: string,
+    notes: string
+  ): Promise<boolean> {
+    const subject = `[TrustLance] Dispute resolved for project: ${projectTitle}`;
+    const text = `Hello ${recipientName},\n\nThe dispute for project: ${projectTitle} has been resolved by an administrator.\n\nResolution: ${resolution}\nNotes:\n${
+      notes || "No notes provided."
+    }\n\nView details: ${projectLink}`;
+
+    return sendMailHelper("DISPUTE_RESOLVED", to, subject, text);
+  },
+
+  async sendPaymentReleased(
+    to: string,
+    recipientName: string,
+    projectTitle: string,
+    projectLink: string
+  ): Promise<boolean> {
+    const subject = `[TrustLance] Payment released for project: ${projectTitle}`;
+    const text = `Hello ${recipientName},\n\nThe escrow payment has been successfully released to you for project: ${projectTitle}.\n\nView details: ${projectLink}`;
+
+    return sendMailHelper("PAYMENT_RELEASED", to, subject, text);
+  },
+
+  async sendRefundIssued(
+    to: string,
+    recipientName: string,
+    projectTitle: string,
+    projectLink: string
+  ): Promise<boolean> {
+    const subject = `[TrustLance] Refund issued for project: ${projectTitle}`;
+    const text = `Hello ${recipientName},\n\nThe escrow payment has been successfully refunded to you for project: ${projectTitle}.\n\nView details: ${projectLink}`;
+
+    return sendMailHelper("REFUND_ISSUED", to, subject, text);
+  },
+
+  async sendAutoReleaseWarning(
+    to: string,
+    recipientName: string,
+    projectTitle: string,
+    projectLink: string
+  ): Promise<boolean> {
+    const subject = `[TrustLance] Action Required: Auto-release warning for project: ${projectTitle}`;
+    const text = `Hello ${recipientName},\n\nThe submitted deliverables for project: ${projectTitle} have been under review. The funds held in escrow will be automatically released to the freelancer in 24 hours unless the client requests changes or raises a dispute.\n\nView project: ${projectLink}`;
+
+    return sendMailHelper("AUTO_RELEASE_WARNING", to, subject, text);
+  },
+
+  async sendProposalSubmitted(
+    to: string,
+    recipientName: string,
+    projectTitle: string,
+    projectLink: string
+  ): Promise<boolean> {
+    const subject = `[TrustLance] New proposal submitted for project: ${projectTitle}`;
+    const text = `Hello ${recipientName},\n\nA freelancer has submitted a new proposal on your project: ${projectTitle}.\n\nView details: ${projectLink}`;
+
+    return sendMailHelper("PROPOSAL_SUBMITTED", to, subject, text);
+  },
+
+  async sendConnectionRequestReceived(
+    to: string,
+    recipientName: string,
+    requesterName: string
+  ): Promise<boolean> {
+    const subject = `[TrustLance] New connection request from ${requesterName}`;
+    const text = `Hello ${recipientName},\n\n${requesterName} has sent you a connection request on TrustLance.\n\nView pending requests: http://localhost:3000/connections`;
+
+    return sendMailHelper("CONNECTION_REQUEST_RECEIVED", to, subject, text);
+  },
+
+  async sendConnectionAccepted(
+    to: string,
+    recipientName: string,
+    addresseeName: string
+  ): Promise<boolean> {
+    const subject = `[TrustLance] Connection request accepted by ${addresseeName}`;
+    const text = `Hello ${recipientName},\n\nGood news! ${addresseeName} has accepted your connection request on TrustLance.\n\nView your connections: http://localhost:3000/connections`;
+
+    return sendMailHelper("CONNECTION_ACCEPTED", to, subject, text);
+  },
+
+  async sendNewProjectFromConnection(
+    to: string,
+    recipientName: string,
+    clientName: string,
+    projectTitle: string,
+    projectLink: string
+  ): Promise<boolean> {
+    const subject = `[TrustLance] New project from connection: ${projectTitle}`;
+    const text = `Hello ${recipientName},\n\n${clientName} has posted a new open project: ${projectTitle}.\n\nView details: ${projectLink}`;
+
+    return sendMailHelper("NEW_PROJECT_FROM_CONNECTION", to, subject, text);
+  },
+};
+export default SendGridService;

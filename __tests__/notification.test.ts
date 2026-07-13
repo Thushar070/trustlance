@@ -1,5 +1,5 @@
+import { SendGridService } from "@/lib/email/sendgrid";
 import { NotificationService } from "@/lib/services/notification-service";
-import { Mailer } from "@/lib/notifications/mailer";
 import { ProposalService } from "@/lib/services/proposal-service";
 import { ProjectService } from "@/lib/services/project-service";
 import { SubmissionService } from "@/lib/services/submission-service";
@@ -8,11 +8,23 @@ import { POST as webhookHandler } from "@/app/api/webhooks/razorpay/route";
 import { createHmac } from "crypto";
 import { ProjectStatus, EscrowStatus, DisputeStatus, PaymentStatus } from "@prisma/client";
 
-// Mock Mailer
-jest.mock("@/lib/notifications/mailer", () => {
+// Mock SendGridService
+jest.mock("@/lib/email/sendgrid", () => {
   return {
-    Mailer: {
-      sendEmail: jest.fn().mockResolvedValue(true),
+    SendGridService: {
+      sendPaymentReceived: jest.fn().mockResolvedValue(true),
+      sendFreelancerAssigned: jest.fn().mockResolvedValue(true),
+      sendWorkSubmitted: jest.fn().mockResolvedValue(true),
+      sendChangesRequested: jest.fn().mockResolvedValue(true),
+      sendDisputeRaised: jest.fn().mockResolvedValue(true),
+      sendDisputeResolved: jest.fn().mockResolvedValue(true),
+      sendPaymentReleased: jest.fn().mockResolvedValue(true),
+      sendRefundIssued: jest.fn().mockResolvedValue(true),
+      sendAutoReleaseWarning: jest.fn().mockResolvedValue(true),
+      sendProposalSubmitted: jest.fn().mockResolvedValue(true),
+      sendConnectionRequestReceived: jest.fn().mockResolvedValue(true),
+      sendConnectionAccepted: jest.fn().mockResolvedValue(true),
+      sendNewProjectFromConnection: jest.fn().mockResolvedValue(true),
     },
   };
 });
@@ -34,9 +46,9 @@ jest.mock("@/lib/prisma", () => {
         if (!project) return null;
         return {
           ...project,
-          client: { id: project.clientId, email: `${project.clientId}@test.com` },
+          client: { id: project.clientId, email: `${project.clientId}@test.com`, name: project.clientId === "client_user" ? "Client User" : "Client" },
           freelancer: project.freelancerId
-            ? { id: project.freelancerId, email: `${project.freelancerId}@test.com` }
+            ? { id: project.freelancerId, email: `${project.freelancerId}@test.com`, name: project.freelancerId === "freelancer_user" ? "Freelancer User" : "Freelancer" }
             : null,
           escrow: Object.values(mockEscrowDb).find((e) => e.projectId === project.id) || null,
           payment: Object.values(mockPaymentDb).find((p) => p.projectId === project.id) || null,
@@ -252,9 +264,9 @@ describe("Phase 10: Email Notification Tests", () => {
     await NotificationService.notify("PAYMENT_RECEIVED", { projectId: "proj_123" });
 
     // Payment received notifies both Client and Freelancer
-    expect(Mailer.sendEmail).toHaveBeenCalledTimes(2);
-    expect(Mailer.sendEmail).toHaveBeenCalledWith("client_user@test.com", expect.stringContaining("Payment received"), expect.any(String));
-    expect(Mailer.sendEmail).toHaveBeenCalledWith("freelancer_user@test.com", expect.stringContaining("Payment received"), expect.any(String));
+    expect(SendGridService.sendPaymentReceived).toHaveBeenCalledTimes(2);
+    expect(SendGridService.sendPaymentReceived).toHaveBeenCalledWith("client_user@test.com", "Client User", "Test Payment Title", expect.any(String), true);
+    expect(SendGridService.sendPaymentReceived).toHaveBeenCalledWith("freelancer_user@test.com", "Freelancer User", "Test Payment Title", expect.any(String), false);
   });
 
   it("2. notify() is called correctly for the DISPUTE_RAISED trigger", async () => {
@@ -271,10 +283,10 @@ describe("Phase 10: Email Notification Tests", () => {
     });
 
     // Dispute raised notifies Client, Freelancer, and all platform Admins
-    expect(Mailer.sendEmail).toHaveBeenCalledTimes(3);
-    expect(Mailer.sendEmail).toHaveBeenCalledWith("client_user@test.com", expect.stringContaining("Dispute raised"), expect.stringContaining("poor quality"));
-    expect(Mailer.sendEmail).toHaveBeenCalledWith("freelancer_user@test.com", expect.stringContaining("Dispute raised"), expect.stringContaining("poor quality"));
-    expect(Mailer.sendEmail).toHaveBeenCalledWith(["admin@test.com"], expect.stringContaining("Dispute raised"), expect.stringContaining("poor quality"));
+    expect(SendGridService.sendDisputeRaised).toHaveBeenCalledTimes(3);
+    expect(SendGridService.sendDisputeRaised).toHaveBeenCalledWith("client_user@test.com", "Client User", "Test Dispute Title", expect.any(String), "Deliverables are poor quality");
+    expect(SendGridService.sendDisputeRaised).toHaveBeenCalledWith("freelancer_user@test.com", "Freelancer User", "Test Dispute Title", expect.any(String), "Deliverables are poor quality");
+    expect(SendGridService.sendDisputeRaised).toHaveBeenCalledWith("admin@test.com", "Administrator", "Test Dispute Title", expect.any(String), "Deliverables are poor quality");
   });
 
   it("3. A mailer failure (mocked to throw) does not propagate and does not prevent underlying operations", async () => {
@@ -292,8 +304,8 @@ describe("Phase 10: Email Notification Tests", () => {
       status: EscrowStatus.UNDER_REVIEW,
     };
 
-    // Make Mailer throw
-    (Mailer.sendEmail as jest.Mock).mockRejectedValueOnce(new Error("SMTP failure"));
+    // Make SendGridService throw
+    (SendGridService.sendPaymentReleased as jest.Mock).mockRejectedValueOnce(new Error("SendGrid system error"));
 
     // Approve the work
     const result = await ProjectService.approve("proj_123", "client_user");

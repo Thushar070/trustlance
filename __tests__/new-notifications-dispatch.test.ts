@@ -1,12 +1,16 @@
 import { NotificationService } from "@/lib/services/notification-service";
-import { Mailer } from "@/lib/notifications/mailer";
+import { SendGridService } from "@/lib/email/sendgrid";
 import { prisma } from "@/lib/prisma";
 
-// Mock Mailer
-jest.mock("@/lib/notifications/mailer", () => {
+// Mock SendGridService
+jest.mock("@/lib/email/sendgrid", () => {
   return {
-    Mailer: {
-      sendEmail: jest.fn().mockResolvedValue(true),
+    SendGridService: {
+      sendProposalSubmitted: jest.fn().mockResolvedValue(true),
+      sendConnectionRequestReceived: jest.fn().mockResolvedValue(true),
+      sendConnectionAccepted: jest.fn().mockResolvedValue(true),
+      sendNewProjectFromConnection: jest.fn().mockResolvedValue(true),
+      sendFreelancerAssigned: jest.fn().mockResolvedValue(true),
     },
   };
 });
@@ -36,17 +40,18 @@ describe("New Transactional Notification Triggers & Templates Tests", () => {
     (prisma.project.findUnique as jest.Mock).mockResolvedValue({
       id: "proj_123",
       title: "Test Escrow Contract",
-      client: { id: "client_1", email: "client_one@example.com" },
+      client: { id: "client_1", email: "client_one@example.com", name: "John Client" },
       freelancer: null,
     });
 
     await NotificationService.notify("PROPOSAL_SUBMITTED", { projectId: "proj_123" });
 
-    expect(Mailer.sendEmail).toHaveBeenCalledTimes(1);
-    expect(Mailer.sendEmail).toHaveBeenCalledWith(
+    expect(SendGridService.sendProposalSubmitted).toHaveBeenCalledTimes(1);
+    expect(SendGridService.sendProposalSubmitted).toHaveBeenCalledWith(
       "client_one@example.com",
-      expect.stringContaining("New proposal submitted"),
-      expect.stringContaining("A freelancer has submitted a new proposal")
+      "John Client",
+      "Test Escrow Contract",
+      "http://localhost:3000/projects/proj_123"
     );
   });
 
@@ -66,11 +71,11 @@ describe("New Transactional Notification Triggers & Templates Tests", () => {
       addresseeId: "addressee_id",
     });
 
-    expect(Mailer.sendEmail).toHaveBeenCalledTimes(1);
-    expect(Mailer.sendEmail).toHaveBeenCalledWith(
+    expect(SendGridService.sendConnectionRequestReceived).toHaveBeenCalledTimes(1);
+    expect(SendGridService.sendConnectionRequestReceived).toHaveBeenCalledWith(
       "bob@example.com",
-      expect.stringContaining("New connection request from Alice Requester"),
-      expect.stringContaining("Alice Requester has sent you a connection request")
+      "Bob Addressee",
+      "Alice Requester"
     );
   });
 
@@ -90,11 +95,11 @@ describe("New Transactional Notification Triggers & Templates Tests", () => {
       addresseeId: "addressee_id",
     });
 
-    expect(Mailer.sendEmail).toHaveBeenCalledTimes(1);
-    expect(Mailer.sendEmail).toHaveBeenCalledWith(
+    expect(SendGridService.sendConnectionAccepted).toHaveBeenCalledTimes(1);
+    expect(SendGridService.sendConnectionAccepted).toHaveBeenCalledWith(
       "alice@example.com",
-      expect.stringContaining("Connection request accepted by Bob Addressee"),
-      expect.stringContaining("Bob Addressee has accepted your connection request")
+      "Alice Requester",
+      "Bob Addressee"
     );
   });
 
@@ -121,18 +126,22 @@ describe("New Transactional Notification Triggers & Templates Tests", () => {
 
     await NotificationService.notify("NEW_PROJECT_FROM_CONNECTION", { projectId: "proj_123" });
 
-    expect(Mailer.sendEmail).toHaveBeenCalledTimes(2);
-    expect(Mailer.sendEmail).toHaveBeenNthCalledWith(
+    expect(SendGridService.sendNewProjectFromConnection).toHaveBeenCalledTimes(2);
+    expect(SendGridService.sendNewProjectFromConnection).toHaveBeenNthCalledWith(
       1,
       "free1@example.com",
-      expect.stringContaining("New project from connection"),
-      expect.stringContaining("John Client has posted a new open project")
+      "Freelancer One",
+      "John Client",
+      "Premium React App Redesign",
+      "http://localhost:3000/projects/proj_123"
     );
-    expect(Mailer.sendEmail).toHaveBeenNthCalledWith(
+    expect(SendGridService.sendNewProjectFromConnection).toHaveBeenNthCalledWith(
       2,
       "free2@example.com",
-      expect.stringContaining("New project from connection"),
-      expect.stringContaining("John Client has posted a new open project")
+      "Freelancer Two",
+      "John Client",
+      "Premium React App Redesign",
+      "http://localhost:3000/projects/proj_123"
     );
   });
 
@@ -140,17 +149,18 @@ describe("New Transactional Notification Triggers & Templates Tests", () => {
     (prisma.project.findUnique as jest.Mock).mockResolvedValue({
       id: "proj_123",
       title: "Test Escrow Contract",
-      client: { id: "client_id", email: "client@example.com" },
-      freelancer: { id: "freelancer_id", email: "freelancer@example.com" },
+      client: { id: "client_id", email: "client@example.com", name: "Client Name" },
+      freelancer: { id: "freelancer_id", email: "freelancer@example.com", name: "Freelancer Name" },
     });
 
     await NotificationService.notify("FREELANCER_ASSIGNED", { projectId: "proj_123" });
 
-    expect(Mailer.sendEmail).toHaveBeenCalledTimes(1);
-    expect(Mailer.sendEmail).toHaveBeenCalledWith(
+    expect(SendGridService.sendFreelancerAssigned).toHaveBeenCalledTimes(1);
+    expect(SendGridService.sendFreelancerAssigned).toHaveBeenCalledWith(
       "freelancer@example.com",
-      expect.stringContaining("You have been assigned to project"),
-      expect.stringContaining("You have been selected and assigned as the freelancer")
+      "Freelancer Name",
+      "Test Escrow Contract",
+      "http://localhost:3000/projects/proj_123"
     );
   });
 });

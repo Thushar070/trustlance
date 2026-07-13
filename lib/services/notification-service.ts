@@ -1,5 +1,5 @@
 import { prisma } from "../prisma";
-import { Mailer } from "../notifications/mailer";
+import { SendGridService } from "../email/sendgrid";
 
 export type NotificationEvent =
   | "PAYMENT_RECEIVED"
@@ -29,7 +29,7 @@ export interface NotificationPayload {
 export const NotificationService = {
   /**
    * Dispatches transactional email notifications based on lifecycle events.
-   * Safe execution: Wraps mailer errors to prevent them from breaking the calling transaction.
+   * Safe execution: Wraps SendGrid service errors to prevent them from breaking the calling transaction.
    */
   async notify(event: NotificationEvent, payload: NotificationPayload): Promise<void> {
     try {
@@ -38,6 +38,8 @@ export const NotificationService = {
       let project = null;
       let clientEmail: string | null = null;
       let freelancerEmail: string | null = null;
+      let clientName = "Client";
+      let freelancerName = "Freelancer";
       let projectTitle = "";
       let projectLink = "";
 
@@ -53,6 +55,8 @@ export const NotificationService = {
         if (project) {
           clientEmail = project.client?.email || null;
           freelancerEmail = project.freelancer?.email || null;
+          clientName = project.client?.name || "Client";
+          freelancerName = project.freelancer?.name || "Freelancer";
           projectTitle = project.title;
           projectLink = `http://localhost:3000/projects/${project.id}`;
         } else {
@@ -62,71 +66,54 @@ export const NotificationService = {
 
       switch (event) {
         case "PAYMENT_RECEIVED": {
-          const subject = `[TrustLance] Payment received for project: ${projectTitle}`;
-          const clientBody = `Payment has been successfully received and is now held in escrow for project: ${projectTitle}.\n\nView details: ${projectLink}`;
-          const freelancerBody = `Payment has been received and held in escrow for project: ${projectTitle}. You can start working on the deliverables now.\n\nView details: ${projectLink}`;
-
           if (clientEmail) {
-            await Mailer.sendEmail(clientEmail, subject, clientBody);
+            await SendGridService.sendPaymentReceived(clientEmail, clientName, projectTitle, projectLink, true);
           }
           if (freelancerEmail) {
-            await Mailer.sendEmail(freelancerEmail, subject, freelancerBody);
+            await SendGridService.sendPaymentReceived(freelancerEmail, freelancerName, projectTitle, projectLink, false);
           }
           break;
         }
 
         case "FREELANCER_ASSIGNED": {
           if (freelancerEmail) {
-            const subject = `[TrustLance] You have been assigned to project: ${projectTitle}`;
-            const body = `You have been selected and assigned as the freelancer for project: ${projectTitle}.\n\nView details: ${projectLink}`;
-            await Mailer.sendEmail(freelancerEmail, subject, body);
+            await SendGridService.sendFreelancerAssigned(freelancerEmail, freelancerName, projectTitle, projectLink);
           }
           break;
         }
 
         case "WORK_SUBMITTED": {
           if (clientEmail) {
-            const subject = `[TrustLance] Deliverables submitted for project: ${projectTitle}`;
-            const body = `The freelancer has submitted work deliverables for project: ${projectTitle}. Please review the submission.\n\nView details: ${projectLink}`;
-            await Mailer.sendEmail(clientEmail, subject, body);
+            await SendGridService.sendWorkSubmitted(clientEmail, clientName, projectTitle, projectLink);
           }
           break;
         }
 
         case "CHANGES_REQUESTED": {
           if (freelancerEmail) {
-            const subject = `[TrustLance] Changes requested for project: ${projectTitle}`;
-            const body = `The client has requested changes on your submission for project: ${projectTitle}.\n\nFeedback:\n${
-              feedback || "No feedback details provided."
-            }\n\nView details: ${projectLink}`;
-            await Mailer.sendEmail(freelancerEmail, subject, body);
+            await SendGridService.sendChangesRequested(freelancerEmail, freelancerName, projectTitle, projectLink, feedback || "No feedback details provided.");
           }
           break;
         }
 
         case "DISPUTE_RAISED": {
-          const subject = `[TrustLance] Dispute raised for project: ${projectTitle}`;
-          const body = `A dispute has been raised for project: ${projectTitle}.\n\nReason: ${
-            reason || "No reason provided."
-          }\n\nView details: ${projectLink}`;
-
-          // Notify both parties
           if (clientEmail) {
-            await Mailer.sendEmail(clientEmail, subject, body);
+            await SendGridService.sendDisputeRaised(clientEmail, clientName, projectTitle, projectLink, reason || "No reason provided.");
           }
           if (freelancerEmail) {
-            await Mailer.sendEmail(freelancerEmail, subject, body);
+            await SendGridService.sendDisputeRaised(freelancerEmail, freelancerName, projectTitle, projectLink, reason || "No reason provided.");
           }
 
           // Notify all admins
           try {
             const admins = await prisma.user.findMany({
               where: { role: "ADMIN" },
-              select: { email: true },
+              select: { email: true, name: true },
             });
-            const adminEmails = admins.map((a) => a.email).filter(Boolean) as string[];
-            if (adminEmails.length > 0) {
-              await Mailer.sendEmail(adminEmails, subject, body);
+            for (const admin of admins) {
+              if (admin.email) {
+                await SendGridService.sendDisputeRaised(admin.email, admin.name || "Administrator", projectTitle, projectLink, reason || "No reason provided.");
+              }
             }
           } catch (adminErr) {
             console.warn(`[Notification WARNING] Failed to fetch admins for dispute notification: ${adminErr}`);
@@ -135,55 +122,42 @@ export const NotificationService = {
         }
 
         case "DISPUTE_RESOLVED": {
-          const subject = `[TrustLance] Dispute resolved for project: ${projectTitle}`;
-          const body = `The dispute for project: ${projectTitle} has been resolved by an administrator.\n\nResolution: ${resolution}\nNotes:\n${
-            notes || "No notes provided."
-          }\n\nView details: ${projectLink}`;
-
           if (clientEmail) {
-            await Mailer.sendEmail(clientEmail, subject, body);
+            await SendGridService.sendDisputeResolved(clientEmail, clientName, projectTitle, projectLink, resolution || "No resolution provided.", notes || "No notes provided.");
           }
           if (freelancerEmail) {
-            await Mailer.sendEmail(freelancerEmail, subject, body);
+            await SendGridService.sendDisputeResolved(freelancerEmail, freelancerName, projectTitle, projectLink, resolution || "No resolution provided.", notes || "No notes provided.");
           }
           break;
         }
 
         case "PAYMENT_RELEASED": {
           if (freelancerEmail) {
-            const subject = `[TrustLance] Payment released for project: ${projectTitle}`;
-            const body = `The escrow payment has been successfully released to you for project: ${projectTitle}.\n\nView details: ${projectLink}`;
-            await Mailer.sendEmail(freelancerEmail, subject, body);
+            await SendGridService.sendPaymentReleased(freelancerEmail, freelancerName, projectTitle, projectLink);
           }
           break;
         }
 
         case "REFUND_ISSUED": {
           if (clientEmail) {
-            const subject = `[TrustLance] Refund issued for project: ${projectTitle}`;
-            const body = `The escrow payment has been successfully refunded to you for project: ${projectTitle}.\n\nView details: ${projectLink}`;
-            await Mailer.sendEmail(clientEmail, subject, body);
+            await SendGridService.sendRefundIssued(clientEmail, clientName, projectTitle, projectLink);
           }
           break;
         }
 
         case "AUTO_RELEASE_WARNING": {
-          const subject = `[TrustLance] Action Required: Auto-release warning for project: ${projectTitle}`;
-          const body = `The submitted deliverables for project: ${projectTitle} have been under review. The funds held in escrow will be automatically released to the freelancer in 24 hours unless the client requests changes or raises a dispute.\n\nView project: ${projectLink}`;
           if (clientEmail) {
-            await Mailer.sendEmail(clientEmail, subject, body);
+            await SendGridService.sendAutoReleaseWarning(clientEmail, clientName, projectTitle, projectLink);
           }
           if (freelancerEmail) {
-            await Mailer.sendEmail(freelancerEmail, subject, body);
+            await SendGridService.sendAutoReleaseWarning(freelancerEmail, freelancerName, projectTitle, projectLink);
           }
           break;
         }
 
         case "PROPOSAL_SUBMITTED": {
           if (clientEmail) {
-            const subject = `[TrustLance] New proposal submitted for project: ${projectTitle}`;
-            const body = `A freelancer has submitted a new proposal on your project: ${projectTitle}.\n\nView details: ${projectLink}`;
-            await Mailer.sendEmail(clientEmail, subject, body);
+            await SendGridService.sendProposalSubmitted(clientEmail, clientName, projectTitle, projectLink);
           }
           break;
         }
@@ -193,9 +167,7 @@ export const NotificationService = {
             const requester = await prisma.user.findUnique({ where: { id: requesterId } });
             const addressee = await prisma.user.findUnique({ where: { id: addresseeId } });
             if (requester && addressee && addressee.email) {
-              const subject = `[TrustLance] New connection request from ${requester.name}`;
-              const body = `Hello ${addressee.name},\n\n${requester.name} has sent you a connection request on TrustLance.\n\nView pending requests: http://localhost:3000/connections`;
-              await Mailer.sendEmail(addressee.email, subject, body);
+              await SendGridService.sendConnectionRequestReceived(addressee.email, addressee.name || "User", requester.name || "User");
             }
           }
           break;
@@ -206,9 +178,7 @@ export const NotificationService = {
             const requester = await prisma.user.findUnique({ where: { id: requesterId } });
             const addressee = await prisma.user.findUnique({ where: { id: addresseeId } });
             if (requester && addressee && requester.email) {
-              const subject = `[TrustLance] Connection request accepted by ${addressee.name}`;
-              const body = `Hello ${requester.name},\n\nGood news! ${addressee.name} has accepted your connection request on TrustLance.\n\nView your connections: http://localhost:3000/connections`;
-              await Mailer.sendEmail(requester.email, subject, body);
+              await SendGridService.sendConnectionAccepted(requester.email, requester.name || "User", addressee.name || "User");
             }
           }
           break;
@@ -216,7 +186,6 @@ export const NotificationService = {
 
         case "NEW_PROJECT_FROM_CONNECTION": {
           if (project && project.clientId && prisma.connection) {
-            const clientName = project.client?.name || "A Client";
             const connections = await prisma.connection.findMany({
               where: {
                 status: "ACCEPTED",
@@ -236,11 +205,9 @@ export const NotificationService = {
               },
               select: { email: true, name: true },
             });
-            const subject = `[TrustLance] New project from connection: ${projectTitle}`;
             for (const partner of partners) {
               if (partner.email) {
-                const body = `Hello ${partner.name || "Freelancer"},\n\n${clientName} has posted a new open project: ${projectTitle}.\n\nView details: ${projectLink}`;
-                await Mailer.sendEmail(partner.email, subject, body);
+                await SendGridService.sendNewProjectFromConnection(partner.email, partner.name || "Freelancer", clientName, projectTitle, projectLink);
               }
             }
           }

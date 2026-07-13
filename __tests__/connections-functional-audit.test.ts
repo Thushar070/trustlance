@@ -1,13 +1,14 @@
+import { SendGridService } from "@/lib/email/sendgrid";
 import { ConnectionStatus } from "@prisma/client";
 import { ConnectionService } from "@/lib/services/connection-service";
-import { Mailer } from "@/lib/notifications/mailer";
 import { prisma } from "@/lib/prisma";
 
-// Mock Mailer
-jest.mock("@/lib/notifications/mailer", () => {
+// Mock SendGridService
+jest.mock("@/lib/email/sendgrid", () => {
   return {
-    Mailer: {
-      sendEmail: jest.fn().mockResolvedValue(true),
+    SendGridService: {
+      sendConnectionRequestReceived: jest.fn().mockResolvedValue(true),
+      sendConnectionAccepted: jest.fn().mockResolvedValue(true),
     },
   };
 });
@@ -47,7 +48,15 @@ describe("Connections Feature - Detailed State & Lifecycle Mock Audit", () => {
 
   it("Flow 1: Send a request A -> B, verifies pending list triggers & emails", async () => {
     // Mock user existence check
-    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: userBId, email: "userb@example.com", name: "User B" });
+    (prisma.user.findUnique as jest.Mock).mockImplementation((args) => {
+      if (args.where.id === userAId) {
+        return Promise.resolve({ id: userAId, email: "usera@example.com", name: "User A" });
+      }
+      if (args.where.id === userBId) {
+        return Promise.resolve({ id: userBId, email: "userb@example.com", name: "User B" });
+      }
+      return Promise.resolve(null);
+    });
     
     // Mock outgoing rate limit check: count < 20
     (prisma.connection.count as jest.Mock).mockResolvedValue(0);
@@ -70,7 +79,12 @@ describe("Connections Feature - Detailed State & Lifecycle Mock Audit", () => {
     expect(conn.addresseeId).toBe(userBId);
 
     // Verify email was sent
-    expect(Mailer.sendEmail).toHaveBeenCalledTimes(1);
+    expect(SendGridService.sendConnectionRequestReceived).toHaveBeenCalledTimes(1);
+    expect(SendGridService.sendConnectionRequestReceived).toHaveBeenCalledWith(
+      "userb@example.com",
+      "User B",
+      "User A"
+    );
   });
 
   it("Flow 2: Enforces block duplicate pending request in either direction", async () => {
@@ -119,11 +133,20 @@ describe("Connections Feature - Detailed State & Lifecycle Mock Audit", () => {
 
     const updated = await ConnectionService.respondToConnectionRequest("conn_123", userBId, "DECLINED");
     expect(updated.status).toBe(ConnectionStatus.DECLINED);
-    expect(Mailer.sendEmail).not.toHaveBeenCalled();
+    expect(SendGridService.sendConnectionAccepted).not.toHaveBeenCalled();
+    expect(SendGridService.sendConnectionRequestReceived).not.toHaveBeenCalled();
   });
 
   it("Flow 5: Reset state after decline to PENDING on re-request", async () => {
-    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: userBId, email: "userb@example.com", name: "User B" });
+    (prisma.user.findUnique as jest.Mock).mockImplementation((args) => {
+      if (args.where.id === userAId) {
+        return Promise.resolve({ id: userAId, email: "usera@example.com", name: "User A" });
+      }
+      if (args.where.id === userBId) {
+        return Promise.resolve({ id: userBId, email: "userb@example.com", name: "User B" });
+      }
+      return Promise.resolve(null);
+    });
     (prisma.connection.count as jest.Mock).mockResolvedValue(0);
     
     // Mock existing connection showing DECLINED
@@ -143,7 +166,12 @@ describe("Connections Feature - Detailed State & Lifecycle Mock Audit", () => {
 
     const reRequest = await ConnectionService.sendConnectionRequest(userAId, userBId);
     expect(reRequest.status).toBe(ConnectionStatus.PENDING);
-    expect(Mailer.sendEmail).toHaveBeenCalledTimes(1);
+    expect(SendGridService.sendConnectionRequestReceived).toHaveBeenCalledTimes(1);
+    expect(SendGridService.sendConnectionRequestReceived).toHaveBeenCalledWith(
+      "userb@example.com",
+      "User B",
+      "User A"
+    );
   });
 
   it("Flow 6: Accept connection updates state & triggers notification on both sides", async () => {
@@ -171,11 +199,11 @@ describe("Connections Feature - Detailed State & Lifecycle Mock Audit", () => {
 
     const updated = await ConnectionService.respondToConnectionRequest("conn_123", userBId, "ACCEPTED");
     expect(updated.status).toBe(ConnectionStatus.ACCEPTED);
-    expect(Mailer.sendEmail).toHaveBeenCalledTimes(1);
-    expect(Mailer.sendEmail).toHaveBeenCalledWith(
+    expect(SendGridService.sendConnectionAccepted).toHaveBeenCalledTimes(1);
+    expect(SendGridService.sendConnectionAccepted).toHaveBeenCalledWith(
       "usera@example.com",
-      expect.stringContaining("Connection request accepted by User B"),
-      expect.stringContaining("User B has accepted your connection request")
+      "User A",
+      "User B"
     );
   });
 });
