@@ -1,5 +1,7 @@
 import sgMail from "@sendgrid/mail";
 
+const APP_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
+
 // Sane retry policy for transient errors (429, 5xx, or network timeouts)
 async function retryWithBackoff<T>(
   fn: () => Promise<T>,
@@ -264,7 +266,7 @@ export const SendGridService = {
     requesterName: string
   ): Promise<boolean> {
     const subject = `[TrustLance] New connection request from ${requesterName}`;
-    const text = `Hello ${recipientName},\n\n${requesterName} has sent you a connection request on TrustLance.\n\nView pending requests: http://localhost:3000/connections`;
+    const text = `Hello ${recipientName},\n\n${requesterName} has sent you a connection request on TrustLance.\n\nView pending requests: ${APP_URL}/connections`;
 
     return sendMailHelper("CONNECTION_REQUEST_RECEIVED", to, subject, text);
   },
@@ -275,7 +277,7 @@ export const SendGridService = {
     addresseeName: string
   ): Promise<boolean> {
     const subject = `[TrustLance] Connection request accepted by ${addresseeName}`;
-    const text = `Hello ${recipientName},\n\nGood news! ${addresseeName} has accepted your connection request on TrustLance.\n\nView your connections: http://localhost:3000/connections`;
+    const text = `Hello ${recipientName},\n\nGood news! ${addresseeName} has accepted your connection request on TrustLance.\n\nView your connections: ${APP_URL}/connections`;
 
     return sendMailHelper("CONNECTION_ACCEPTED", to, subject, text);
   },
@@ -300,8 +302,8 @@ export const SendGridService = {
   ): Promise<boolean> {
     const subject = `Welcome to TrustLance, ${recipientName}!`;
     const text = role === "CLIENT"
-      ? `Hello ${recipientName},\n\nWelcome to TrustLance! We are thrilled to have you onboard.\n\nAs a Client, you can now post open projects, review freelancer bids, secure your funds safely in escrow milestone containers, and connect with top-tier talent with institutional-grade security.\n\nGet started by posting your first project: http://localhost:3000/client/projects/new`
-      : `Hello ${recipientName},\n\nWelcome to TrustLance! We are thrilled to have you onboard.\n\nAs a Freelancer, you can now build your professional reputation profile, browse premium client contracts, submit proposals, protect your work via milestone escrow agreements, and build trust-based connections.\n\nGet started by finding work opportunities: http://localhost:3000/projects`;
+      ? `Hello ${recipientName},\n\nWelcome to TrustLance! We are thrilled to have you onboard.\n\nAs a Client, you can now post open projects, review freelancer bids, secure your funds safely in escrow milestone containers, and connect with top-tier talent with institutional-grade security.\n\nGet started by posting your first project: ${APP_URL}/client/projects/new`
+      : `Hello ${recipientName},\n\nWelcome to TrustLance! We are thrilled to have you onboard.\n\nAs a Freelancer, you can now build your professional reputation profile, browse premium client contracts, submit proposals, protect your work via milestone escrow agreements, and build trust-based connections.\n\nGet started by finding work opportunities: ${APP_URL}/projects`;
 
     return sendMailHelper("WELCOME_ONBOARDING", to, subject, text);
   },

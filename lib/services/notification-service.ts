@@ -1,6 +1,8 @@
 import { prisma } from "../prisma";
 import { SendGridService } from "../email/sendgrid";
 
+const APP_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
+
 export type NotificationEvent =
   | "PAYMENT_RECEIVED"
   | "FREELANCER_ASSIGNED"
@@ -60,7 +62,7 @@ export const NotificationService = {
           clientName = project.client?.name || "Client";
           freelancerName = project.freelancer?.name || "Freelancer";
           projectTitle = project.title;
-          projectLink = `http://localhost:3000/projects/${project.id}`;
+          projectLink = `${APP_URL}/projects/${project.id}`;
         } else {
           console.warn(`[Notification WARNING] Project ${projectId} not found.`);
         }
