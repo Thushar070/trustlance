@@ -11,6 +11,7 @@ jest.mock("@/lib/email/sendgrid", () => {
       sendConnectionAccepted: jest.fn().mockResolvedValue(true),
       sendNewProjectFromConnection: jest.fn().mockResolvedValue(true),
       sendFreelancerAssigned: jest.fn().mockResolvedValue(true),
+      sendWelcomeEmail: jest.fn().mockResolvedValue(true),
     },
   };
 });
@@ -161,6 +162,24 @@ describe("New Transactional Notification Triggers & Templates Tests", () => {
       "Freelancer Name",
       "Test Escrow Contract",
       "http://localhost:3000/projects/proj_123"
+    );
+  });
+
+  it("6. WELCOME_ONBOARDING triggers welcome onboarding email with custom user parameters", async () => {
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      id: "user_welcome_1",
+      email: "newuser@example.com",
+      name: "New TrustLance User",
+      role: "CLIENT",
+    });
+
+    await NotificationService.notify("WELCOME_ONBOARDING", { userId: "user_welcome_1" });
+
+    expect(SendGridService.sendWelcomeEmail).toHaveBeenCalledTimes(1);
+    expect(SendGridService.sendWelcomeEmail).toHaveBeenCalledWith(
+      "newuser@example.com",
+      "New TrustLance User",
+      "CLIENT"
     );
   });
 });

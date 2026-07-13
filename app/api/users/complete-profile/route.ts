@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/get-server-session";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
+import { NotificationService } from "@/lib/services/notification-service";
 import {
   completeClientProfileSchema,
   completeFreelancerProfileSchema,
@@ -120,6 +121,11 @@ export async function POST(request: Request) {
     } else {
       await executeUpdate(prisma);
     }
+
+    // Dispatch welcome email asynchronously outside the critical path
+    NotificationService.notify("WELCOME_ONBOARDING", { userId }).catch((err) => {
+      console.warn(`[Notification WARNING] Welcome onboarding email dispatch failed: ${err}`);
+    });
 
     return NextResponse.json({ success: true, message: "Profile completed successfully." });
   } catch (error: unknown) {

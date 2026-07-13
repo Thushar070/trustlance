@@ -14,7 +14,8 @@ export type NotificationEvent =
   | "PROPOSAL_SUBMITTED"
   | "CONNECTION_REQUEST_RECEIVED"
   | "CONNECTION_ACCEPTED"
-  | "NEW_PROJECT_FROM_CONNECTION";
+  | "NEW_PROJECT_FROM_CONNECTION"
+  | "WELCOME_ONBOARDING";
 
 export interface NotificationPayload {
   projectId?: string;
@@ -24,6 +25,7 @@ export interface NotificationPayload {
   notes?: string;
   requesterId?: string;
   addresseeId?: string;
+  userId?: string;
 }
 
 export const NotificationService = {
@@ -33,7 +35,7 @@ export const NotificationService = {
    */
   async notify(event: NotificationEvent, payload: NotificationPayload): Promise<void> {
     try {
-      const { projectId, feedback, reason, resolution, notes, requesterId, addresseeId } = payload;
+      const { projectId, feedback, reason, resolution, notes, requesterId, addresseeId, userId } = payload;
 
       let project = null;
       let clientEmail: string | null = null;
@@ -209,6 +211,18 @@ export const NotificationService = {
               if (partner.email) {
                 await SendGridService.sendNewProjectFromConnection(partner.email, partner.name || "Freelancer", clientName, projectTitle, projectLink);
               }
+            }
+          }
+          break;
+        }
+
+        case "WELCOME_ONBOARDING": {
+          if (userId) {
+            const user = await prisma.user.findUnique({
+              where: { id: userId },
+            });
+            if (user && user.email) {
+              await SendGridService.sendWelcomeEmail(user.email, user.name || "User", user.role || "CLIENT");
             }
           }
           break;

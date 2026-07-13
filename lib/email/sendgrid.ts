@@ -101,11 +101,25 @@ async function sendMailHelper(
     const statusCode = error.response?.statusCode || error.code;
     const responseBody = JSON.stringify(error.response?.body || error.message || error);
     
-    // Log failure with context but exclude sensitive details (e.g. dispute text content/body)
-    console.error(
-      `[SendGrid ERROR] Final delivery failure for trigger "${triggerName}" to recipient: "${to}". ` +
-        `Response status: ${statusCode || "unknown"}. Details: ${responseBody.slice(0, 300)}`
-    );
+    if (statusCode === 403 && responseBody.includes("Sender Identity")) {
+      console.error(
+        `\n[SendGrid CRITICAL CONFIG WARNING]\n` +
+        `========================================================================\n` +
+        `Your SendGrid from address "${fromAddress}" has NOT been verified.\n` +
+        `SendGrid blocks sending emails until this is resolved.\n` +
+        `TO FIX THIS:\n` +
+        `1. Log in to the SendGrid dashboard (https://app.sendgrid.com)\n` +
+        `2. Go to Settings -> Sender Authentication and verify "${fromAddress}".\n` +
+        `3. Or change EMAIL_FROM_ADDRESS in .env to a verified sender identity.\n` +
+        `========================================================================\n`
+      );
+    } else {
+      // Log failure with context but exclude sensitive details (e.g. dispute text content/body)
+      console.error(
+        `[SendGrid ERROR] Final delivery failure for trigger "${triggerName}" to recipient: "${to}". ` +
+          `Response status: ${statusCode || "unknown"}. Details: ${responseBody.slice(0, 300)}`
+      );
+    }
     return false;
   }
 }
@@ -277,6 +291,19 @@ export const SendGridService = {
     const text = `Hello ${recipientName},\n\n${clientName} has posted a new open project: ${projectTitle}.\n\nView details: ${projectLink}`;
 
     return sendMailHelper("NEW_PROJECT_FROM_CONNECTION", to, subject, text);
+  },
+
+  async sendWelcomeEmail(
+    to: string,
+    recipientName: string,
+    role: string
+  ): Promise<boolean> {
+    const subject = `Welcome to TrustLance, ${recipientName}!`;
+    const text = role === "CLIENT"
+      ? `Hello ${recipientName},\n\nWelcome to TrustLance! We are thrilled to have you onboard.\n\nAs a Client, you can now post open projects, review freelancer bids, secure your funds safely in escrow milestone containers, and connect with top-tier talent with institutional-grade security.\n\nGet started by posting your first project: http://localhost:3000/client/projects/new`
+      : `Hello ${recipientName},\n\nWelcome to TrustLance! We are thrilled to have you onboard.\n\nAs a Freelancer, you can now build your professional reputation profile, browse premium client contracts, submit proposals, protect your work via milestone escrow agreements, and build trust-based connections.\n\nGet started by finding work opportunities: http://localhost:3000/projects`;
+
+    return sendMailHelper("WELCOME_ONBOARDING", to, subject, text);
   },
 };
 export default SendGridService;

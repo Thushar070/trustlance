@@ -156,6 +156,40 @@ describe("SendGrid Consolidated Mailer Service Audit Tests", () => {
         })
       );
     });
+
+    it("sendWelcomeEmail client variant format matches", async () => {
+      const result = await SendGridService.sendWelcomeEmail(
+        "client@test.com",
+        "John Client",
+        "CLIENT"
+      );
+
+      expect(result).toBe(true);
+      expect(sgMail.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: "client@test.com",
+          subject: "Welcome to TrustLance, John Client!",
+          text: expect.stringContaining("As a Client, you can now post open projects"),
+        })
+      );
+    });
+
+    it("sendWelcomeEmail freelancer variant format matches", async () => {
+      const result = await SendGridService.sendWelcomeEmail(
+        "free@test.com",
+        "Freelancer User",
+        "FREELANCER"
+      );
+
+      expect(result).toBe(true);
+      expect(sgMail.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: "free@test.com",
+          subject: "Welcome to TrustLance, Freelancer User!",
+          text: expect.stringContaining("As a Freelancer, you can now build your professional reputation profile"),
+        })
+      );
+    });
   });
 
   describe("Part 3: Resilience, Retry & Fail-Safe Mechanics", () => {
@@ -260,6 +294,22 @@ describe("SendGrid Consolidated Mailer Service Audit Tests", () => {
 
       expect(spyInvite).toHaveBeenCalledTimes(1);
       expect(spyInvite).toHaveBeenCalledWith("bob@test.com", "Bob Addressee", "Alice Requester");
+    });
+
+    it("WELCOME_ONBOARDING triggers correct SendGridService calls", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        id: "user_123",
+        email: "onboarding@test.com",
+        name: "New User Name",
+        role: "FREELANCER",
+      });
+
+      const spyWelcome = jest.spyOn(SendGridService, "sendWelcomeEmail").mockResolvedValue(true);
+
+      await NotificationService.notify("WELCOME_ONBOARDING", { userId: "user_123" });
+
+      expect(spyWelcome).toHaveBeenCalledTimes(1);
+      expect(spyWelcome).toHaveBeenCalledWith("onboarding@test.com", "New User Name", "FREELANCER");
     });
   });
 });

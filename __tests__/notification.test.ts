@@ -25,6 +25,7 @@ jest.mock("@/lib/email/sendgrid", () => {
       sendConnectionRequestReceived: jest.fn().mockResolvedValue(true),
       sendConnectionAccepted: jest.fn().mockResolvedValue(true),
       sendNewProjectFromConnection: jest.fn().mockResolvedValue(true),
+      sendWelcomeEmail: jest.fn().mockResolvedValue(true),
     },
   };
 });
