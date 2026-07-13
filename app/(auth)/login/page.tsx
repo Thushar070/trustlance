@@ -3,7 +3,7 @@
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import React, { Suspense } from "react";
-import { Shield, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -17,8 +17,8 @@ function LoginForm() {
   return (
     <div className="flex-grow flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[var(--background)]">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)] flex items-center justify-center shadow-lg mb-6">
-          <Shield className="w-7 h-7 text-white" />
+        <div className="mx-auto w-14 h-14 rounded-2xl shadow-lg mb-6 overflow-hidden">
+          <img src="/logo-mark.png" alt="TrustLance" width={56} height={56} className="w-14 h-14" />
         </div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">
           Welcome to TrustLance

@@ -10,9 +10,10 @@ export async function middleware(request: NextRequest) {
   const isApiAuth = pathname.startsWith("/api/auth");
   const isWebhook = pathname.startsWith("/api/webhooks");
   const isPublicFile = pathname.includes(".") || pathname.startsWith("/_next");
+  const isDevLogin = pathname.startsWith("/api/dev");
 
-  // 1. Exclude static assets, NextAuth routes, and webhooks
-  if (isApiAuth || isPublicFile || isWebhook) {
+  // 1. Exclude static assets, NextAuth routes, dev logins, and webhooks
+  if (isApiAuth || isPublicFile || isWebhook || isDevLogin) {
     return NextResponse.next();
   }
 

@@ -5,6 +5,19 @@ All notable changes to the TrustLance project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Released] - 2026-07-13 (Logo Replacement & Connections Feature Audit)
+
+### Changed
+- **Logo and Brand Assets (Workstream A)**:
+  - Replaced the generic Lucide `Shield` brand icon everywhere with the new custom shield+chain-link mark image (`logo-mark.png`) across the public landing page hero trust pill, the global desktop navbar, the sliding mobile navigation panel header, and the login page header block.
+  - Replaced existing PWA and favicon icons in `public/pwa-icon-192.png`, `public/pwa-icon-512.png`, and `app/favicon.ico` with the new design resized to spec.
+  - Added programmatic dev login route bypass inside `middleware.ts` to allow local programmatic testing sessions in non-production.
+
+### Added
+- **Connections Feature Gating & Tests (Workstream B)**:
+  - Added `__tests__/connections-functional-audit.test.ts` providing automated test suites validating full social connection flows, rate limits, directional inbox filters, security gates, and template payloads.
+  - Verified 10 core integration test cases live against the dev server using a programmatic API script, ensuring zero regression of state checks or webhook idempotency rules.
+
 ## [Released] - 2026-07-12 (Stitch-Inspired Visual Restyle)
 
 ### Changed

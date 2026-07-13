@@ -51,7 +51,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/" className="text-xl font-black text-[var(--brand-primary)] tracking-tight flex items-center gap-2">
-              <Shield className="w-5 h-5 text-[var(--accent)] fill-[var(--accent-light)]" />
+              <img src="/logo-mark.png" alt="TrustLance" width={24} height={24} className="w-6 h-6 rounded" />
               <span>Trust<span className="text-[var(--accent)]">Lance</span></span>
             </Link>
             <div className="hidden sm:flex items-center gap-6">
@@ -82,7 +82,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center relative z-10">
           {/* Trust Badge Pill */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--brand-primary)] dark:text-[var(--accent)] text-xs font-bold uppercase tracking-wider mb-8 shadow-sm">
-            <Shield className="w-3.5 h-3.5 text-[var(--accent)]" />
+            <img src="/logo-mark.png" alt="" width={14} height={14} className="w-3.5 h-3.5 rounded-sm" />
             <span>Institutional-Grade Escrow Network</span>
           </div>
 

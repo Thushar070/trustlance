@@ -162,9 +162,13 @@ export default function Navbar() {
             {/* Left side brand name & logo */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center gap-2 group mr-6 shrink-0">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)] flex items-center justify-center shadow-sm">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
+                <img
+                  src="/logo-mark.png"
+                  alt="TrustLance"
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 rounded-lg shadow-sm"
+                />
                 <span className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
                   Trust<span className="text-[var(--accent)]">Lance</span>
                 </span>
@@ -306,9 +310,13 @@ export default function Navbar() {
           {/* Header Row */}
           <div className="flex items-center justify-between px-6 h-16 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)] flex items-center justify-center">
-                <Shield className="w-4 h-4 text-white" />
-              </div>
+              <img
+                src="/logo-mark.png"
+                alt="TrustLance"
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-lg"
+              />
               <span className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
                 Trust<span className="text-[var(--accent)]">Lance</span>
               </span>
