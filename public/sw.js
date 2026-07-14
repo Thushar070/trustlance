@@ -7,6 +7,12 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  const requestUrl = new URL(event.request.url);
+  // Only handle requests targeting our own origin
+  if (requestUrl.origin !== self.location.origin) {
+    return;
+  }
+
   const url = event.request.url;
   // Bypass Next.js internal development files, HMR, APIs, and chrome extension schemes
   if (
