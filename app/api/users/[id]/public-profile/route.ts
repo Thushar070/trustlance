@@ -96,22 +96,24 @@ export async function GET(
       orderBy: { createdAt: "desc" },
     });
 
-    const reviews = await Promise.all(
-      dbReviews.map(async (r) => {
-        const rater = await prisma.user.findUnique({
-          where: { id: r.raterId },
-          select: { name: true, role: true },
-        });
-        return {
-          id: r.id,
-          score: r.score,
-          comment: r.comment,
-          createdAt: r.createdAt,
-          raterName: rater?.name || "Anonymous User",
-          raterRole: rater?.role || "USER",
-        };
-      })
-    );
+    const raterIds = Array.from(new Set(dbReviews.map((r) => r.raterId)));
+    const raters = await prisma.user.findMany({
+      where: { id: { in: raterIds } },
+      select: { id: true, name: true, role: true },
+    });
+    const ratersMap = new Map(raters.map((u) => [u.id, u]));
+
+    const reviews = dbReviews.map((r) => {
+      const rater = ratersMap.get(r.raterId);
+      return {
+        id: r.id,
+        score: r.score,
+        comment: r.comment,
+        createdAt: r.createdAt,
+        raterName: rater?.name || "Anonymous User",
+        raterRole: rater?.role || "USER",
+      };
+    });
 
     const conn = await ConnectionService.getConnectionStatus(viewerId, profileUserId);
 
