@@ -68,7 +68,18 @@ export class PaymentService {
       });
       order = response as { id: string; amount: number; currency: string };
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
+      let message = "";
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === "object" && err !== null) {
+        try {
+          message = JSON.stringify(err);
+        } catch {
+          message = String(err);
+        }
+      } else {
+        message = String(err);
+      }
       throw new Error(`Razorpay Order Creation Failed: ${message}`);
     }
 
