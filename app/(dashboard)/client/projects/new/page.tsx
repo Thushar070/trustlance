@@ -69,172 +69,162 @@ export default function NewProjectPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn">
-      <div className="card p-6 sm:p-10 relative overflow-hidden">
-        <div className="relative">
-          <div className="flex items-center gap-2 mb-2">
-            <Briefcase className="w-5 h-5 text-[var(--accent)]" />
-            <h1 className="text-xl font-black text-[var(--text-primary)] tracking-tight">Post a New Project</h1>
+    <div className="space-y-8 w-full max-w-4xl mx-auto min-w-0">
+      {/* Context Breadcrumbs */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+          <span className="hover:text-white transition-colors cursor-pointer" onClick={() => router.push("/client/projects")}>Enterprise</span>
+          <span>&gt;</span>
+          <span className="hover:text-white transition-colors cursor-pointer" onClick={() => router.push("/client/projects")}>Projects</span>
+          <span>&gt;</span>
+          <span className="text-zinc-400">Create</span>
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
+          Post a New Project
+        </h1>
+        <p className="text-xs text-zinc-550 font-light">
+          Specify project details, deliverables timeline, and allocate initial budget resources.
+        </p>
+      </div>
+
+      <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-6 sm:p-8 space-y-6">
+        {errorMsg && (
+          <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs text-red-400 flex items-start gap-3 animate-fadeIn">
+            <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+            <p className="font-semibold">{errorMsg}</p>
           </div>
-          <p className="text-sm text-[var(--text-secondary)] mb-8 leading-relaxed">
-            Provide clear details to attract the best freelancers. Escrow funding is required upon assignment.
-          </p>
+        )}
 
-          {errorMsg && (
-            <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
-              <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-[var(--status-negative-text)] font-medium">{errorMsg}</p>
-            </div>
-          )}
+        <form onSubmit={handleSubmit} className="space-y-6 text-left">
+          {/* Project Title */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Project Title</label>
+            <input
+              type="text"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Build a secure escrow payment module for web application"
+              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none"
+            />
+            {errors.title && (
+              <p className="text-[9px] text-red-400 font-semibold mt-1">{errors.title[0]}</p>
+            )}
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Project Title */}
-            <div>
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Title</label>
+          {/* Project Description */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Project Description</label>
+            <textarea
+              required
+              rows={8}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Provide a detailed description of the tasks, project scope, and deliverables..."
+              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none leading-relaxed resize-none"
+            />
+            {errors.description && (
+              <p className="text-[9px] text-red-400 font-semibold mt-1">{errors.description[0]}</p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Project Budget */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Project Budget (INR)</label>
               <input
-                type="text"
+                type="number"
                 required
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Build a secure escrow payment module for web application"
-                className="w-full px-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm transition-all"
+                min="1"
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
+                placeholder="e.g. 50000"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none"
               />
-              {errors.title && (
-                <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{errors.title[0]}</p>
+              {errors.budget && (
+                <p className="text-[9px] text-red-400 font-semibold mt-1">{errors.budget[0]}</p>
               )}
             </div>
 
-            {/* Project Description */}
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Description</label>
-              <textarea
+            {/* Project Deadline */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Project Deadline</label>
+              <input
+                type="date"
                 required
-                rows={6}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Provide a detailed description of the tasks, project scope, and deliverables..."
-                className="w-full px-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm transition-all leading-relaxed"
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-zinc-400 focus:outline-none"
               />
-              {errors.description && (
-                <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{errors.description[0]}</p>
+              {errors.deadline && (
+                <p className="text-[9px] text-red-400 font-semibold mt-1">{errors.deadline[0]}</p>
               )}
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* Project Budget */}
-              <div>
-                <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Budget (INR)</label>
-                <div className="relative rounded-lg shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <IndianRupee className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                  </div>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    value={budget}
-                    onChange={(e) => setBudget(e.target.value)}
-                    placeholder="5000"
-                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm transition-all"
-                  />
-                </div>
-                {errors.budget && (
-                  <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{errors.budget[0]}</p>
-                )}
-              </div>
-
-              {/* Project Deadline */}
-              <div>
-                <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Deadline</label>
-                <div className="relative rounded-lg shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Calendar className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                  </div>
-                  <input
-                    type="date"
-                    required
-                    value={deadline}
-                    onChange={(e) => setDeadline(e.target.value)}
-                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all text-[var(--text-secondary)]"
-                  />
-                </div>
-                {errors.deadline && (
-                  <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{errors.deadline[0]}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Skill Selection */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <button
-                  type="button"
-                  onClick={() => setSkillsOpen(!skillsOpen)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors uppercase tracking-wider cursor-pointer"
-                >
-                  {skillsOpen ? "− Hide skills selection" : "+ Add relevant skills (optional)"}
-                </button>
-                {selectedSkills.length > 0 && (
-                  <span className="text-xs text-[var(--text-muted)] font-medium">
-                    {selectedSkills.length} selected
-                  </span>
-                )}
-              </div>
-              {errors.skills && (
-                <p className="mb-3 text-xs text-[var(--status-negative-text)] font-medium">{errors.skills[0]}</p>
-              )}
-
-              {skillsOpen && (
-                <div className="space-y-4 border border-[var(--border)] rounded-xl p-4 bg-[var(--surface-subtle)] max-h-80 overflow-y-auto mt-2 transition-all">
-                  {SKILL_GROUPS.map((group) => (
-                    <div key={group.category}>
-                      <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">{group.category}</h3>
-                      <div className="flex flex-wrap gap-1.5">
-                        {group.skills.map((skill) => {
-                          const isSelected = selectedSkills.includes(skill);
-                          return (
-                            <button
-                              key={skill}
-                              type="button"
-                              onClick={() => toggleSkill(skill)}
-                              className={`text-[10px] px-2.5 py-1 rounded-md border font-medium cursor-pointer transition-all duration-150 ${
-                                isSelected
-                                  ? "bg-[var(--accent-light)] border-[var(--accent)] text-[var(--accent)] font-bold shadow-sm"
-                                  : "bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)]"
-                              }`}
-                            >
-                              {skill}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-end space-x-3 border-t border-[var(--border-subtle)] pt-6">
+          {/* Skill Selection */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
               <button
                 type="button"
-                onClick={() => router.back()}
-                className="btn-ghost px-4 py-2.5"
+                onClick={() => setSkillsOpen(!skillsOpen)}
+                className="text-[10px] font-bold text-white uppercase tracking-wider hover:underline cursor-pointer"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary px-5 py-2.5 disabled:opacity-50"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                {loading ? "Posting Project..." : "Post Project"}
+                {skillsOpen ? "− Hide skills selection" : "+ Add relevant skills (optional)"}
               </button>
             </div>
-          </form>
-        </div>
+            {errors.skills && (
+              <p className="text-[9px] text-red-400 font-semibold">{errors.skills[0]}</p>
+            )}
+
+            {skillsOpen && (
+              <div className="border border-zinc-800 rounded p-4 bg-zinc-950 max-h-80 overflow-y-auto space-y-4">
+                {SKILL_GROUPS.map((group) => (
+                  <div key={group.category} className="space-y-1.5">
+                    <h3 className="text-[8px] font-bold uppercase tracking-widest text-zinc-550">{group.category}</h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      {group.skills.map((skill) => {
+                        const isSelected = selectedSkills.includes(skill);
+                        return (
+                          <button
+                            key={skill}
+                            type="button"
+                            onClick={() => toggleSkill(skill)}
+                            className={`text-[9px] px-2 py-0.5 rounded transition-colors duration-150 cursor-pointer ${
+                              isSelected
+                                ? "bg-white text-black font-bold border border-white"
+                                : "bg-transparent border border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-400"
+                            }`}
+                          >
+                            {skill}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 border-t border-zinc-900 pt-6">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="border border-zinc-800 hover:border-zinc-750 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {loading ? "Posting Project..." : "Post Project"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

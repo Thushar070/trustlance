@@ -94,99 +94,98 @@ export default function PaymentsHistoryPage() {
   const completedTransactionsCount = payments.filter((p) => p.status === "SUCCESS").length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0 animate-fadeIn">
+    <div className="space-y-8 w-full min-w-0 animate-fadeIn">
       {/* Header Row */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <CreditCard className="w-5 h-5 text-[var(--accent)]" />
-            <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">Payment Ledger</h1>
+          <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
+            <span>Enterprise</span>
+            <span>&gt;</span>
+            <span className="text-zinc-400">Payments Ledger</span>
           </div>
-          <p className="text-xs font-medium text-[var(--text-secondary)] mt-1">
+          <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">Payment Ledger</h1>
+          <p className="text-xs text-zinc-550 font-light mt-1">
             Official bank-statement style ledger of completed or pending project escrow transactions.
           </p>
         </div>
         <button
           onClick={handleExportCSV}
-          className="btn-ghost px-4 py-2.5"
+          className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2.5 rounded transition-colors cursor-pointer"
         >
-          <FileDown className="w-4 h-4 text-[var(--text-secondary)]" />
           Export CSV
         </button>
       </div>
 
       {errorMsg && (
-        <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
-          <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-[var(--status-negative-text)] font-semibold">{errorMsg}</p>
+        <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs text-red-400 flex items-start gap-3 animate-fadeIn">
+          <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+          <p className="font-semibold">{errorMsg}</p>
         </div>
       )}
 
       {/* Metrics Cards Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 stagger-children">
-        <div className="stat-card flex items-center justify-between">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-6 flex items-center justify-between">
           <div>
-            <span className="stat-card-label">
+            <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider block">
               {isClient ? "Available Balance" : "Total Earnings"}
             </span>
-            <span className="stat-card-value block mt-1">
+            <span className="text-2xl font-bold text-white block mt-1 font-mono">
               ₹{totalSuccessAmount.toLocaleString()}
             </span>
-            <span className="text-[10px] font-bold text-emerald-500 block mt-1">✓ Cleared Funds</span>
+            <span className="text-[9px] font-bold text-emerald-400 block mt-1 uppercase">✓ Cleared Funds</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-            {isClient ? <ArrowDownLeft className="w-5 h-5 text-emerald-500" /> : <ArrowUpRight className="w-5 h-5 text-emerald-500" />}
+          <div className="w-10 h-10 rounded border border-emerald-950 bg-emerald-950/20 flex items-center justify-center">
+            {isClient ? <ArrowDownLeft className="w-5 h-5 text-emerald-400" /> : <ArrowUpRight className="w-5 h-5 text-emerald-400" />}
           </div>
         </div>
 
-        <div className="stat-card flex items-center justify-between">
+        <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-6 flex items-center justify-between">
           <div>
-            <span className="stat-card-label">
+            <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider block">
               Pending Release
             </span>
-            <span className="stat-card-value block mt-1">
+            <span className="text-2xl font-bold text-white block mt-1 font-mono">
               ₹{totalPendingAmount.toLocaleString()}
             </span>
-            <span className="text-[10px] font-bold text-amber-500 block mt-1">🕒 Held in Escrow</span>
+            <span className="text-[9px] font-bold text-yellow-400 block mt-1 uppercase">🕒 Held in Escrow</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-            <Clock className="w-5 h-5 text-amber-500" />
+          <div className="w-10 h-10 rounded border border-yellow-905 bg-yellow-950/20 flex items-center justify-center">
+            <Clock className="w-5 h-5 text-yellow-400" />
           </div>
         </div>
 
-        <div className="stat-card flex items-center justify-between">
+        <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-6 flex items-center justify-between">
           <div>
-            <span className="stat-card-label">
+            <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider block">
               Completed Transfers
             </span>
-            <span className="stat-card-value block mt-1">
-              {completedTransactionsCount} <span className="text-xs text-[var(--text-muted)] font-bold">payments</span>
+            <span className="text-2xl font-bold text-white block mt-1 font-mono text-zinc-300">
+              {completedTransactionsCount} <span className="text-xs font-sans text-zinc-550 font-normal">payments</span>
             </span>
-            <span className="text-[10px] font-bold text-[var(--text-muted)] block mt-1">Verified Audit Logs</span>
+            <span className="text-[9px] font-bold text-zinc-500 block mt-1 uppercase">Verified Audit Logs</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[var(--accent-light)] flex items-center justify-center">
-            <CheckCircle2 className="w-5 h-5 text-[var(--accent)]" />
+          <div className="w-10 h-10 rounded border border-zinc-800 bg-zinc-950 flex items-center justify-center">
+            <CheckCircle2 className="w-5 h-5 text-white" />
           </div>
         </div>
       </div>
 
       {sortedPayments.length === 0 ? (
-        <div className="card p-16 text-center">
-          <div className="empty-state">
-            <CreditCard className="empty-state-icon" />
-            <h2 className="empty-state-title">No Ledger Transactions</h2>
-            <p className="empty-state-text">
-              You do not have any payment actions registered yet on TrustLance.
-            </p>
-          </div>
+        <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-16 text-center">
+          <CreditCard className="w-8 h-8 text-zinc-650 mx-auto mb-4" />
+          <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-1">No Ledger Transactions</h2>
+          <p className="text-xs text-zinc-600 font-light max-w-sm mx-auto">
+            You do not have any payment actions registered yet on TrustLance.
+          </p>
         </div>
       ) : (
-        <div className="space-y-6 animate-slideUp">
+        <div className="space-y-6">
           {/* Desktop Table View */}
-          <div className="card shadow-sm overflow-hidden hidden lg:block">
+          <div className="border border-zinc-800 bg-black rounded-lg overflow-hidden hidden lg:block">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-[var(--border-subtle)] text-sm">
-                <thead className="bg-[var(--surface-subtle)] text-[var(--text-muted)] font-bold uppercase tracking-wider text-[10px] text-left">
+              <table className="min-w-full divide-y divide-zinc-900 text-xs">
+                <thead className="bg-zinc-950 text-zinc-550 font-bold uppercase tracking-wider text-[9px] text-left">
                   <tr>
                     <th className="px-6 py-4">Transaction ID</th>
                     <th className="px-6 py-4">Project</th>
@@ -196,48 +195,60 @@ export default function PaymentsHistoryPage() {
                     <th className="px-6 py-4">Date</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--text-secondary)]">
-                  {sortedPayments.map((p) => (
-                    <tr key={p.id} className="hover:bg-[var(--surface-subtle)]/50 transition-colors font-medium">
-                      <td className="px-6 py-4 font-mono text-xs text-[var(--text-secondary)]">
-                        {p.id}
-                      </td>
-                      <td className="px-6 py-4 font-bold text-[var(--text-primary)]">
-                        <Link href={`/projects/${p.projectId}`} className="hover:text-[var(--accent)] transition-colors inline-flex items-center gap-1">
-                          {p.projectTitle}
-                          <ArrowRight className="w-3.5 h-3.5 text-[var(--accent)]" />
-                        </Link>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold ${
-                          isClient 
-                            ? "bg-red-500/10 text-red-500 border border-red-500/20" 
-                            : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
-                        }`}>
-                          {isClient ? "DEBIT" : "CREDIT"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 font-bold text-right text-[var(--text-primary)]">
-                        <span className={isClient ? "text-red-500" : "text-emerald-500"}>
-                          {isClient ? "-" : "+"} ₹{p.amount.toLocaleString()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${getStatusBadgeClass(p.status)}`}>
-                          {p.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-[var(--text-muted)] font-semibold text-xs">
-                        {new Date(p.createdAt).toLocaleDateString(undefined, {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </td>
-                    </tr>
-                  ))}
+                <tbody className="divide-y divide-zinc-900 text-zinc-400">
+                  {sortedPayments.map((p) => {
+                    const isSuccess = p.status === "SUCCESS";
+                    const isPending = p.status === "PENDING";
+                    const isFailed = p.status === "FAILED";
+
+                    return (
+                      <tr key={p.id} className="hover:bg-zinc-900/30 transition-colors font-medium">
+                        <td className="px-6 py-4 font-mono text-[10px] text-zinc-550">
+                          {p.id}
+                        </td>
+                        <td className="px-6 py-4 font-bold text-white">
+                          <Link href={`/projects/${p.projectId}`} className="hover:underline inline-flex items-center gap-1">
+                            {p.projectTitle}
+                            <ArrowRight className="w-3 h-3 text-zinc-550" />
+                          </Link>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[8px] font-bold border ${
+                            isClient 
+                              ? "bg-red-950/20 text-red-400 border-red-900/50" 
+                              : "bg-emerald-950/20 text-emerald-400 border-emerald-900/50"
+                          }`}>
+                            {isClient ? "DEBIT" : "CREDIT"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 font-bold text-right font-mono">
+                          <span className={isClient ? "text-red-400" : "text-emerald-400"}>
+                            {isClient ? "-" : "+"} ₹{p.amount.toLocaleString()}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider border ${
+                            isSuccess 
+                              ? "bg-emerald-950/20 text-emerald-400 border-emerald-900/50"
+                              : isPending
+                              ? "bg-yellow-950/20 text-yellow-400 border-yellow-900/50"
+                              : "bg-red-950/20 text-red-400 border-red-900/50"
+                          }`}>
+                            {p.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-zinc-500 font-mono text-[10px]">
+                          {new Date(p.createdAt).toLocaleDateString(undefined, {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -245,52 +256,63 @@ export default function PaymentsHistoryPage() {
 
           {/* Mobile / Tablet Card View */}
           <div className="block lg:hidden space-y-4">
-            {sortedPayments.map((p) => (
-              <div
-                key={p.id}
-                className="card p-5 space-y-3 hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)] transition-all duration-200"
-              >
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-mono text-[var(--text-muted)]">
-                    {p.id}
-                  </span>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider ${getStatusBadgeClass(p.status)}`}>
-                    {p.status}
-                  </span>
-                </div>
+            {sortedPayments.map((p) => {
+              const isSuccess = p.status === "SUCCESS";
+              const isPending = p.status === "PENDING";
 
-                <div className="pt-1">
-                  <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-0.5">
-                    Project
-                  </div>
-                  <Link
-                    href={`/projects/${p.projectId}`}
-                    className="text-xs font-bold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors line-clamp-2"
-                  >
-                    {p.projectTitle}
-                  </Link>
-                </div>
-
-                <div className="pt-2 border-t border-[var(--border-subtle)] flex justify-between items-center">
-                  <div>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)] block mb-0.5">Type</span>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold ${
-                      isClient 
-                        ? "bg-red-500/10 text-red-500 border border-red-500/20" 
-                        : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+              return (
+                <div
+                  key={p.id}
+                  className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-5 space-y-3"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-mono text-zinc-550">
+                      {p.id}
+                    </span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider border ${
+                      isSuccess 
+                        ? "bg-emerald-950/20 text-emerald-400 border-emerald-900/50"
+                        : isPending
+                        ? "bg-yellow-950/20 text-yellow-400 border-yellow-900/50"
+                        : "bg-red-950/20 text-red-400 border-red-900/50"
                     }`}>
-                      {isClient ? "DEBIT" : "CREDIT"}
+                      {p.status}
                     </span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)] block mb-0.5">Signed Amount</span>
-                    <span className={`text-xs font-black ${isClient ? "text-red-500" : "text-emerald-500"}`}>
-                      {isClient ? "-" : "+"} ₹{p.amount.toLocaleString()}
-                    </span>
+
+                  <div className="space-y-1">
+                    <div className="text-[8px] font-bold uppercase tracking-wider text-zinc-500">
+                      Project
+                    </div>
+                    <Link
+                      href={`/projects/${p.projectId}`}
+                      className="text-xs font-bold text-white hover:underline line-clamp-2"
+                    >
+                      {p.projectTitle}
+                    </Link>
+                  </div>
+
+                  <div className="pt-2 border-t border-zinc-900 flex justify-between items-center">
+                    <div>
+                      <span className="text-[8px] font-bold uppercase tracking-wider text-zinc-500 block">Type</span>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[8px] font-bold border ${
+                        isClient 
+                          ? "bg-red-950/20 text-red-400 border-red-900/50" 
+                          : "bg-emerald-950/20 text-emerald-400 border-emerald-900/50"
+                      }`}>
+                        {isClient ? "DEBIT" : "CREDIT"}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[8px] font-bold uppercase tracking-wider text-zinc-500 block">Signed Amount</span>
+                      <span className={`text-xs font-bold font-mono ${isClient ? "text-red-400" : "text-emerald-400"}`}>
+                        {isClient ? "-" : "+"} ₹{p.amount.toLocaleString()}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

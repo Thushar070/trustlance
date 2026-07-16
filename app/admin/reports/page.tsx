@@ -82,80 +82,79 @@ export default function AdminReportsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0 animate-fadeIn">
+    <div className="space-y-8 w-full min-w-0 animate-fadeIn text-left text-zinc-300">
       
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight mb-1 flex items-center gap-2">
-          <ShieldAlert className="w-6.5 h-6.5 text-[var(--status-negative-text)]" />
-          Profile Flag Reports
-        </h1>
-        <p className="text-sm text-[var(--text-secondary)] font-medium">
+      <div>
+        <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
+          <span>Platform</span>
+          <span>&gt;</span>
+          <span className="text-zinc-400 font-bold">Flag Reports Log</span>
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">Profile Flag Reports</h1>
+        <p className="text-xs text-zinc-550 font-light mt-1">
           Audit flagged user accounts and review reasons submitted by other marketplace participants.
         </p>
       </div>
 
       {errorMsg && (
-        <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
-          <AlertTriangle className="w-4.5 h-4.5 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-[var(--status-negative-text)] font-semibold">{errorMsg}</p>
+        <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs text-red-400">
+          <p className="font-semibold">{errorMsg}</p>
         </div>
       )}
 
       {reports.length === 0 ? (
-        <div className="card p-16 text-center">
-          <div className="empty-state">
-            <Info className="empty-state-icon" />
-            <h3 className="empty-state-title">No Profile Reports</h3>
-            <p className="empty-state-text">
-              Excellent! There are no flagged user profile reports currently pending administrator review.
-            </p>
-          </div>
+        <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-16 text-center">
+          <Info className="w-8 h-8 text-zinc-650 mx-auto mb-4" />
+          <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-1">No Profile Reports</h3>
+          <p className="text-xs text-zinc-600 font-light max-w-sm mx-auto">
+            Excellent! There are no flagged user profile reports currently pending administrator review.
+          </p>
         </div>
       ) : (
         <div className="space-y-4">
           {reports.map((report) => (
             <div
               key={report.id}
-              className="card p-5 space-y-4 hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)] transition-all duration-200 animate-slideUp"
+              className="border border-zinc-850 bg-black rounded-lg p-5 space-y-4 text-left"
             >
               {/* Conflict Parties info */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--surface-subtle)] p-4 rounded-xl border border-[var(--border-subtle)]">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-950 p-4 rounded border border-zinc-900">
                 <div className="flex flex-wrap items-center gap-3">
                   <div>
-                    <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">
+                    <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest block mb-0.5">
                       Reporter
                     </span>
                     <Link
                       href={`/profiles/${report.reporterId}`}
-                      className="text-xs font-bold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors flex items-center gap-1"
+                      className="text-xs font-bold text-white hover:underline flex items-center gap-1.5"
                     >
                       {report.reporterName}
-                      <span className="px-1.5 py-0.2 rounded border bg-[var(--border-subtle)] text-[9px] uppercase font-bold text-[var(--text-secondary)]">
+                      <span className="px-1.5 py-0.2 rounded border border-zinc-800 bg-zinc-950 text-[8px] uppercase font-bold text-zinc-400">
                         {report.reporterRole}
                       </span>
                     </Link>
                   </div>
 
-                  <span className="text-xs font-semibold text-[var(--text-muted)] mt-4 sm:mt-0">➔ Flagged User:</span>
+                  <span className="text-[10px] font-bold text-zinc-550 mt-4 sm:mt-0 font-mono">➔</span>
 
                   <div>
-                    <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">
+                    <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest block mb-0.5">
                       Reported Profile
                     </span>
                     <Link
                       href={`/profiles/${report.reportedUserId}`}
-                      className="text-xs font-bold text-[var(--text-primary)] hover:underline transition-colors flex items-center gap-1"
+                      className="text-xs font-bold text-white hover:underline flex items-center gap-1.5"
                     >
                       {report.reportedName}
-                      <span className="px-1.5 py-0.2 rounded border bg-[var(--border-subtle)] text-[9px] uppercase font-bold text-[var(--text-secondary)]">
+                      <span className="px-1.5 py-0.2 rounded border border-zinc-800 bg-zinc-950 text-[8px] uppercase font-bold text-zinc-400">
                         {report.reportedRole}
                       </span>
                     </Link>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] font-medium shrink-0 self-end sm:self-auto">
+                <div className="flex items-center gap-1.5 text-[9px] text-zinc-500 font-mono shrink-0 self-end sm:self-auto">
                   <Calendar className="w-3.5 h-3.5" />
                   <span>{new Date(report.createdAt).toLocaleString()}</span>
                 </div>
@@ -163,11 +162,11 @@ export default function AdminReportsPage() {
 
               {/* Reported details */}
               <div className="space-y-1.5">
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                <h4 className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                   Reason for Flag
                 </h4>
-                <div className="bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl p-4 text-xs text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap select-text">
-                  {report.reason}
+                <div className="bg-zinc-950 border border-zinc-900 rounded p-4 text-xs text-zinc-300 leading-relaxed font-light whitespace-pre-wrap select-text italic">
+                  "{report.reason}"
                 </div>
               </div>
 
@@ -175,10 +174,10 @@ export default function AdminReportsPage() {
               <div className="flex justify-end gap-3 pt-2">
                 <Link
                   href={`/profiles/${report.reportedUserId}`}
-                  className="btn-ghost px-3 py-1.5 hover:bg-[var(--accent)] hover:text-white hover:border-transparent transition-all"
+                  className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-white font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded transition-colors inline-flex items-center justify-center gap-1"
                 >
                   Inspect Flagged Profile
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <ExternalLink className="w-3 h-3 text-zinc-400" />
                 </Link>
               </div>
             </div>

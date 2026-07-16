@@ -104,47 +104,49 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0 animate-fadeIn">
-      <div className="mb-8">
-        <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight mb-1 flex items-center gap-2">
-          <Search className="w-6 h-6 text-[var(--accent)]" />
+    <div className="space-y-8 w-full min-w-0 animate-fadeIn">
+      <div>
+        <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
+          <span>Enterprise</span>
+          <span>&gt;</span>
+          <span className="text-zinc-400 font-bold">Marketplace Search</span>
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
           Search {isClient ? "Freelancers" : "Clients"}
         </h1>
-        <p className="text-sm text-[var(--text-secondary)] font-medium">
+        <p className="text-xs text-zinc-550 font-light mt-1">
           Discover verified talent and marketplace participants across TrustLance.
         </p>
       </div>
 
       {/* Filter Toolbar Card */}
-      <form onSubmit={handleSearch} className="card p-5 mb-8 space-y-4">
-        <div className="flex items-center gap-2 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">
-          <SlidersHorizontal className="w-4 h-4 text-[var(--accent)]" />
-          Search Filters
+      <form onSubmit={handleSearch} className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-6 space-y-4">
+        <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+          <SlidersHorizontal className="w-3.5 h-3.5" />
+          Search Filter Configuration
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
           {/* Main search query */}
           <div className={`${isClient ? "md:col-span-5" : "md:col-span-8"} relative`}>
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
             <input
               type="text"
               placeholder="Search by name, business name, or bio..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 text-sm border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
+              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none"
             />
           </div>
 
-          {/* Skill query (Only displayed when Client searches Freelancer) */}
+          {/* Skill query */}
           {isClient && (
             <div className="md:col-span-4 relative">
-              <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
               <input
                 type="text"
                 placeholder="Filter by skill tag..."
                 value={skill}
                 onChange={(e) => setSkill(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none"
               />
             </div>
           )}
@@ -154,7 +156,7 @@ export default function SearchPage() {
             <select
               value={minRating}
               onChange={(e) => setMinRating(e.target.value)}
-              className="w-full px-3 py-2.5 text-sm border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] transition-all bg-[var(--input-bg)] text-[var(--text-primary)] cursor-pointer"
+              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-zinc-400 focus:outline-none cursor-pointer"
             >
               <option value="0">Any Star Rating</option>
               <option value="4">4.0 Stars & Above</option>
@@ -172,13 +174,13 @@ export default function SearchPage() {
               setSkill("");
               setMinRating("0");
             }}
-            className="btn-ghost px-4 py-2.5"
+            className="border border-zinc-800 hover:border-zinc-750 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors cursor-pointer"
           >
             Clear All
           </button>
           <button
             type="submit"
-            className="btn-primary px-5 py-2.5"
+            className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors cursor-pointer"
           >
             Search Directory
           </button>
@@ -186,25 +188,23 @@ export default function SearchPage() {
       </form>
 
       {errorMsg && (
-        <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
-          <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-[var(--status-negative-text)] font-semibold">{errorMsg}</p>
+        <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs text-red-400 flex items-start gap-3 animate-fadeIn">
+          <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+          <p className="font-semibold">{errorMsg}</p>
         </div>
       )}
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
+          <div className="w-6 h-6 rounded-full border-2 border-zinc-800 border-t-white animate-spin" />
         </div>
       ) : results.length === 0 ? (
-        <div className="card p-16 text-center">
-          <div className="empty-state">
-            <Search className="empty-state-icon" />
-            <h3 className="empty-state-title">No Matches Found</h3>
-            <p className="empty-state-text">
-              Try adjusting your keywords, selecting different rating limits, or expanding the skill search query.
-            </p>
-          </div>
+        <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-16 text-center">
+          <Search className="w-8 h-8 text-zinc-650 mx-auto mb-4" />
+          <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-1">No Matches Found</h3>
+          <p className="text-xs text-zinc-600 font-light max-w-sm mx-auto">
+            Try adjusting your keywords, selecting different rating limits, or expanding the skill search query.
+          </p>
         </div>
       ) : (() => {
         const sortedResults = [...results].sort((a, b) => {
@@ -220,16 +220,16 @@ export default function SearchPage() {
 
         return (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-[var(--border-subtle)] pb-4">
-              <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-zinc-900 pb-4">
+              <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
                 Search Results ({sortedResults.length})
               </div>
               <div className="flex items-center gap-2 self-end sm:self-auto">
-                <span className="text-xs font-semibold text-[var(--text-muted)]">Sort By:</span>
+                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Sort By:</span>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as "rating" | "activity")}
-                  className="px-3 py-1.5 text-xs border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] transition-all bg-[var(--surface)] text-[var(--text-primary)] cursor-pointer font-bold uppercase tracking-wider"
+                  className="px-3 py-1.5 text-[9px] bg-black border border-zinc-800 rounded focus:outline-none text-zinc-400 cursor-pointer font-bold uppercase tracking-widest"
                 >
                   <option value="rating">Highest Rating</option>
                   <option value="activity">Recent Activity</option>
@@ -239,94 +239,93 @@ export default function SearchPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedResults.map((user) => (
-            <div
-              key={user.id}
-              className="card p-5 hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)] transition-all flex flex-col justify-between group"
-            >
-              <div>
-                {/* Header: name & rating */}
-                <div className="flex justify-between items-start gap-3 mb-3">
-                  <div className="min-w-0">
-                    <h3 className="text-base font-bold text-[var(--text-primary)] truncate group-hover:text-[var(--accent)] transition-colors">
-                      {user.name}
-                    </h3>
-                    {user.businessName && (
-                      <p className="text-xs text-[var(--text-secondary)] font-medium truncate mt-0.5">
-                        {user.businessName}
+                <div
+                  key={user.id}
+                  className="border border-zinc-850 bg-black rounded-lg p-5 flex flex-col justify-between"
+                >
+                  <div>
+                    {/* Header: name & rating */}
+                    <div className="flex justify-between items-start gap-3 mb-3">
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-bold text-white truncate hover:underline cursor-pointer">
+                          {user.name}
+                        </h3>
+                        {user.businessName && (
+                          <p className="text-[11px] text-zinc-450 font-medium truncate mt-0.5">
+                            {user.businessName}
+                          </p>
+                        )}
+                      </div>
+                      <span className="px-2 py-0.5 rounded text-[8px] font-bold border uppercase bg-zinc-950 text-zinc-450 border-zinc-800 shrink-0">
+                        {user.role}
+                      </span>
+                    </div>
+
+                    {/* Rating & Projects Row */}
+                    <div className="flex items-center gap-4 text-[10px] font-mono text-zinc-400 mb-4 bg-zinc-950 p-2 rounded border border-zinc-900">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400 shrink-0" />
+                        <span className="text-white font-bold">{user.averageRating.toFixed(1)}</span>
+                      </div>
+                      <div className="w-px h-3 bg-zinc-900" />
+                      <div className="flex items-center gap-1">
+                        <Award className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                        <span>{user.completedProjectCount} projects</span>
+                      </div>
+                    </div>
+
+                    {/* Bio Snippet */}
+                    {user.bio ? (
+                      <p className="text-xs text-zinc-400 line-clamp-3 mb-4 leading-relaxed font-light">
+                        {user.bio}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-zinc-650 italic mb-4 leading-relaxed font-light">
+                        No bio summary provided by this user.
                       </p>
                     )}
-                  </div>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border bg-[var(--accent-light)] text-[var(--accent)] border-[var(--border)] uppercase shrink-0">
-                    {user.role}
-                  </span>
-                </div>
 
-                {/* Rating & Projects Row */}
-                <div className="flex items-center gap-4 text-xs font-semibold text-[var(--text-secondary)] mb-4 bg-[var(--surface-subtle)] p-2 rounded-xl border border-[var(--border-subtle)]">
-                  <div className="flex items-center gap-1">
-                    <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
-                    <span className="text-[var(--text-primary)] font-bold">{user.averageRating}</span>
-                  </div>
-                  <div className="w-px h-3 bg-[var(--border)]" />
-                  <div className="flex items-center gap-1">
-                    <Award className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
-                    <span className="font-medium">{user.completedProjectCount} projects</span>
-                  </div>
-                </div>
-
-                {/* Bio Snippet */}
-                {user.bio ? (
-                  <p className="text-xs text-[var(--text-secondary)] line-clamp-3 mb-4 leading-relaxed">
-                    {user.bio}
-                  </p>
-                ) : (
-                  <p className="text-xs text-[var(--text-muted)] italic mb-4 leading-relaxed">
-                    No bio summary provided by this user.
-                  </p>
-                )}
-
-                {/* Location */}
-                {user.location && (
-                  <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] mb-4">
-                    <MapPin className="w-3.5 h-3.5 shrink-0" />
-                    <span>{user.location}</span>
-                  </div>
-                )}
-              </div>
-
-              <div>
-                {/* Skills tags */}
-                {user.skills.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mb-5 border-t border-[var(--border-subtle)] pt-4">
-                    {user.skills.slice(0, 3).map((s) => (
-                      <span
-                        key={s}
-                        className="px-2 py-0.5 bg-[var(--surface-subtle)] border border-[var(--border)] rounded text-[10px] font-bold text-[var(--text-secondary)]"
-                      >
-                        {s}
-                      </span>
-                    ))}
-                    {user.skills.length > 3 && (
-                      <span className="px-2 py-0.5 text-[10px] font-semibold text-[var(--text-muted)]">
-                        +{user.skills.length - 3} more
-                      </span>
+                    {user.location && (
+                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-550 mb-4 font-mono">
+                        <MapPin className="w-3 h-3 shrink-0" />
+                        <span>{user.location}</span>
+                      </div>
                     )}
                   </div>
-                )}
 
-                <Link
-                  href={`/profiles/${user.id}`}
-                  className="btn-ghost w-full py-2 justify-center hover:bg-[var(--accent)] hover:text-white hover:border-[var(--accent)] transition-all"
-                >
-                  View Public Profile
-                </Link>
-              </div>
+                  <div className="space-y-4">
+                    {/* Skills tags */}
+                    {user.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 border-t border-zinc-900 pt-4">
+                        {user.skills.slice(0, 3).map((s) => (
+                          <span
+                            key={s}
+                            className="px-2 py-0.5 bg-zinc-950 border border-zinc-900 rounded text-[9px] font-mono text-zinc-400"
+                          >
+                            {s}
+                          </span>
+                        ))}
+                        {user.skills.length > 3 && (
+                          <span className="text-[9px] font-mono text-zinc-550 py-0.5">
+                            +{user.skills.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    <Link
+                      href={`/profiles/${user.id}`}
+                      className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-white font-bold text-[10px] uppercase tracking-widest py-2 rounded transition-colors text-center block w-full"
+                    >
+                      View Public Profile
+                    </Link>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
-    );
-  })()}
+          </div>
+        );
+      })()}
     </div>
   );
 }

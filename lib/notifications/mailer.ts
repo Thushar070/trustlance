@@ -19,11 +19,13 @@ const getTransporter = () => {
 
 export const Mailer = {
   /**
-   * Sends a plain-text transactional email using Nodemailer with Gmail SMTP.
+   * Sends a transactional email using Nodemailer with SMTP.
    * Encapsulates errors to prevent failures from blocking parent transactions.
    */
-  async sendEmail(to: string | string[], subject: string, body: string): Promise<boolean> {
-    const from = "TrustLance <trustlance.noreply@gmail.com>";
+  async sendEmail(to: string | string[], subject: string, body: string, html?: string): Promise<boolean> {
+    const fromAddress = process.env.EMAIL_FROM_ADDRESS || "trustlance.noreply@gmail.com";
+    const fromName = process.env.EMAIL_FROM_NAME || "TrustLance";
+    const from = `${fromName} <${fromAddress}>`;
     const recipients = Array.isArray(to) ? to : [to];
 
     try {
@@ -44,6 +46,7 @@ export const Mailer = {
         to: recipients,
         subject,
         text: body,
+        ...(html ? { html } : {}),
       });
 
       return true;

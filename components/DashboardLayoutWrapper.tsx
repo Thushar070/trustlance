@@ -129,23 +129,23 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
     const isActive = exact ? pathname === href : pathname?.startsWith(href);
     return `flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors duration-150 ${
       isActive
-        ? "bg-zinc-800 text-white"
-        : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
+        ? "bg-zinc-100 dark:bg-zinc-800 text-black dark:text-white"
+        : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-black dark:hover:text-white"
     }`;
   };
 
   return (
     <div className="flex-grow flex flex-col lg:flex-row min-h-screen bg-[var(--background)]">
       {/* 1. Desktop Sidebar */}
-      <aside className="w-64 border-r border-zinc-800 bg-black text-white hidden lg:flex flex-col justify-between fixed top-0 bottom-0 left-0 z-30">
+      <aside className="w-64 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black text-black dark:text-white hidden lg:flex flex-col justify-between fixed top-0 bottom-0 left-0 z-30">
         <div>
           {/* Logo / Brand Header */}
-          <div className="p-6 border-b border-zinc-900 flex items-center justify-between">
+          <div className="p-6 border-b border-zinc-100 dark:border-zinc-900 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 group">
               <img src="/logo-mark.png" alt="TrustLance" className="w-6 h-6 rounded" />
               <div className="flex flex-col text-left">
-                <span className="text-sm font-bold tracking-tight text-white leading-tight">TrustLance</span>
-                <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest leading-tight">Escrow Division</span>
+                <span className="text-sm font-bold tracking-tight text-black dark:text-white leading-tight">TrustLance</span>
+                <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest leading-tight">Escrow Division</span>
               </div>
             </Link>
           </div>
@@ -154,7 +154,7 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
           <nav className="p-4 space-y-1.5">
             {links.map((link) => (
               <Link key={link.href} href={link.href} className={getLinkClass(link.href, link.exact)}>
-                <link.icon className="w-4 h-4 shrink-0" />
+                <link.icon className="w-4 h-4 shrink-0 text-zinc-500 dark:text-zinc-400" />
                 <span>{link.label}</span>
               </Link>
             ))}
@@ -162,7 +162,7 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
         </div>
 
         {/* User profile dropdown & theme toggle at bottom */}
-        <div className="p-4 border-t border-zinc-900 space-y-3 bg-[#050505]">
+        <div className="p-4 border-t border-zinc-100 dark:border-zinc-900 space-y-3 bg-zinc-50 dark:bg-[#050505]">
           <div className="flex items-center justify-between px-2">
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Theme Mode</span>
             <ThemeToggle />
@@ -171,14 +171,14 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
           <div className="relative pt-2" ref={userMenuRef}>
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-900 transition-colors text-left focus:outline-none cursor-pointer"
+              className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors text-left focus:outline-none cursor-pointer"
             >
-              <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center font-black text-sm text-white">
+              <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center font-black text-sm text-black dark:text-white">
                 {session.user.name?.[0]?.toUpperCase() || "U"}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-bold text-white truncate leading-tight">{session.user.name}</div>
-                <div className="text-[9px] text-zinc-500 truncate leading-tight uppercase font-bold tracking-wider mt-0.5">
+                <div className="text-xs font-bold text-black dark:text-white truncate leading-tight">{session.user.name}</div>
+                <div className="text-[9px] text-zinc-555 truncate leading-tight uppercase font-bold tracking-wider mt-0.5">
                   {session.user.role}
                 </div>
               </div>
@@ -186,20 +186,20 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
             </button>
 
             {userMenuOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 rounded-xl bg-zinc-950 border border-zinc-800 shadow-2xl py-1.5 z-50">
+              <div className="absolute bottom-full left-0 right-0 mb-2 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-2xl py-1.5 z-50">
                 <Link
                   href="/profile"
                   onClick={() => setUserMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-300 hover:bg-zinc-900 hover:text-white transition-colors"
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-black dark:hover:text-white transition-colors"
                 >
-                  <User className="w-4 h-4 shrink-0 text-zinc-500" />
+                  <User className="w-4 h-4 shrink-0 text-zinc-400" />
                   <span>Profile Settings</span>
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-left text-zinc-300 hover:bg-zinc-900 hover:text-red-400 transition-colors border-t border-zinc-900 mt-1 pt-2 cursor-pointer"
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-left text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-red-650 dark:hover:text-red-400 transition-colors border-t border-zinc-100 dark:border-zinc-900 mt-1 pt-2 cursor-pointer"
                 >
-                  <LogOut className="w-4 h-4 shrink-0 text-zinc-500" />
+                  <LogOut className="w-4 h-4 shrink-0 text-zinc-400" />
                   <span>Sign Out</span>
                 </button>
               </div>
@@ -210,7 +210,7 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
 
       {/* 2. Mobile / Tablet Header Navigation */}
       <header className="lg:hidden w-full h-16 border-b border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] flex items-center justify-between px-6 sticky top-0 z-40">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 text-[var(--text-primary)]">
           <img src="/logo-mark.png" alt="TrustLance" className="w-6 h-6 rounded" />
           <span className="text-sm font-bold tracking-tight">TrustLance</span>
         </Link>
@@ -229,16 +229,16 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
 
       {/* Mobile Drawer Slide-over */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex flex-col bg-black text-white animate-in slide-in-from-right duration-200">
-          <div className="flex items-center justify-between px-6 h-16 border-b border-zinc-900">
-            <Link href="/" className="flex items-center gap-2">
+        <div className="fixed inset-0 z-50 lg:hidden flex flex-col bg-white dark:bg-black text-black dark:text-white animate-in slide-in-from-right duration-200">
+          <div className="flex items-center justify-between px-6 h-16 border-b border-zinc-200 dark:border-zinc-900">
+            <Link href="/" className="flex items-center gap-2 text-black dark:text-white">
               <img src="/logo-mark.png" alt="TrustLance" className="w-6 h-6 rounded" />
-              <span className="text-sm font-bold tracking-tight text-white">TrustLance</span>
+              <span className="text-sm font-bold tracking-tight">TrustLance</span>
             </Link>
             <button
               onClick={() => setMobileMenuOpen(false)}
               aria-label="Close menu"
-              className="p-2 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white cursor-pointer"
+              className="p-2 rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-black dark:hover:text-white cursor-pointer"
             >
               <X className="w-6 h-6" />
             </button>
@@ -251,22 +251,22 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider text-zinc-300 hover:bg-zinc-900 hover:text-white transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-black dark:hover:text-white transition-colors"
               >
-                <link.icon className="w-5 h-5 shrink-0" />
+                <link.icon className="w-5 h-5 shrink-0 text-zinc-400" />
                 <span>{link.label}</span>
               </Link>
             ))}
           </nav>
 
           {/* Mobile Footer */}
-          <div className="p-6 border-t border-zinc-900 bg-zinc-950">
+          <div className="p-6 border-t border-zinc-200 dark:border-zinc-900 bg-zinc-50 dark:bg-zinc-950">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-black text-base text-white">
+              <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center font-black text-base text-black dark:text-white">
                 {session.user.name?.[0]?.toUpperCase() || "U"}
               </div>
               <div>
-                <div className="text-sm font-bold text-white leading-tight">{session.user.name}</div>
+                <div className="text-sm font-bold text-black dark:text-white leading-tight">{session.user.name}</div>
                 <div className="text-[10px] text-zinc-500 mt-0.5 leading-tight uppercase font-bold tracking-wider">{session.user.role}</div>
               </div>
             </div>
@@ -274,7 +274,7 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
               <Link
                 href="/profile"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-lg text-zinc-300 bg-zinc-900 border border-zinc-800 hover:bg-zinc-850 hover:text-white transition-colors text-center"
+                className="flex items-center justify-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-lg text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-850 hover:text-black dark:hover:text-white transition-colors text-center"
               >
                 <User className="w-4 h-4 shrink-0" />
                 <span>Profile</span>
@@ -284,7 +284,7 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
                   setMobileMenuOpen(false);
                   handleSignOut();
                 }}
-                className="flex items-center justify-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-lg text-black bg-white hover:bg-zinc-200 transition-colors cursor-pointer text-center"
+                className="flex items-center justify-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider rounded-lg text-white dark:text-black bg-black dark:bg-white hover:bg-zinc-900 dark:hover:bg-zinc-200 transition-colors cursor-pointer text-center"
               >
                 <LogOut className="w-4 h-4 shrink-0" />
                 <span>Sign Out</span>

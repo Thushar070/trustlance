@@ -102,147 +102,124 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn">
-      <div className="card p-6 sm:p-10 relative overflow-hidden">
-        <div className="relative">
-          <div className="flex items-center gap-2 mb-2">
-            <User className="w-5 h-5 text-[var(--accent)]" />
-            <h1 className="text-xl font-black text-[var(--text-primary)] tracking-tight">Your Profile Settings</h1>
+    <div className="space-y-8 w-full max-w-4xl mx-auto min-w-0 animate-fadeIn">
+      {/* Context breadcrumbs */}
+      <div>
+        <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
+          <span>Enterprise</span>
+          <span>&gt;</span>
+          <span className="text-zinc-400 font-bold">Profile Settings</span>
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">Profile Settings</h1>
+        <p className="text-xs text-zinc-550 font-light mt-1">
+          Update your personal contact details, location, and business attributes.
+        </p>
+      </div>
+
+      <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-6 sm:p-8 space-y-6">
+        {successMsg && (
+          <div className="bg-emerald-950/20 border border-emerald-900/50 p-4 rounded text-xs text-emerald-400 flex items-start gap-3 animate-fadeIn">
+            <CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+            <p className="font-semibold">{successMsg}</p>
           </div>
-          <p className="text-sm text-[var(--text-secondary)] mb-8 leading-relaxed font-medium">
-            Update your personal contact details, location, and business attributes.
-          </p>
+        )}
 
-          {successMsg && (
-            <div className="mb-6 bg-[var(--status-success-bg)] border border-[var(--status-success-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
-              <CheckCircle className="w-4 h-4 text-[var(--status-success-text)] mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-[var(--status-success-text)] font-semibold">{successMsg}</p>
-            </div>
-          )}
+        {errorMsg && (
+          <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs text-red-400 flex items-start gap-3 animate-fadeIn">
+            <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+            <p className="font-semibold">{errorMsg}</p>
+          </div>
+        )}
 
-          {errorMsg && (
-            <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
-              <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-[var(--status-negative-text)] font-semibold">{errorMsg}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* Full Name */}
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Display Name</label>
-                <div className="relative rounded-lg shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                  </div>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Jane Doe"
-                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm transition-all"
-                  />
-                </div>
-                {validationErrors.name && (
-                  <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.name[0]}</p>
-                )}
-              </div>
-
-              {/* Phone */}
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Phone Number</label>
-                <div className="relative rounded-lg shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Phone className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                  </div>
-                  <input
-                    type="text"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="e.g. +919876543210"
-                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm transition-all"
-                  />
-                </div>
-                {validationErrors.phone && (
-                  <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.phone[0]}</p>
-                )}
-              </div>
-
-              {/* Location */}
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Location</label>
-                <div className="relative rounded-lg shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <MapPin className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                  </div>
-                  <input
-                    type="text"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="e.g. Bangalore, India"
-                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm transition-all"
-                  />
-                </div>
-                {validationErrors.location && (
-                  <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.location[0]}</p>
-                )}
-              </div>
-
-              {/* Business Name */}
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Business Name</label>
-                <div className="relative rounded-lg shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Building className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                  </div>
-                  <input
-                    type="text"
-                    value={businessName}
-                    onChange={(e) => setBusinessName(e.target.value)}
-                    placeholder="e.g. Acme Corp LLC"
-                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm transition-all"
-                  />
-                </div>
-                {validationErrors.businessName && (
-                  <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.businessName[0]}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Bio */}
-            <div>
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Bio / Professional Summary</label>
-              <div className="relative rounded-xl shadow-sm">
-                <div className="absolute top-3.5 left-3 pointer-events-none">
-                  <FileText className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                </div>
-                <textarea
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="Introduce yourself or your organization..."
-                  rows={5}
-                  className="w-full pl-8 pr-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm transition-all leading-relaxed"
-                />
-              </div>
-              {validationErrors.bio && (
-                <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.bio[0]}</p>
+        <form onSubmit={handleSubmit} className="space-y-6 text-left">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Full Name */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Display Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Jane Doe"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none"
+              />
+              {validationErrors.name && (
+                <p className="text-[9px] text-red-400 font-semibold mt-1">{validationErrors.name[0]}</p>
               )}
             </div>
 
-            {/* Save Button */}
-            <div className="flex justify-end border-t border-[var(--border-subtle)] pt-6">
-              <button
-                type="submit"
-                disabled={saving}
-                className="btn-primary px-5 py-2.5 disabled:opacity-50"
-              >
-                <Save className="w-3.5 h-3.5" />
-                {saving ? "Saving Changes..." : "Save Profile"}
-              </button>
+            {/* Phone */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Phone Number</label>
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+91 98765 43210"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none"
+              />
+              {validationErrors.phone && (
+                <p className="text-[9px] text-red-400 font-semibold mt-1">{validationErrors.phone[0]}</p>
+              )}
             </div>
-          </form>
-        </div>
+
+            {/* Location */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Location</label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Bangalore, India"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none"
+              />
+              {validationErrors.location && (
+                <p className="text-[9px] text-red-400 font-semibold mt-1">{validationErrors.location[0]}</p>
+              )}
+            </div>
+
+            {/* Business Name */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Business Name</label>
+              <input
+                type="text"
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
+                placeholder="Acme Corp LLC"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none"
+              />
+              {validationErrors.businessName && (
+                <p className="text-[9px] text-red-400 font-semibold mt-1">{validationErrors.businessName[0]}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Bio */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Bio / Professional Summary</label>
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Introduce yourself or your organization..."
+              rows={5}
+              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none leading-relaxed resize-none"
+            />
+            {validationErrors.bio && (
+              <p className="text-[9px] text-red-400 font-semibold mt-1">{validationErrors.bio[0]}</p>
+            )}
+          </div>
+
+          {/* Save Button */}
+          <div className="flex justify-end border-t border-zinc-900 pt-6">
+            <button
+              type="submit"
+              disabled={saving}
+              className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {saving ? "Saving Changes..." : "Save Profile"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

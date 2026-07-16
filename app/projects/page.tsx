@@ -13,12 +13,12 @@ import {
   SlidersHorizontal,
   X,
   Calendar,
-  IndianRupee,
   Clock,
   Briefcase,
   ShieldCheck,
   DollarSign,
-  Activity
+  ChevronRight,
+  Filter,
 } from "lucide-react";
 
 interface ProjectItem {
@@ -37,27 +37,10 @@ interface ProjectItem {
     name: string | null;
   } | null;
   agreedAmount?: number | null;
+  _count?: {
+    proposals: number;
+  };
 }
-
-const STATUS_CARD_BORDER: Record<string, string> = {
-  OPEN: "border-l-[var(--status-open-text)]",
-  ASSIGNED: "border-l-[var(--status-progress-text)]",
-  IN_PROGRESS: "border-l-[var(--status-progress-text)]",
-  UNDER_REVIEW: "border-l-[var(--status-review-text)]",
-  COMPLETED: "border-l-[var(--status-success-text)]",
-  CANCELLED: "border-l-[var(--status-negative-text)]",
-  CLOSED: "border-l-[var(--status-neutral-text)]",
-};
-
-const STATUS_BADGE: Record<string, string> = {
-  OPEN: "bg-[var(--status-open-bg)] text-[var(--status-open-text)] border border-[var(--status-open-border)]",
-  ASSIGNED: "bg-[var(--status-progress-bg)] text-[var(--status-progress-text)] border border-[var(--status-progress-border)]",
-  IN_PROGRESS: "bg-[var(--status-progress-bg)] text-[var(--status-progress-text)] border border-[var(--status-progress-border)]",
-  UNDER_REVIEW: "bg-[var(--status-review-bg)] text-[var(--status-review-text)] border border-[var(--status-review-border)]",
-  COMPLETED: "bg-[var(--status-success-bg)] text-[var(--status-success-text)] border border-[var(--status-success-border)]",
-  CANCELLED: "bg-[var(--status-negative-bg)] text-[var(--status-negative-text)] border border-[var(--status-negative-border)]",
-  CLOSED: "bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)] border border-[var(--status-neutral-border)]",
-};
 
 export default function BrowseProjectsPage() {
   const { data: session } = useSession();
@@ -99,6 +82,7 @@ export default function BrowseProjectsPage() {
         if (maxBudget) queryParams.set("maxBudget", maxBudget);
         if (deadlineBefore) queryParams.set("deadlineBefore", deadlineBefore);
         if (deadlineAfter) queryParams.set("deadlineAfter", deadlineAfter);
+        if (searchTerm) queryParams.set("search", searchTerm);
         queryParams.set("page", page.toString());
         queryParams.set("limit", "10");
 
@@ -116,7 +100,7 @@ export default function BrowseProjectsPage() {
     };
 
     fetchProjects();
-  }, [currentTab, statusFilter, selectedSkills, page, minBudget, maxBudget, deadlineBefore, deadlineAfter]);
+  }, [currentTab, statusFilter, selectedSkills, page, minBudget, maxBudget, deadlineBefore, deadlineAfter, searchTerm]);
 
   // Fetch Hired/Dashboard Projects for Freelancer using parallel fetches per status
   useEffect(() => {
@@ -136,7 +120,7 @@ export default function BrowseProjectsPage() {
         const allHired = responses.flatMap((r) => r.items || []);
         setHiredProjects(allHired);
       } catch {
-        setErrorMsg("Error loading your dashboard details.");
+        setErrorMsg("Error loading dashboard data.");
       } finally {
         setLoadingDashboard(false);
       }
@@ -155,158 +139,110 @@ export default function BrowseProjectsPage() {
   };
 
   const clearFilters = () => {
-    setSelectedSkills([]);
+    setPage(1);
     setStatusFilter("OPEN");
-    setSearchTerm("");
+    setSelectedSkills([]);
     setMinBudget("");
-    if (maxBudget) setMaxBudget("");
+    setMaxBudget("");
     setDeadlineBefore("");
     setDeadlineAfter("");
-    setPage(1);
+    setSearchTerm("");
   };
 
-  const filteredProjects = projects.filter((project) => {
-    const term = searchTerm.toLowerCase();
-    return (
-      project.title.toLowerCase().includes(term) ||
-      project.description.toLowerCase().includes(term)
-    );
-  });
+  const activeFilterCount =
+    (statusFilter && statusFilter !== "OPEN" ? 1 : 0) +
+    selectedSkills.length +
+    (minBudget ? 1 : 0) +
+    (maxBudget ? 1 : 0) +
+    (deadlineBefore ? 1 : 0) +
+    (deadlineAfter ? 1 : 0) +
+    (searchTerm ? 1 : 0);
 
-  const activeFilterCount = [
-    statusFilter !== "OPEN" ? statusFilter : null,
-    ...selectedSkills,
-    minBudget,
-    maxBudget,
-    deadlineBefore,
-    deadlineAfter,
-  ].filter(Boolean).length;
-
-  // Compute Freelancer Metrics
-  const activeContracts = hiredProjects.filter((p) => ["ASSIGNED", "IN_PROGRESS", "UNDER_REVIEW"].includes(p.status));
-  const activeContractsCount = activeContracts.length;
-  const escrowSecured = activeContracts.reduce((sum, p) => sum + (p.agreedAmount || p.budget), 0);
-  const totalEarnedYTD = hiredProjects.filter((p) => p.status === "COMPLETED").reduce((sum, p) => sum + (p.agreedAmount || p.budget), 0);
-
-  // Build Recent Activity dynamically for freelancer
-  const recentActivities = hiredProjects
-    .flatMap((p) => {
-      const acts = [];
-      if (p.status !== "OPEN") {
-        acts.push({
-          id: `hired-${p.id}`,
-          title: "Contract Started",
-          detail: `Hired by ${p.client.name || "Client"} for ${p.title}`,
-          time: new Date(p.createdAt),
-          icon: Briefcase,
-          iconClass: "bg-[var(--surface-subtle)] text-[var(--text-primary)] border border-[var(--border)]",
-        });
-      }
-      if (p.status === "COMPLETED") {
-        acts.push({
-          id: `released-${p.id}`,
-          title: "Payment Earned",
-          detail: `₹${(p.agreedAmount || p.budget).toLocaleString()} released for ${p.title}`,
-          time: new Date(p.deadline),
-          icon: DollarSign,
-          iconClass: "bg-[var(--surface-subtle)] text-[var(--text-primary)] border border-[var(--border)]",
-        });
-      }
-      return acts;
-    })
-    .sort((a, b) => b.time.getTime() - a.time.getTime())
-    .slice(0, 5);
-
-  const renderStepper = (status: ProjectStatus) => {
-    if (status === "OPEN" || status === "CANCELLED" || status === "CLOSED") return null;
-
-    const steps = [
-      { id: "funded", label: "Funded", done: ["ASSIGNED", "IN_PROGRESS", "UNDER_REVIEW", "COMPLETED"].includes(status) },
-      { id: "work", label: "Work", done: ["IN_PROGRESS", "UNDER_REVIEW", "COMPLETED"].includes(status) },
-      { id: "review", label: "Review", done: ["UNDER_REVIEW", "COMPLETED"].includes(status) },
-      { id: "released", label: "Released", done: status === "COMPLETED" },
-    ];
-
-    return (
-      <div className="flex items-center w-full gap-2 mt-4 px-2">
-        {steps.map((step, idx) => (
-          <React.Fragment key={step.id}>
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                step.done 
-                  ? "bg-[var(--status-success-bg)] text-[var(--status-success-text)] border border-[var(--status-success-border)]"
-                  : "bg-[var(--surface-subtle)] text-[var(--text-muted)] border border-[var(--border)]"
-              }`}>
-                {step.done ? "✓" : idx + 1}
-              </div>
-              <span className={`text-[10px] font-bold tracking-tight ${step.done ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"}`}>{step.label}</span>
-            </div>
-            {idx < steps.length - 1 && (
-              <div className={`flex-grow h-0.5 border-t-2 border-dashed ${
-                steps[idx + 1].done ? "border-[var(--status-success-text)]" : "border-[var(--border)]"
-              }`} />
-            )}
-          </React.Fragment>
-        ))}
-      </div>
-    );
+  const getStatusBadge = (status: ProjectStatus) => {
+    switch (status) {
+      case "OPEN":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-transparent border border-zinc-800 text-[9px] font-bold text-zinc-400 uppercase tracking-wider">
+            ● Open
+          </span>
+        );
+      case "UNDER_REVIEW":
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white text-[9px] font-bold text-black border border-white uppercase tracking-wider">
+            Review
+          </span>
+        );
+      case "ASSIGNED":
+      case "IN_PROGRESS":
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[9px] font-bold text-white uppercase tracking-wider">
+            <span className="w-1 h-1 rounded-full bg-white" />
+            Active
+          </span>
+        );
+      case "COMPLETED":
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-850 text-[9px] font-bold text-zinc-500 uppercase tracking-wider">
+            Released
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-950 border border-zinc-900 text-[9px] font-bold text-zinc-500 uppercase tracking-wider">
+            Closed
+          </span>
+        );
+    }
   };
 
-  // ── Filter sidebar content ──
+  // Compute Metrics dynamically
+  const browseEscrowTotal = projects.reduce((sum, p) => sum + p.budget, 0);
+  
+  const dashboardContracts = hiredProjects.filter((p) => ["ASSIGNED", "IN_PROGRESS", "UNDER_REVIEW"].includes(p.status));
+  const activeContractsCount = dashboardContracts.length;
+  const earningsYTD = hiredProjects.filter((p) => p.status === "COMPLETED").reduce((sum, p) => sum + (p.agreedAmount || p.budget), 0);
+  const pendingMilestonesCount = hiredProjects.filter((p) => p.status === "UNDER_REVIEW").length;
+
   const filterContent = (
-    <>
-      <div className="flex justify-between items-center mb-5">
+    <div className="space-y-6 text-left">
+      <div className="flex justify-between items-center pb-2 border-b border-zinc-900">
         <div className="flex items-center gap-1.5">
-          <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-          <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Filters</h2>
+          <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-500" />
+          <h2 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Filter Matrix</h2>
         </div>
-        <div className="flex items-center gap-2">
-          {activeFilterCount > 0 && (
-            <button
-              onClick={clearFilters}
-              className="text-xs text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold cursor-pointer transition-colors flex items-center gap-1"
-            >
-              <X className="w-3 h-3" />
-              Clear All
-            </button>
-          )}
+        {activeFilterCount > 0 && (
           <button
-            onClick={() => setMobileFiltersOpen(false)}
-            className="lg:hidden p-1.5 rounded-lg text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] cursor-pointer"
+            onClick={clearFilters}
+            className="text-[9px] text-white hover:underline font-bold uppercase tracking-wider cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            Clear All
           </button>
-        </div>
+        )}
       </div>
 
       {/* Status Filter */}
-      <div className="mb-5">
-        <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Status</label>
+      <div className="space-y-1.5">
+        <label className="block text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Status</label>
         <select
           value={statusFilter}
           onChange={(e) => {
             setPage(1);
             setStatusFilter(e.target.value);
           }}
-          className="w-full text-sm px-3 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all cursor-pointer"
+          className="w-full text-xs px-2.5 py-2 bg-black border border-zinc-800 rounded text-white focus:outline-none"
         >
           <option value="">All Statuses</option>
-          <option value="OPEN">Open (Accepting Proposals)</option>
+          <option value="OPEN">Open Opportunities</option>
           <option value="ASSIGNED">Assigned</option>
           <option value="IN_PROGRESS">In Progress</option>
           <option value="UNDER_REVIEW">Under Review</option>
           <option value="COMPLETED">Completed</option>
-          <option value="CANCELLED">Cancelled</option>
-          <option value="CLOSED">Closed</option>
         </select>
       </div>
 
       {/* Budget range filter */}
-      <div className="mb-5">
-        <label className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
-          <IndianRupee className="w-3 h-3" />
-          Budget Range
-        </label>
+      <div className="space-y-1.5">
+        <label className="block text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Budget Bounds (INR)</label>
         <div className="flex gap-2">
           <input
             type="number"
@@ -316,7 +252,7 @@ export default function BrowseProjectsPage() {
               setPage(1);
               setMinBudget(e.target.value);
             }}
-            className="w-1/2 text-sm px-3 py-2 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
+            className="w-1/2 text-xs px-2.5 py-2 bg-black border border-zinc-800 rounded text-white placeholder-zinc-700 focus:outline-none"
           />
           <input
             type="number"
@@ -326,20 +262,17 @@ export default function BrowseProjectsPage() {
               setPage(1);
               setMaxBudget(e.target.value);
             }}
-            className="w-1/2 text-sm px-3 py-2 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
+            className="w-1/2 text-xs px-2.5 py-2 bg-black border border-zinc-800 rounded text-white placeholder-zinc-700 focus:outline-none"
           />
         </div>
       </div>
 
       {/* Deadline filter */}
-      <div className="mb-5">
-        <label className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
-          <Calendar className="w-3 h-3" />
-          Deadline
-        </label>
+      <div className="space-y-1.5">
+        <label className="block text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Timeline Bounds</label>
         <div className="space-y-2">
           <div>
-            <span className="text-[10px] text-[var(--text-muted)] block font-medium mb-1">Due After</span>
+            <span className="text-[8px] text-zinc-600 block uppercase font-bold">After</span>
             <input
               type="date"
               value={deadlineAfter}
@@ -347,11 +280,11 @@ export default function BrowseProjectsPage() {
                 setPage(1);
                 setDeadlineAfter(e.target.value);
               }}
-              className="w-full text-sm px-3 py-2 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all text-[var(--text-secondary)]"
+              className="w-full text-xs px-2.5 py-1.5 bg-black border border-zinc-800 rounded text-white focus:outline-none"
             />
           </div>
           <div>
-            <span className="text-[10px] text-[var(--text-muted)] block font-medium mb-1">Due Before</span>
+            <span className="text-[8px] text-zinc-600 block uppercase font-bold">Before</span>
             <input
               type="date"
               value={deadlineBefore}
@@ -359,22 +292,22 @@ export default function BrowseProjectsPage() {
                 setPage(1);
                 setDeadlineBefore(e.target.value);
               }}
-              className="w-full text-sm px-3 py-2 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all text-[var(--text-secondary)]"
+              className="w-full text-xs px-2.5 py-1.5 bg-black border border-zinc-800 rounded text-white focus:outline-none"
             />
           </div>
         </div>
       </div>
 
       {/* Skills Filter */}
-      <div>
-        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Required Skills</label>
+      <div className="space-y-3">
+        <label className="block text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Required Skills</label>
         {selectedSkills.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
+          <div className="flex flex-wrap gap-1.5">
             {selectedSkills.map((skill) => (
               <button
                 key={skill}
                 onClick={() => toggleSkill(skill)}
-                className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-[var(--accent-light)] text-[var(--accent)] font-bold cursor-pointer border border-[var(--accent)]/30 hover:bg-[var(--accent)]/20 transition-colors"
+                className="inline-flex items-center gap-1 text-[9px] px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-white font-bold cursor-pointer hover:bg-zinc-850"
               >
                 {skill}
                 <X className="w-2.5 h-2.5" />
@@ -382,21 +315,21 @@ export default function BrowseProjectsPage() {
             ))}
           </div>
         )}
-        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+        <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
           {SKILL_GROUPS.map((group) => (
-            <div key={group.category}>
-              <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1.5">{group.category}</h3>
-              <div className="flex flex-wrap gap-1.5 mb-2">
+            <div key={group.category} className="space-y-1">
+              <h3 className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">{group.category}</h3>
+              <div className="flex flex-wrap gap-1">
                 {group.skills.map((skill) => {
                   const isSelected = selectedSkills.includes(skill);
                   return (
                     <button
                       key={skill}
                       onClick={() => toggleSkill(skill)}
-                      className={`text-[10px] px-2 py-1 rounded-md border transition-colors duration-150 cursor-pointer ${
+                      className={`text-[9px] px-2 py-0.5 rounded transition-colors duration-150 cursor-pointer ${
                         isSelected
-                          ? "bg-[var(--accent-light)] border-[var(--accent)] text-[var(--accent)] font-bold"
-                          : "bg-[var(--surface)] border-[var(--border)] text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)]"
+                          ? "bg-white text-black border border-white font-bold"
+                          : "bg-transparent border border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-400"
                       }`}
                     >
                       {skill}
@@ -408,30 +341,30 @@ export default function BrowseProjectsPage() {
           ))}
         </div>
       </div>
-    </>
+    </div>
   );
 
   if (session && session.user && session.user.role === "CLIENT") {
     return (
-      <div className="max-w-xl mx-auto px-4 py-16 text-center animate-fadeIn">
-        <div className="card p-8">
-          <FolderSearch className="w-12 h-12 text-[var(--accent)] mx-auto mb-4" />
-          <h1 className="text-xl font-black text-[var(--text-primary)]">Client Accounts Do Not Browse Projects</h1>
-          <p className="text-xs text-[var(--text-secondary)] mt-2 mb-6 font-medium">
-            To hire freelancers and manage your jobs, please view your current project postings or post a new project.
+      <div className="max-w-xl mx-auto py-16 text-center">
+        <div className="border border-zinc-800 bg-[#09090b] p-8 rounded-lg space-y-6">
+          <FolderSearch className="w-12 h-12 text-zinc-500 mx-auto" />
+          <h1 className="text-sm font-bold text-white uppercase tracking-wider">Client Accounts Workspace</h1>
+          <p className="text-xs text-zinc-400 max-w-sm mx-auto font-light">
+            You are logged in as a Client. To hire specialists, search the directory, or manage contract milestones, please use the client portal.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
             <Link
               href="/client/projects"
-              className="btn-primary px-5 py-3"
+              className="bg-white hover:bg-zinc-200 text-black font-bold text-xs uppercase tracking-widest px-5 py-3 rounded text-center transition-colors"
             >
               My Projects
             </Link>
             <Link
               href="/client/projects/new"
-              className="btn-ghost px-5 py-3"
+              className="border border-zinc-800 hover:border-zinc-700 text-white font-bold text-xs uppercase tracking-widest px-5 py-3 rounded text-center transition-colors"
             >
-              Post a Project
+              Post Project
             </Link>
           </div>
         </div>
@@ -440,43 +373,43 @@ export default function BrowseProjectsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0 animate-fadeIn">
-      {/* Tab Navigation header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[var(--border)] pb-4 mb-6 gap-4">
+    <div className="space-y-10 w-full min-w-0">
+      {/* Upper Tab Navigation & Headers Row */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--border-subtle)] pb-6">
         <div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">
-            {currentTab === "BROWSE" ? "Browse Opportunities" : "Freelancer Workspace"}
+          <h1 className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
+            {currentTab === "BROWSE" ? "Find Project Contracts" : "Freelancer Workspace"}
           </h1>
-          <p className="text-xs font-medium text-[var(--text-secondary)] mt-1">
-            {currentTab === "BROWSE" 
-              ? "Find professional enterprise contracts and submit proposals securely." 
-              : "Track your active contract delivery states and escrow milestones."}
+          <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
+            {currentTab === "BROWSE"
+              ? "Browse verified enterprise listings, verify client escrows, and bid on deliverables."
+              : "Track active milestones, submit codebase builds, and release locked escrow assets."}
           </p>
         </div>
 
         {/* Tab switcher */}
-        <div className="bg-[var(--surface-subtle)] p-1 rounded-xl border border-[var(--border)] flex items-center gap-1 self-start">
+        <div className="bg-[var(--surface-subtle)] p-0.5 border border-[var(--border-subtle)] rounded-lg flex items-center gap-1 shrink-0">
           <button
             onClick={() => {
               setCurrentTab("BROWSE");
               setErrorMsg(null);
             }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded text-[9px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
               currentTab === "BROWSE"
-                ? "bg-[var(--surface)] text-[var(--text-primary)] shadow-sm border border-[var(--border)]"
+                ? "bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border-subtle)]"
                 : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
           >
-            Find Work
+            Find Opportunities
           </button>
           <button
             onClick={() => {
               setCurrentTab("DASHBOARD");
               setErrorMsg(null);
             }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded text-[9px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
               currentTab === "DASHBOARD"
-                ? "bg-[var(--surface)] text-[var(--text-primary)] shadow-sm border border-[var(--border)]"
+                ? "bg-[var(--surface-elevated)] text-[var(--text-primary)] border border-[var(--border-subtle)]"
                 : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
           >
@@ -486,346 +419,218 @@ export default function BrowseProjectsPage() {
       </div>
 
       {errorMsg && (
-        <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
-          <p className="text-sm text-[var(--status-negative-text)] font-semibold">{errorMsg}</p>
+        <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs flex items-start gap-2.5 text-red-400">
+          <p className="font-semibold">{errorMsg}</p>
         </div>
       )}
 
+      {/* Dynamic Tab Rendering */}
       {currentTab === "DASHBOARD" ? (
-        /* ── Freelancer Dashboard Tab ── */
+        /* ── Freelancer Dashboard ── */
         loadingDashboard ? (
-          <div className="flex flex-col items-center justify-center min-h-[300px] gap-2">
-            <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
-            <p className="text-[var(--text-muted)] text-xs font-bold uppercase">Loading Dashboard...</p>
+          <div className="flex items-center justify-center min-h-[300px]">
+            <div className="w-5 h-5 rounded-full border-2 border-zinc-800 border-t-white animate-spin" />
           </div>
         ) : (
-          <div className="space-y-8">
-            {/* Dashboard metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-children">
-              <div className="stat-card flex items-center justify-between">
-                <div>
-                  <span className="stat-card-label">Active Contracts</span>
-                  <span className="stat-card-value">{activeContractsCount}</span>
-                  <span className="text-[10px] font-bold text-[var(--text-secondary)] block mt-1">✓ Live Engagements</span>
+          <div className="space-y-8 animate-fadeIn">
+            {/* Hired Metrics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="border border-[var(--border)] bg-[var(--surface-elevated)] p-6 rounded-lg flex flex-col justify-between h-32">
+                <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+                  Active Hired Contracts
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-[var(--accent-light)] flex items-center justify-center">
-                  <Briefcase className="w-5 h-5 text-[var(--accent)]" />
+                <div className="text-3xl font-bold tracking-tight text-[var(--text-primary)]">{activeContractsCount}</div>
+              </div>
+
+              <div className="border border-[var(--border)] bg-[var(--surface-elevated)] p-6 rounded-lg flex flex-col justify-between h-32">
+                <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+                  Total Earned (YTD)
+                </div>
+                <div className="text-3xl font-bold tracking-tight text-[var(--text-primary)]">
+                  ₹{earningsYTD.toLocaleString()}
                 </div>
               </div>
 
-              <div className="stat-card flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="stat-card-label">Escrow Secured</span>
-                    <span className="stat-card-value">₹{escrowSecured.toLocaleString()}</span>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl bg-[var(--accent-light)] flex items-center justify-center">
-                    <ShieldCheck className="w-5 h-5 text-[var(--accent)]" />
-                  </div>
+              <div className="border border-[var(--border)] bg-[var(--surface-elevated)] p-6 rounded-lg flex flex-col justify-between h-32">
+                <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+                  Pending Milestones
                 </div>
-                <div className="mt-3">
-                  <div className="w-full bg-[var(--border)] h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-[var(--accent)] h-full rounded-full" style={{ width: "100%" }} />
-                  </div>
-                  <span className="text-[9px] font-bold text-[var(--text-muted)] block mt-1">100% FUNDED IN ESCROW</span>
-                </div>
-              </div>
-
-              <div className="stat-card flex items-center justify-between">
-                <div>
-                  <span className="stat-card-label">Total Earned YTD</span>
-                  <span className="stat-card-value">₹{totalEarnedYTD.toLocaleString()}</span>
-                  <span className="text-[10px] font-bold text-[var(--text-muted)] block mt-1">Cleared Earnings Ledger</span>
-                </div>
-                <div className="w-10 h-10 rounded-xl bg-[var(--accent-light)] flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 text-[var(--accent)]" />
+                <div className="text-3xl font-bold tracking-tight text-[var(--text-primary)] flex items-center gap-1.5">
+                  <span>{pendingMilestonesCount}</span>
+                  {pendingMilestonesCount > 0 && <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />}
                 </div>
               </div>
             </div>
 
-            {/* Dashboard Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
-              <div className="lg:col-span-7">
-                <h3 className="text-xs font-extrabold uppercase tracking-widest text-[var(--text-muted)] mb-4">My Hired Contracts</h3>
-                {hiredProjects.length === 0 ? (
-                  <div className="card p-16 text-center animate-slideUp">
-                    <div className="empty-state">
-                      <Briefcase className="empty-state-icon" />
-                      <h2 className="empty-state-title">No Active Contracts</h2>
-                      <p className="empty-state-text mb-6">
-                        You are not currently hired on any active projects. Switch to the &quot;Find Work&quot; tab to search and submit proposals.
-                      </p>
-                      <button
-                        onClick={() => setCurrentTab("BROWSE")}
-                        className="btn-primary"
-                      >
-                        Browse Job Opportunities
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-4">
-                    {hiredProjects.map((project) => {
-                      const cfg = STATUS_BADGE[project.status] || STATUS_BADGE.CLOSED;
-                      const borderClass = STATUS_CARD_BORDER[project.status] || STATUS_CARD_BORDER.CLOSED;
+            {/* Active Contracts Table View */}
+            <div className="space-y-4">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">Contract Deliverables Checklist</h2>
 
-                      return (
-                        <Link
-                          key={project.id}
-                          href={`/projects/${project.id}`}
-                          className={`block bg-[var(--surface)] border border-[var(--border)] border-l-4 ${borderClass} rounded-2xl p-5 hover:shadow-[var(--card-shadow-hover)] hover:-translate-y-0.5 transition-all duration-200`}
-                        >
-                          <div>
-                            <div className="flex justify-between items-start mb-3">
-                              <h4 className="text-sm font-extrabold text-[var(--text-primary)] line-clamp-1">{project.title}</h4>
-                              <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${cfg}`}>
-                                {project.status.replace("_", " ")}
-                              </span>
-                            </div>
-
-                            <p className="text-xs text-[var(--text-secondary)] mb-4 line-clamp-2 leading-relaxed">{project.description}</p>
-                            
-                            {renderStepper(project.status)}
-
-                            <div className="bg-[var(--surface-subtle)] border border-[var(--border)] rounded-xl p-3 mt-4 flex items-center justify-between">
-                              <div>
-                                <span className="block text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Contract Budget</span>
-                                <span className="text-xs font-black text-[var(--text-primary)]">₹{(project.agreedAmount || project.budget).toLocaleString()}</span>
-                              </div>
-                              <div>
-                                <span className="block text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Client Corporate</span>
-                                <span className="text-xs font-bold text-[var(--text-primary)]">{project.client.name || "Enterprise"}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Sidebar Activity Feed */}
-              <div className="lg:col-span-3">
-                <div className="card p-5">
-                  <h3 className="text-xs font-extrabold uppercase tracking-widest text-[var(--text-muted)] mb-4 flex items-center gap-1.5">
-                    <Activity className="w-4 h-4 text-[var(--accent)] animate-pulse" />
-                    <span>Recent activity</span>
-                  </h3>
-
-                  {recentActivities.length === 0 ? (
-                    <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider py-8 text-center">No recent activity</p>
-                  ) : (
-                    <div className="flex flex-col gap-4">
-                      {recentActivities.map((act) => {
-                        const Icon = act.icon;
-                        return (
-                          <div key={act.id} className="flex gap-3 items-start">
-                            <div className={`w-7 h-7 rounded-lg ${act.iconClass} flex items-center justify-center flex-shrink-0 mt-0.5`}>
-                              <Icon className="w-3.5 h-3.5" />
-                            </div>
-                            <div className="min-w-0">
-                              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--text-muted)] block leading-tight">{act.title}</span>
-                              <span className="text-xs font-bold text-[var(--text-primary)] block line-clamp-2 mt-0.5">{act.detail}</span>
-                              <span className="text-[9px] text-[var(--text-muted)] font-medium mt-1 block">
-                                {act.time.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+              {hiredProjects.length === 0 ? (
+                <div className="border border-zinc-900 rounded-lg p-16 text-center">
+                  <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">No active contract assignments found</p>
                 </div>
-              </div>
+              ) : (
+                <div className="border border-[var(--border)] bg-[var(--surface)] rounded-lg overflow-hidden">
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-[var(--text-muted)] font-mono uppercase tracking-widest">
+                        <th className="py-3.5 px-4 font-medium">Project Name</th>
+                        <th className="py-3.5 px-4 font-medium">Client</th>
+                        <th className="py-3.5 px-4 font-medium">Status</th>
+                        <th className="py-3.5 px-4 font-medium">Budget</th>
+                        <th className="py-3.5 px-4 font-medium text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--text-secondary)] font-medium">
+                      {hiredProjects.map((project) => (
+                        <tr key={project.id} className="hover:bg-[var(--surface-subtle)] transition-colors">
+                          <td className="py-4 px-4 font-bold text-[var(--text-primary)]">
+                            <Link href={`/projects/${project.id}`} className="hover:underline flex items-center gap-1.5">
+                              {project.title}
+                              <ChevronRight className="w-3 h-3 text-[var(--text-muted)]" />
+                            </Link>
+                          </td>
+                          <td className="py-4 px-4 font-mono">
+                            {project.client.name || "Enterprise Client"}
+                          </td>
+                          <td className="py-4 px-4">
+                            {getStatusBadge(project.status)}
+                          </td>
+                          <td className="py-4 px-4 font-mono font-bold text-[var(--text-primary)]">
+                            ₹{(project.agreedAmount || project.budget).toLocaleString()}
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <Link
+                              href={`/projects/${project.id}`}
+                              className="inline-flex items-center gap-1 border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] hover:border-white px-2.5 py-1.5 rounded text-[9px] font-bold uppercase tracking-wider cursor-pointer"
+                            >
+                              Work Desk
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         )
       ) : (
-        /* ── Browse Opportunities Tab ── */
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Desktop Filters Sidebar */}
-          <div className="hidden lg:block lg:col-span-1">
-            <div className="card p-5 sticky top-20">
-              {filterContent}
-            </div>
+        /* ── Browse Opportunities (Browse/Search) ── */
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start animate-fadeIn">
+          {/* Filters Sidebar */}
+          <div className="hidden lg:block lg:col-span-1 border border-[var(--border)] bg-[var(--surface)] p-6 rounded-lg sticky top-20">
+            {filterContent}
           </div>
 
-          {/* Mobile Filters Slide-over */}
-          {mobileFiltersOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm lg:hidden animate-fadeIn"
-                onClick={() => setMobileFiltersOpen(false)}
-              />
-              <div className="fixed inset-y-0 left-0 z-50 w-[85%] max-w-sm bg-[var(--surface)] border-r border-[var(--border)] shadow-xl overflow-y-auto p-5 lg:hidden animate-slideRight">
-                {filterContent}
-              </div>
-            </>
-          )}
-
-          {/* Projects List Column */}
-          <div className="lg:col-span-3 space-y-4">
+          {/* Search Table Column */}
+          <div className="lg:col-span-3 space-y-6">
             {/* Search Input Box */}
-            <div className="card p-3 flex items-center gap-3">
-              <Search className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0" />
-              <input
-                type="text"
-                placeholder="Search by keywords (e.g. Design, Frontend, Writing)..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full text-xs font-semibold focus:outline-none bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
-              />
-            </div>
-
-            {/* Header info */}
-            <div className="flex justify-between items-center">
-              {!loading && !errorMsg && (
-                <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
-                  Found {filteredProjects.length} open project{filteredProjects.length !== 1 ? "s" : ""}
-                </p>
-              )}
-              {/* Mobile Filter toggle button */}
-              <button
-                onClick={() => setMobileFiltersOpen(true)}
-                className="lg:hidden inline-flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer"
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                Filters
-                {activeFilterCount > 0 && (
-                  <span className="bg-[var(--accent)] text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full min-w-[15px] text-center ml-1">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </button>
-            </div>
-
-            {loading ? (
-              <div className="card p-16 text-center">
-                <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin mx-auto mb-3" />
-                <p className="text-[var(--text-muted)] text-xs font-bold uppercase tracking-wider">Scanning marketplace...</p>
+            <div className="flex items-center gap-2 p-1 bg-[var(--surface)] border border-[var(--border)] rounded-lg">
+              <div className="flex items-center gap-2 flex-grow pl-3">
+                <Search className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
+                <input
+                  type="text"
+                  placeholder="Filter opportunities by keyword search..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-transparent text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none py-2"
+                />
               </div>
-            ) : filteredProjects.length === 0 ? (
-              <div className="card p-16 text-center">
-                <div className="empty-state">
-                  <FolderSearch className="empty-state-icon" />
-                  <h2 className="empty-state-title">No Projects Match Your Search</h2>
-                  <p className="empty-state-text mb-4">
-                    Try clearing some filters or using different keywords to explore other opportunities.
-                  </p>
-                  <button
-                    onClick={clearFilters}
-                    className="text-xs font-bold uppercase tracking-wider text-[var(--accent)] hover:text-[var(--accent-hover)] cursor-pointer"
-                  >
-                    Clear all filters
-                  </button>
-                </div>
+              {searchTerm && (
+                <button onClick={() => setSearchTerm("")} className="p-1 rounded text-[var(--text-muted)] hover:text-white shrink-0 mr-1">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Opportunities table list */}
+            {loading ? (
+              <div className="flex items-center justify-center min-h-[250px]">
+                <div className="w-5 h-5 rounded-full border-2 border-zinc-800 border-t-white animate-spin" />
+              </div>
+            ) : projects.length === 0 ? (
+              <div className="border border-zinc-900 rounded-lg p-16 text-center">
+                <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">No available project proposals match filters</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredProjects.map((project) => {
-                  const borderClass = STATUS_CARD_BORDER[project.status] || STATUS_CARD_BORDER.CLOSED;
-                  const badgeClass = STATUS_BADGE[project.status] || STATUS_BADGE.CLOSED;
+                <div className="flex justify-between items-center text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest px-1">
+                  <span>Available Listings</span>
+                  <span>Page {page} of {totalPages}</span>
+                </div>
 
-                  return (
-                    <div
-                      key={project.id}
-                      className={`bg-[var(--surface)] border border-[var(--border)] rounded-2xl border-l-4 ${borderClass} hover:shadow-[var(--card-shadow-hover)] hover:-translate-y-0.5 transition-all duration-200 overflow-hidden`}
-                    >
-                      <div className="p-5 sm:p-6">
-                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
-                          <div className="flex-grow min-w-0">
-                            <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${badgeClass}`}>
-                                {project.status.replace("_", " ")}
-                              </span>
+                <div className="border border-[var(--border)] bg-[var(--surface)] rounded-lg overflow-hidden">
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-[var(--text-muted)] font-mono uppercase tracking-widest">
+                        <th className="py-3.5 px-4 font-medium">Opportunities</th>
+                        <th className="py-3.5 px-4 font-medium">Enterprise Client</th>
+                        <th className="py-3.5 px-4 font-medium">Initial Budget</th>
+                        <th className="py-3.5 px-4 font-medium">Deadline</th>
+                        <th className="py-3.5 px-4 font-medium text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--text-secondary)] font-medium">
+                      {projects.map((project) => (
+                        <tr key={project.id} className="hover:bg-[var(--surface-subtle)] transition-colors">
+                          <td className="py-4 px-4 font-bold text-[var(--text-primary)]">
+                            <Link href={`/projects/${project.id}`} className="hover:underline flex items-center gap-1.5">
+                              {project.title}
+                              <ChevronRight className="w-3 h-3 text-[var(--text-muted)]" />
+                            </Link>
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {project.skills.slice(0, 3).map((skill) => (
+                                <span key={skill} className="text-[8px] font-mono text-[var(--text-muted)] border border-[var(--border-subtle)] px-1 py-0.2 rounded">
+                                  {skill}
+                                </span>
+                              ))}
                             </div>
+                          </td>
+                          <td className="py-4 px-4 font-mono text-[var(--text-secondary)]">
+                            {project.client.name || "Enterprise"}
+                          </td>
+                          <td className="py-4 px-4 font-mono font-bold text-[var(--text-primary)]">
+                            ₹{project.budget.toLocaleString()}
+                          </td>
+                          <td className="py-4 px-4 font-mono">
+                            {new Date(project.deadline).toLocaleDateString()}
+                          </td>
+                          <td className="py-4 px-4 text-right">
                             <Link
                               href={`/projects/${project.id}`}
-                              className="text-sm font-extrabold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors block mb-0.5 line-clamp-1"
+                              className="inline-flex items-center gap-1 border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] hover:border-white px-2.5 py-1.5 rounded text-[9px] font-bold uppercase tracking-wider cursor-pointer"
                             >
-                              {project.title}
+                              View Scope
                             </Link>
-                            <span className="text-[10px] font-semibold text-[var(--text-muted)] flex items-center gap-1.5">
-                              {project.client.name && <>{project.client.name} · </>}
-                              <Clock className="w-3.5 h-3.5 inline text-[var(--text-muted)]" />
-                              Posted {new Date(project.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
-                          <div className="flex-shrink-0 text-left sm:text-right">
-                            <span className="text-[9px] text-[var(--accent)] block uppercase font-bold tracking-wider mb-0.5">Fixed Budget</span>
-                            <span className="text-sm font-black text-[var(--text-primary)]">₹{project.budget.toLocaleString()}</span>
-                          </div>
-                        </div>
-
-                        <p className="text-xs text-[var(--text-secondary)] line-clamp-2 mb-4 leading-relaxed font-medium">
-                          {project.description}
-                        </p>
-
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-[var(--border-subtle)]">
-                          <div className="flex flex-wrap gap-1.5">
-                            {project.skills.map((s) => (
-                              <span key={s} className="bg-[var(--surface-subtle)] text-[var(--text-secondary)] text-[9px] px-2.5 py-1 rounded-lg border border-[var(--border)] uppercase font-bold tracking-wide">
-                                {s}
-                              </span>
-                            ))}
-                          </div>
-                          <Link
-                            href={`/projects/${project.id}`}
-                            className="btn-ghost px-4 py-2 hover:bg-[var(--accent)] hover:text-white hover:border-transparent transition-all flex-shrink-0"
-                          >
-                            <span>View Details</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* Pagination */}
+                {/* Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-2 pt-4">
+                  <div className="flex justify-between items-center pt-2">
                     <button
+                      onClick={() => setPage((p) => Math.max(p - 1, 1))}
                       disabled={page === 1}
-                      onClick={() => setPage(page - 1)}
-                      className="w-9 h-9 rounded-lg border border-[var(--border)] hover:bg-[var(--surface-subtle)] disabled:opacity-40 cursor-pointer flex items-center justify-center text-[var(--text-secondary)] transition-colors"
+                      className="border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] disabled:opacity-40 disabled:cursor-not-allowed hover:border-white px-3 py-1.5 rounded text-[9px] font-bold uppercase tracking-wider cursor-pointer"
                     >
-                      <ArrowLeft className="w-4 h-4" />
+                      Previous
                     </button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1)
-                      .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
-                      .reduce<(number | string)[]>((acc, p, i, arr) => {
-                        if (i > 0 && typeof arr[i - 1] === "number" && (p as number) - (arr[i - 1] as number) > 1) {
-                          acc.push("...");
-                        }
-                        acc.push(p);
-                        return acc;
-                      }, [])
-                      .map((item, idx) =>
-                        item === "..." ? (
-                          <span key={`dots-${idx}`} className="px-1 text-[var(--text-muted)] font-bold">…</span>
-                        ) : (
-                          <button
-                            key={item}
-                            onClick={() => setPage(item as number)}
-                            className={`w-9 h-9 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
-                              page === item
-                                ? "bg-[var(--accent)] text-white shadow-sm"
-                                : "border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]"
-                            }`}
-                          >
-                            {item}
-                          </button>
-                        )
-                      )}
+                    <span className="text-[10px] text-[var(--text-muted)] font-mono">
+                      {page} / {totalPages}
+                    </span>
                     <button
+                      onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
                       disabled={page === totalPages}
-                      onClick={() => setPage(page + 1)}
-                      className="w-9 h-9 rounded-lg border border-[var(--border)] hover:bg-[var(--surface-subtle)] disabled:opacity-40 cursor-pointer flex items-center justify-center text-[var(--text-secondary)] transition-colors"
+                      className="border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] disabled:opacity-40 disabled:cursor-not-allowed hover:border-white px-3 py-1.5 rounded text-[9px] font-bold uppercase tracking-wider cursor-pointer"
                     >
-                      <ArrowRight className="w-4 h-4" />
+                      Next
                     </button>
                   </div>
                 )}

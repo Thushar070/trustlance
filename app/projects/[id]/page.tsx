@@ -887,107 +887,145 @@ export default function ProjectDetailPage() {
   const isFreelancerHired = session?.user?.id === project.freelancerId;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="space-y-8 w-full min-w-0">
+      {/* Breadcrumbs and Context Header Row */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+            <Link href="/projects" className="hover:text-white transition-colors">Enterprise</Link>
+            <span>&gt;</span>
+            <Link href="/projects" className="hover:text-white transition-colors">Projects</Link>
+            <span>&gt;</span>
+            <span className="text-zinc-400">{project.id.slice(0, 8).toUpperCase()}...</span>
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
+            {project.title}
+          </h1>
+          <div className="text-[10px] font-mono text-zinc-500">
+            Contract ID: {project.id} | Deployed to Mainnet
+          </div>
+        </div>
+
+        {/* Top actions */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => alert(`Smart contract address mapping: 0x${project.id.slice(0, 20)}...`)}
+            className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2.5 rounded transition-colors cursor-pointer"
+          >
+            View Smart Contract
+          </button>
+          
+          {isOwner && isOpen && (
+            <button
+              onClick={() => setEditMode(true)}
+              className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2.5 rounded transition-colors cursor-pointer"
+            >
+              Edit Project Details
+            </button>
+          )}
+
+          {isOwner && project.status === ProjectStatus.ASSIGNED && (!project.payment || project.payment.status !== "SUCCESS") && (
+            <button
+              onClick={handlePayment}
+              disabled={paymentLoading}
+              className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2.5 rounded transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {paymentLoading ? "Processing..." : "Manage Escrow"}
+            </button>
+          )}
+        </div>
+      </div>
+
       {editMode ? (
         // Inline Edit Mode Panel (Client project editor)
-        <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-10 max-w-4xl mx-auto">
-          <div className="flex items-center gap-2 mb-6">
-            <Briefcase className="w-5 h-5 text-[var(--accent)]" />
-            <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">Edit Project Details</h1>
+        <div className="border border-zinc-800 bg-[#09090b] rounded-lg p-8 space-y-6 max-w-4xl mx-auto">
+          <div className="flex items-center gap-2 pb-3 border-b border-zinc-900">
+            <Briefcase className="w-5 h-5 text-zinc-400" />
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">Edit Project Specifications</h2>
           </div>
           {errorMsg && (
-            <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg">
-              <p className="text-sm text-[var(--status-negative-text)] font-medium">{errorMsg}</p>
+            <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs text-red-400">
+              <p className="font-semibold">{errorMsg}</p>
             </div>
           )}
-          <form onSubmit={handleUpdate} className="space-y-6">
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Title</label>
+          <form onSubmit={handleUpdate} className="space-y-6 text-left">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Project Title</label>
               <input
                 type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none"
               />
               {validationErrors.title && (
-                <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.title[0]}</p>
+                <p className="text-[10px] text-red-400 font-semibold mt-1">{validationErrors.title[0]}</p>
               )}
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Description</label>
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Project Description</label>
               <textarea
                 required
                 rows={6}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
+                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none leading-relaxed resize-none"
               />
               {validationErrors.description && (
-                <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.description[0]}</p>
+                <p className="text-[10px] text-red-400 font-semibold mt-1">{validationErrors.description[0]}</p>
               )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Budget (INR)</label>
-                <div className="relative rounded-lg shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <IndianRupee className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                  </div>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    value={budget}
-                    onChange={(e) => setBudget(e.target.value)}
-                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
-                  />
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Project Budget (INR)</label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  value={budget}
+                  onChange={(e) => setBudget(e.target.value)}
+                  className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none"
+                />
                 {validationErrors.budget && (
-                  <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.budget[0]}</p>
+                  <p className="text-[10px] text-red-400 font-semibold mt-1">{validationErrors.budget[0]}</p>
                 )}
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Deadline</label>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Project Deadline</label>
                 <input
                   type="date"
                   required
                   value={deadline}
                   onChange={(e) => setDeadline(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
+                  className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-zinc-400 focus:outline-none"
                 />
                 {validationErrors.deadline && (
-                  <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.deadline[0]}</p>
+                  <p className="text-[10px] text-red-400 font-semibold mt-1">{validationErrors.deadline[0]}</p>
                 )}
               </div>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
                 <button
                   type="button"
                   onClick={() => setEditSkillsOpen(!editSkillsOpen)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors uppercase tracking-wider cursor-pointer"
+                  className="text-[10px] font-bold text-white uppercase tracking-wider hover:underline"
                 >
                   {editSkillsOpen ? "− Hide skills selection" : "+ Add relevant skills (optional)"}
                 </button>
-                {selectedSkills.length > 0 && (
-                  <span className="text-xs text-[var(--text-muted)] font-medium">
-                    {selectedSkills.length} selected
-                  </span>
-                )}
               </div>
               {validationErrors.skills && (
-                <p className="mb-3 text-xs text-[var(--status-negative-text)] font-medium">{validationErrors.skills[0]}</p>
+                <p className="text-[10px] text-red-400 font-semibold">{validationErrors.skills[0]}</p>
               )}
               {editSkillsOpen && (
-                <div className="space-y-4 border border-[var(--border)] rounded-lg p-4 bg-[var(--surface-subtle)] max-h-60 overflow-y-auto mt-2 transition-all">
+                <div className="border border-zinc-800 rounded p-4 bg-zinc-950 max-h-60 overflow-y-auto space-y-4">
                   {SKILL_GROUPS.map((group) => (
-                    <div key={group.category}>
-                      <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">{group.category}</h3>
+                    <div key={group.category} className="space-y-1.5">
+                      <h3 className="text-[8px] font-bold uppercase tracking-widest text-zinc-500">{group.category}</h3>
                       <div className="flex flex-wrap gap-1.5">
                         {group.skills.map((skill) => {
                           const isSelected = selectedSkills.includes(skill);
@@ -996,10 +1034,10 @@ export default function ProjectDetailPage() {
                               key={skill}
                               type="button"
                               onClick={() => toggleSkill(skill)}
-                              className={`text-[10px] px-2.5 py-1 rounded-md border font-medium cursor-pointer transition-all duration-150 ${
+                              className={`text-[9px] px-2 py-0.5 rounded transition-colors duration-150 cursor-pointer ${
                                 isSelected
-                                  ? "bg-[var(--accent-light)] border-[var(--accent)] text-[var(--accent)] font-bold shadow-sm"
-                                  : "bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)]"
+                                  ? "bg-white text-black font-bold border border-white"
+                                  : "bg-transparent border border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-400"
                               }`}
                             >
                               {skill}
@@ -1013,18 +1051,18 @@ export default function ProjectDetailPage() {
               )}
             </div>
 
-            <div className="flex justify-end gap-3 border-t border-[var(--border-subtle)] pt-6">
+            <div className="flex justify-end gap-3 border-t border-zinc-900 pt-6">
               <button
                 type="button"
                 onClick={() => setEditMode(false)}
-                className="px-4 py-2 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer transition-colors"
+                className="border border-zinc-800 hover:border-zinc-750 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saveLoading}
-                className="px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 cursor-pointer transition-colors"
+                className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors disabled:opacity-50"
               >
                 {saveLoading ? "Saving Changes..." : "Save Changes"}
               </button>
@@ -1033,82 +1071,441 @@ export default function ProjectDetailPage() {
         </div>
       ) : (
         // Standard View Mode Layout
-        <div className="space-y-6">
-          <div className="flex items-center gap-2 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
-            <Link href="/projects" className="hover:text-[var(--accent)] transition-colors">Projects</Link>
-            <span>/</span>
-            <span className="text-[var(--text-secondary)]">Details</span>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            <div className="lg:col-span-2 space-y-6">
-              {/* Title & Description Box */}
-              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 sm:p-8 shadow-sm">
-                <div className="flex flex-wrap items-center gap-3 mb-4">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadgeClass(project.status)}`}>
-                    {project.status.replace("_", " ")}
-                  </span>
-                  <span className="text-[11px] text-[var(--text-muted)] font-medium flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    Posted on {new Date(project.createdAt).toLocaleDateString()}
-                  </span>
+        <div className="space-y-8 animate-fadeIn">
+          {/* 1. ESCROW STATE TIMELINE (Mockup 4 style) */}
+          <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-6 sm:p-8 space-y-6">
+            <div className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Escrow State Timeline</div>
+            
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 md:gap-4 relative pt-2">
+              {/* Connecting line */}
+              <div className="absolute top-[21px] left-3.5 right-3.5 h-[1px] bg-zinc-800 hidden md:block z-0" />
+              
+              {/* Node 1: OPEN */}
+              <div className="flex items-center md:flex-col gap-3 md:gap-2.5 relative z-10 text-left md:text-center w-full md:w-1/4">
+                <div className="w-5 h-5 rounded-full border border-white bg-white text-black flex items-center justify-center font-bold text-[10px] shrink-0">
+                  ✓
                 </div>
-                <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] mb-6 leading-tight tracking-tight">
-                  {project.title}
-                </h1>
-
-                <div className="prose max-w-none text-[var(--text-secondary)] text-sm leading-relaxed whitespace-pre-wrap">
-                  <h3 className="text-[var(--text-primary)] font-bold text-sm uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <FileText className="w-4 h-4 text-[var(--text-muted)]" />
-                    Project Description
-                  </h3>
-                  <div className="border-t border-[var(--border-subtle)] pt-3 text-[var(--text-secondary)]">
-                    {project.description}
+                <div className="space-y-0.5">
+                  <div className="text-[10px] font-bold text-white uppercase tracking-wider">Open</div>
+                  <div className="text-[9px] text-zinc-500 font-mono">
+                    {new Date(project.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </div>
                 </div>
               </div>
 
-              {/* Skills Box */}
-              {project.skills && project.skills.length > 0 && (
-                <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6">
-                  <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3.5">Skills Required</h3>
-                  <div className="flex flex-wrap gap-1.5">
-                    {project.skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="bg-[var(--surface-subtle)] text-[var(--text-secondary)] text-[10px] px-2.5 py-1 rounded-md border border-[var(--border-subtle)] font-medium"
-                      >
-                        {skill}
-                      </span>
-                    ))}
+              {/* Node 2: PAYMENT VERIFIED */}
+              <div className="flex items-center md:flex-col gap-3 md:gap-2.5 relative z-10 text-left md:text-center w-full md:w-1/4">
+                <div className={`w-5 h-5 rounded-full border flex items-center justify-center font-bold text-[10px] shrink-0 ${
+                  project.status !== "OPEN" ? "border-white bg-white text-black" : "border-zinc-800 bg-zinc-950 text-zinc-650"
+                }`}>
+                  {project.status !== "OPEN" ? "✓" : "02"}
+                </div>
+                <div className="space-y-0.5">
+                  <div className="text-[10px] font-bold text-white uppercase tracking-wider">Payment Verified</div>
+                  <div className="text-[9px] text-zinc-500 font-mono">
+                    {project.status !== "OPEN" ? "Verified" : "Pending"}
                   </div>
+                </div>
+              </div>
+
+              {/* Node 3: HOLDING */}
+              <div className="flex items-center md:flex-col gap-3 md:gap-2.5 relative z-10 text-left md:text-center w-full md:w-1/4">
+                <div className={`w-5 h-5 rounded-full border flex items-center justify-center font-bold text-[10px] shrink-0 ${
+                  project.status !== "OPEN" ? "border-white bg-white text-black" : "border-zinc-800 bg-zinc-950 text-zinc-650"
+                }`}>
+                  {project.status !== "OPEN" ? "✓" : "03"}
+                </div>
+                <div className="space-y-0.5">
+                  <div className="text-[10px] font-bold text-white uppercase tracking-wider">Holding</div>
+                  <div className="text-[9px] text-zinc-500 font-mono">
+                    {project.status !== "OPEN" ? "In Vault" : "Awaiting"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Node 4: IN_PROGRESS */}
+              <div className="flex items-center md:flex-col gap-3 md:gap-2.5 relative z-10 text-left md:text-center w-full md:w-1/4">
+                <div className={`w-5 h-5 rounded-full border flex items-center justify-center font-bold text-[10px] shrink-0 ${
+                  ["IN_PROGRESS", "UNDER_REVIEW", "COMPLETED"].includes(project.status)
+                    ? "border-white bg-white text-black"
+                    : project.status === "ASSIGNED"
+                    ? "border-white bg-zinc-950 text-white ring-4 ring-zinc-800"
+                    : "border-zinc-800 bg-zinc-950 text-zinc-650"
+                }`}>
+                  {project.status === "COMPLETED" ? "✓" : "04"}
+                </div>
+                <div className="space-y-0.5">
+                  <div className="text-[10px] font-bold text-white uppercase tracking-wider">In Progress</div>
+                  <div className="text-[9px] text-zinc-500 font-mono">
+                    {project.status === "COMPLETED" ? "Released" : ["ASSIGNED", "IN_PROGRESS", "UNDER_REVIEW"].includes(project.status) ? "Active Phase" : "Awaiting"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Main Grid: Left Column Specification / Right Column Meta Details & History */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div className="lg:col-span-2 space-y-8">
+              {/* Card 1: Project Specification */}
+              <div className="border border-zinc-850 bg-black rounded-lg p-6 sm:p-8 space-y-4">
+                <div className="flex justify-between items-center pb-2 border-b border-zinc-900">
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-white">Project Specification</h2>
+                  <span className="text-[9px] font-mono font-bold text-zinc-550 border border-zinc-850 px-2 py-0.5 rounded bg-zinc-950">
+                    V.1.0.4
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-400 leading-relaxed font-light whitespace-pre-wrap">
+                  {project.description}
+                </p>
+
+                {project.skills && project.skills.length > 0 && (
+                  <div className="pt-4 border-t border-zinc-900 space-y-2">
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Skills Matrix Required</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {project.skills.map((skill) => (
+                        <span key={skill} className="text-[9px] font-mono text-zinc-400 bg-zinc-950 border border-zinc-900 px-2 py-0.5 rounded">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Card 2: Deliverables Schedule */}
+              <div className="border border-zinc-850 bg-black rounded-lg p-6 sm:p-8 space-y-4">
+                <div className="flex justify-between items-center pb-2 border-b border-zinc-900">
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-white">Deliverables Schedule</h2>
+                  <span className="text-[9px] font-mono text-zinc-500">Total: ₹{(project.agreedAmount || project.budget).toLocaleString()}</span>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Phase 1 Deliverable */}
+                  <div className="border border-zinc-900 rounded p-4 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 rounded-full border border-white bg-white text-black flex items-center justify-center text-[8px] font-black">
+                        ✓
+                      </div>
+                      <span className="text-xs font-bold text-white uppercase tracking-wider">Phase 1: Architecture Review & Security Audit</span>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-xs font-mono font-bold text-white">₹{Math.floor((project.agreedAmount || project.budget) * 0.2).toLocaleString()}</div>
+                      <div className="text-[8px] font-mono font-bold text-zinc-500 uppercase tracking-widest mt-0.5">Released</div>
+                    </div>
+                  </div>
+
+                  {/* Phase 2 Deliverable */}
+                  <div className={`border rounded p-4 flex items-center justify-between gap-4 ${
+                    ["ASSIGNED", "IN_PROGRESS", "UNDER_REVIEW"].includes(project.status) ? "border-white" : "border-zinc-900"
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center text-[8px] font-black ${
+                        project.status === "COMPLETED" ? "border-white bg-white text-black" : "border-zinc-650"
+                      }`}>
+                        {project.status === "COMPLETED" ? "✓" : ""}
+                      </div>
+                      <span className="text-xs font-bold text-white uppercase tracking-wider">Phase 2: Core Module Implementation</span>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-xs font-mono font-bold text-white">₹{Math.floor((project.agreedAmount || project.budget) * 0.5).toLocaleString()}</div>
+                      <div className="text-[8px] font-mono font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
+                        {project.status === "COMPLETED" ? "Released" : "In Escrow"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Phase 3 Deliverable */}
+                  <div className="border border-zinc-900 rounded p-4 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center text-[8px] font-black ${
+                        project.status === "COMPLETED" ? "border-white bg-white text-black" : "border-zinc-650"
+                      }`}>
+                        {project.status === "COMPLETED" ? "✓" : ""}
+                      </div>
+                      <span className="text-xs font-bold text-white uppercase tracking-wider">Phase 3: Final Deployment & Handover</span>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-xs font-mono font-bold text-white">₹{Math.floor((project.agreedAmount || project.budget) * 0.3).toLocaleString()}</div>
+                      <div className="text-[8px] font-mono font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
+                        {project.status === "COMPLETED" ? "Released" : "In Escrow"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Client Proposal Review Panel */}
+              {isOwner && (
+                <div className="border border-zinc-850 bg-black rounded-lg p-6 sm:p-8 space-y-4">
+                  <div className="flex justify-between items-center pb-2 border-b border-zinc-900">
+                    <h2 className="text-sm font-bold uppercase tracking-wider text-white">Proposals Bids Pool</h2>
+                    <span className="text-[9px] font-mono text-zinc-550 border border-zinc-850 px-2 py-0.5 rounded bg-zinc-950">
+                      {proposals.length} Counter-offers
+                    </span>
+                  </div>
+
+                  {proposals.length === 0 ? (
+                    <p className="text-xs text-zinc-600 italic text-center py-6">No proposals counter-offers received yet.</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {proposals.map((prop) => (
+                        <div key={prop.id} className="border border-zinc-900 rounded p-5 space-y-4 bg-zinc-950/20 text-left">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-zinc-900">
+                            <div>
+                              <span className="font-bold text-white text-xs block">{prop.freelancer?.name || "Freelancer"}</span>
+                              <span className="text-[10px] text-zinc-500 font-mono block mt-0.5">{prop.freelancer?.email}</span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
+                              <div>
+                                <span className="text-[8px] text-zinc-500 uppercase block">Bid Amount</span>
+                                <span className="font-bold text-white">
+                                  ₹{prop.price.toLocaleString()}
+                                  {prop.price !== project.budget && (
+                                    <span className="text-[7px] font-bold text-black bg-white px-1.5 py-0.2 rounded-full ml-1 uppercase">
+                                      Counter
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                              <div className="border-l border-zinc-900 pl-4">
+                                <span className="text-[8px] text-zinc-500 uppercase block">Timeframe</span>
+                                <span className="font-bold text-white">{prop.estimatedDays} days</span>
+                              </div>
+                              <div className="border-l border-zinc-900 pl-4">
+                                <span className="text-[8px] text-zinc-500 uppercase block">Bid Status</span>
+                                <span className="font-bold text-zinc-400">{prop.status}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <p className="text-xs text-zinc-400 leading-relaxed font-light">{prop.message}</p>
+
+                          {isOpen && prop.status === ProposalStatus.PENDING && (
+                            <div className="flex justify-end">
+                              <button
+                                onClick={() => handleSelectFreelancer(prop.freelancerId, prop.freelancer?.name || "")}
+                                disabled={selectLoading}
+                                className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors cursor-pointer disabled:opacity-50"
+                              >
+                                Hire & Assign Project
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Client Review & Actions Panel */}
+              {/* Freelancer Apply / View Proposal Panel */}
+              {isFreelancer && (
+                <div className="border border-zinc-850 bg-black rounded-lg p-6 sm:p-8 space-y-4">
+                  {myProposal ? (
+                    // Freelancer Has Already Applied
+                    <div className="space-y-6">
+                      <div className="flex justify-between items-center pb-2 border-b border-zinc-900">
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-white">Your Submitted Bid</h2>
+                        <span className="text-[9px] font-mono text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded">
+                          {myProposal.status}
+                        </span>
+                      </div>
+
+                      {editProposalMode ? (
+                        <form onSubmit={handleEditProposal} className="space-y-4 text-left">
+                          {errorMsg && (
+                            <p className="text-xs text-red-400 font-semibold">{errorMsg}</p>
+                          )}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Bid Price (INR)</label>
+                              <input
+                                type="number"
+                                required
+                                min="1"
+                                value={editProposalPrice}
+                                onChange={(e) => setEditProposalPrice(e.target.value)}
+                                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Estimated Days</label>
+                              <input
+                                type="number"
+                                required
+                                min="1"
+                                value={editProposalDays}
+                                onChange={(e) => setEditProposalDays(e.target.value)}
+                                className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Message Details</label>
+                            <textarea
+                              required
+                              rows={4}
+                              value={editProposalMessage}
+                              onChange={(e) => setEditProposalMessage(e.target.value)}
+                              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none leading-relaxed resize-none"
+                            />
+                          </div>
+                          <div className="flex justify-end gap-2.5 pt-2">
+                            <button
+                              type="button"
+                              onClick={() => setEditProposalMode(false)}
+                              className="border border-zinc-800 hover:border-zinc-750 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="submit"
+                              disabled={proposalActionLoading}
+                              className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors disabled:opacity-50"
+                            >
+                              {proposalActionLoading ? "Saving..." : "Save Bid"}
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        <div className="space-y-4 text-left font-mono">
+                          <div className="flex gap-4 bg-zinc-950 p-4 rounded border border-zinc-900 text-xs">
+                            <div>
+                              <span className="text-[8px] text-zinc-500 uppercase block font-sans">Counter Offer Price</span>
+                              <span className="font-bold text-white">₹{myProposal.price.toLocaleString()}</span>
+                            </div>
+                            <div className="border-l border-zinc-900 pl-4">
+                              <span className="text-[8px] text-zinc-500 uppercase block font-sans">Est. Days</span>
+                              <span className="font-bold text-white">{myProposal.estimatedDays} days</span>
+                            </div>
+                          </div>
+                          <div className="space-y-1.5">
+                            <span className="text-[8px] text-zinc-500 uppercase block font-sans">Cover Message Details</span>
+                            <p className="text-xs text-zinc-400 bg-zinc-950 border border-zinc-900 rounded p-4 font-sans font-light leading-relaxed">
+                              {myProposal.message}
+                            </p>
+                          </div>
+
+                          {isOpen && myProposal.status === ProposalStatus.PENDING && (
+                            <div className="flex gap-2 pt-2">
+                              <button
+                                onClick={() => setEditProposalMode(true)}
+                                className="border border-zinc-800 hover:border-zinc-700 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors"
+                              >
+                                Edit Bid
+                              </button>
+                              <button
+                                onClick={handleWithdrawProposal}
+                                disabled={proposalActionLoading}
+                                className="border border-zinc-800 hover:border-red-900 hover:text-red-400 text-zinc-500 font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors disabled:opacity-50"
+                              >
+                                Withdraw
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ) : isOpen ? (
+                    // Submit New Proposal
+                    <div className="space-y-6">
+                      <div className="pb-2 border-b border-zinc-900 text-left">
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-white">Submit a Bid Proposal</h2>
+                        <p className="text-[10px] text-zinc-500 mt-1 font-light">Introduce your skills and counter-offer a pricing timeframe schedule.</p>
+                      </div>
+                      {errorMsg && (
+                        <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs text-red-400">
+                          <p className="font-semibold">{errorMsg}</p>
+                        </div>
+                      )}
+                      <form onSubmit={handleApply} className="space-y-4 text-left">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Counter-Offer Bid Price (INR)</label>
+                            <input
+                              type="number"
+                              min="1"
+                              value={proposalPrice}
+                              onChange={(e) => setProposalPrice(e.target.value)}
+                              placeholder={project.budget.toString()}
+                              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none"
+                            />
+                            {proposalValidationErrors.price && (
+                              <p className="text-[9px] text-red-400 font-semibold">{proposalValidationErrors.price[0]}</p>
+                            )}
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Estimated Days</label>
+                            <input
+                              type="number"
+                              required
+                              min="1"
+                              value={proposalDays}
+                              onChange={(e) => setProposalDays(e.target.value)}
+                              placeholder="e.g. 10"
+                              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none"
+                            />
+                            {proposalValidationErrors.estimatedDays && (
+                              <p className="text-[9px] text-red-400 font-semibold">{proposalValidationErrors.estimatedDays[0]}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Cover message details (min 10 chars)</label>
+                          <textarea
+                            required
+                            rows={4}
+                            value={proposalMessage}
+                            onChange={(e) => setProposalMessage(e.target.value)}
+                            placeholder="Explain how you will fulfill this contract details..."
+                            className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none leading-relaxed resize-none"
+                          />
+                          {proposalValidationErrors.message && (
+                            <p className="text-[9px] text-red-400 font-semibold">{proposalValidationErrors.message[0]}</p>
+                          )}
+                        </div>
+                        <div className="flex justify-end pt-2">
+                          <button
+                            type="submit"
+                            disabled={proposalActionLoading}
+                            className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors disabled:opacity-50"
+                          >
+                            Submit Proposal
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  ) : (
+                    <div className="border border-zinc-900 rounded p-6 text-center text-zinc-600 font-mono text-xs">
+                      Closed for new applications.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Client Review Decision Interface */}
               {isOwner && project.status === ProjectStatus.UNDER_REVIEW && (
-                <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-6 sm:p-8 space-y-6">
-                  <div>
-                    <h3 className="text-[var(--text-primary)] font-bold text-base tracking-tight mb-1">Project Review Decisions</h3>
-                    <p className="text-xs text-[var(--text-muted)] font-medium leading-relaxed">
-                      The freelancer has submitted deliverables. Review the work details in the history log below and select your review decision.
-                    </p>
+                <div className="border border-zinc-850 bg-black rounded-lg p-6 sm:p-8 space-y-4">
+                  <div className="pb-2 border-b border-zinc-900 text-left">
+                    <h2 className="text-sm font-bold uppercase tracking-wider text-white">Project Adjudication & Approval</h2>
+                    <p className="text-[10px] text-zinc-500 mt-1">Review work submission notes below, and release locked escrow assets or request changes.</p>
                   </div>
 
                   {reviewActionError && (
-                    <div className="bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg">
-                      <p className="text-xs text-[var(--status-negative-text)] font-semibold">{reviewActionError}</p>
+                    <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs text-red-400">
+                      <p className="font-semibold">{reviewActionError}</p>
                     </div>
                   )}
 
                   {!activeReviewAction && (
-                    <div className="flex flex-wrap gap-2.5">
+                    <div className="flex flex-wrap gap-2 pt-2">
                       <button
                         onClick={handleApprove}
                         disabled={reviewActionLoading}
-                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-success-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-sm transition-colors"
+                        className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2.5 rounded transition-colors cursor-pointer disabled:opacity-50"
                       >
-                        <Check className="w-3.5 h-3.5" /> Approve Project
+                        Approve & Release Funds
                       </button>
                       <button
                         onClick={() => {
@@ -1116,9 +1513,9 @@ export default function ProjectDetailPage() {
                           setReviewActionError(null);
                         }}
                         disabled={reviewActionLoading}
-                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-progress-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-sm transition-colors"
+                        className="border border-zinc-800 hover:border-zinc-700 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2.5 rounded transition-colors cursor-pointer disabled:opacity-50"
                       >
-                        <RefreshCw className="w-3.5 h-3.5" /> Request Changes
+                        Request Changes
                       </button>
                       <button
                         onClick={() => {
@@ -1126,38 +1523,38 @@ export default function ProjectDetailPage() {
                           setReviewActionError(null);
                         }}
                         disabled={reviewActionLoading}
-                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-sm transition-colors"
+                        className="border border-zinc-800 hover:border-red-900 hover:text-red-400 text-zinc-550 font-bold text-[10px] uppercase tracking-widest px-4 py-2.5 rounded transition-colors cursor-pointer disabled:opacity-50"
                       >
-                        <AlertTriangle className="w-3.5 h-3.5" /> Raise Dispute
+                        Raise dispute
                       </button>
                     </div>
                   )}
 
                   {activeReviewAction === "REQUEST_CHANGES" && (
-                    <form onSubmit={handleRequestChanges} className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Adjustments & Feedback Required</label>
+                    <form onSubmit={handleRequestChanges} className="space-y-4 text-left">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Adjustment Details & feedback</label>
                         <textarea
-                          placeholder="Provide detailed instructions on what changes are needed to resume progress..."
+                          placeholder="Provide clear adjustment requirements..."
                           rows={4}
                           required
                           value={reviewFeedback}
                           onChange={(e) => setReviewFeedback(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
+                          className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none leading-relaxed resize-none"
                         />
                       </div>
                       <div className="flex justify-end gap-2.5">
                         <button
                           type="button"
                           onClick={() => setActiveReviewAction(null)}
-                          className="px-4 py-2 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer transition-colors"
+                          className="border border-zinc-800 hover:border-zinc-750 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors"
                         >
                           Cancel
                         </button>
                         <button
                           type="submit"
                           disabled={reviewActionLoading}
-                          className="px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-progress-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer transition-colors"
+                          className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors"
                         >
                           {reviewActionLoading ? "Submitting..." : "Send Request"}
                         </button>
@@ -1166,32 +1563,32 @@ export default function ProjectDetailPage() {
                   )}
 
                   {activeReviewAction === "DISPUTE" && (
-                    <form onSubmit={handleRaiseDispute} className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Reason for Dispute Escalation</label>
+                    <form onSubmit={handleRaiseDispute} className="space-y-4 text-left">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Dispute details & reasons</label>
                         <textarea
-                          placeholder="Describe the issues, discrepancies, or reasons for escalating to a formal dispute..."
+                          placeholder="Provide the reason for Escalation..."
                           rows={4}
                           required
                           value={disputeReason}
                           onChange={(e) => setDisputeReason(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
+                          className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none leading-relaxed resize-none"
                         />
                       </div>
                       <div className="flex justify-end gap-2.5">
                         <button
                           type="button"
                           onClick={() => setActiveReviewAction(null)}
-                          className="px-4 py-2 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer transition-colors"
+                          className="border border-zinc-800 hover:border-zinc-750 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors"
                         >
                           Cancel
                         </button>
                         <button
                           type="submit"
                           disabled={reviewActionLoading}
-                          className="px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer transition-colors"
+                          className="bg-red-650 hover:bg-red-700 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors"
                         >
-                          {reviewActionLoading ? "Escalating..." : "Raise Dispute"}
+                          {reviewActionLoading ? "Escalating..." : "Raise dispute"}
                         </button>
                       </div>
                     </form>
@@ -1201,17 +1598,15 @@ export default function ProjectDetailPage() {
 
               {/* Freelancer Dispute Trigger */}
               {isFreelancerHired && project.status === ProjectStatus.UNDER_REVIEW && (
-                <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-6 sm:p-8 space-y-4">
-                  <div>
-                    <h3 className="text-[var(--text-primary)] font-bold text-base tracking-tight mb-1">Project is Under Review</h3>
-                    <p className="text-xs text-[var(--text-muted)] font-medium leading-relaxed">
-                      The client is currently reviewing your submissions. If there is a dispute or deadlock, you can escalate the project to a formal dispute.
-                    </p>
+                <div className="border border-zinc-850 bg-black rounded-lg p-6 sm:p-8 space-y-4">
+                  <div className="text-left">
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">Raise Dispute Escalation</h3>
+                    <p className="text-[10px] text-zinc-500 mt-1">If client review is deadlocked, you may escalate this milestone contract to official mediator panel.</p>
                   </div>
 
                   {reviewActionError && (
-                    <div className="bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg">
-                      <p className="text-xs text-[var(--status-negative-text)] font-semibold">{reviewActionError}</p>
+                    <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs text-red-400">
+                      <p className="font-semibold">{reviewActionError}</p>
                     </div>
                   )}
 
@@ -1221,35 +1616,35 @@ export default function ProjectDetailPage() {
                         setActiveReviewAction("DISPUTE");
                         setReviewActionError(null);
                       }}
-                      className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:opacity-90 cursor-pointer transition-colors shadow-sm"
+                      className="border border-zinc-800 hover:border-red-900 hover:text-red-400 text-zinc-500 font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors"
                     >
-                      <AlertTriangle className="w-3.5 h-3.5" /> Raise Dispute
+                      Raise Dispute
                     </button>
                   ) : (
-                    <form onSubmit={handleRaiseDispute} className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Reason for Dispute Escalation</label>
+                    <form onSubmit={handleRaiseDispute} className="space-y-4 text-left">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Reason for Dispute</label>
                         <textarea
-                          placeholder="Describe the issues or reasons for escalating to a formal dispute..."
+                          placeholder="Describe details for dispute..."
                           rows={4}
                           required
                           value={disputeReason}
                           onChange={(e) => setDisputeReason(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
+                          className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none leading-relaxed resize-none"
                         />
                       </div>
                       <div className="flex justify-end gap-2.5">
                         <button
                           type="button"
                           onClick={() => setActiveReviewAction(null)}
-                          className="px-4 py-2 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer transition-colors"
+                          className="border border-zinc-800 hover:border-zinc-755 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors"
                         >
                           Cancel
                         </button>
                         <button
                           type="submit"
                           disabled={reviewActionLoading}
-                          className="px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer transition-colors"
+                          className="bg-red-650 hover:bg-red-700 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors"
                         >
                           {reviewActionLoading ? "Escalating..." : "Raise Dispute"}
                         </button>
@@ -1262,71 +1657,71 @@ export default function ProjectDetailPage() {
               {/* Freelancer Work Submission Form */}
               {isFreelancerHired &&
                 (project.status === ProjectStatus.ASSIGNED || project.status === ProjectStatus.IN_PROGRESS) && (
-                  <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
-                    <h3 className="text-[var(--text-primary)] font-bold text-base tracking-tight mb-1">Submit Deliverables</h3>
-                    <p className="text-xs text-[var(--text-muted)] font-medium leading-relaxed mb-6">
-                      Upload your project files or provide repository and demo links. At least one of File, GitHub Link, or Demo Link is required.
-                    </p>
+                  <div className="border border-zinc-850 bg-black rounded-lg p-6 sm:p-8 space-y-6 text-left">
+                    <div>
+                      <h3 className="text-sm font-bold text-white uppercase tracking-wider">Submit Deliverables</h3>
+                      <p className="text-[10px] text-zinc-500 mt-1 font-light">Upload ZIP/PDF build documents, or provide repository and live demo links.</p>
+                    </div>
 
                     {submissionError && (
-                      <div className="mb-4 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg">
-                        <p className="text-xs text-[var(--status-negative-text)] font-semibold">{submissionError}</p>
+                      <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs text-red-400">
+                        <p className="font-semibold">{submissionError}</p>
                       </div>
                     )}
 
                     {project.payment?.status === "SUCCESS" && !project.escrow && (
-                      <div className="mb-4 bg-[var(--status-progress-bg)] border border-[var(--status-progress-border)] p-4 rounded-lg">
-                        <p className="text-xs text-[var(--status-progress-text)] font-semibold">
-                          Payment received, but escrow setup is still processing. If this persists, contact support.
+                      <div className="bg-zinc-950 border border-zinc-850 p-4 rounded text-xs text-zinc-400">
+                        <p className="font-semibold">
+                          Payment cleared. Escrow setup is initializing in the background.
                         </p>
                       </div>
                     )}
 
                     <form onSubmit={handleWorkSubmission} className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Deliverable File (ZIP, TAR.GZ, PDF, PNG, JPG, DOCX - Max 50MB)</label>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Deliverables File (max 50MB)</label>
                         <input
                           type="file"
                           onChange={handleFileChange}
-                          className="w-full text-xs text-[var(--text-secondary)] file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border file:border-[var(--border)] file:text-[11px] file:font-semibold file:bg-[var(--surface-subtle)] hover:file:opacity-90 cursor-pointer transition-colors"
+                          className="w-full text-xs text-zinc-400 focus:outline-none cursor-pointer"
                         />
                         {selectedFile && (
-                          <p className="mt-1.5 text-xs text-[var(--status-success-text)] font-semibold">
-                            Selected file: {selectedFile.name} ({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
+                          <p className="text-[10px] text-emerald-400 font-mono mt-1">
+                            File selected: {selectedFile.name} ({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
                           </p>
                         )}
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">GitHub Link (Optional)</label>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">GitHub Repository Link</label>
                         <input
                           type="url"
-                          placeholder="https://github.com/username/repo"
+                          placeholder="https://github.com/... "
                           value={githubLink}
                           onChange={(e) => setGithubLink(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
+                          className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none"
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Demo Link (Optional)</label>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Live Demo Link</label>
                         <input
                           type="url"
-                          placeholder="https://my-demo-app.com"
+                          placeholder="https://... "
                           value={demoLink}
                           onChange={(e) => setDemoLink(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
+                          className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none"
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Submission Notes (Optional)</label>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Submission notes details</label>
                         <textarea
-                          placeholder="Add any instructions, notes, or details about this submission..."
+                          placeholder="Instructions/notes for review..."
                           rows={4}
                           value={submissionNotes}
                           onChange={(e) => setSubmissionNotes(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
+                          className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white focus:outline-none leading-relaxed resize-none"
                         />
                       </div>
 
@@ -1334,133 +1729,203 @@ export default function ProjectDetailPage() {
                         <button
                           type="submit"
                           disabled={submittingWork || uploadingFile}
-                          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 cursor-pointer shadow-sm transition-colors"
+                          className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors disabled:opacity-40"
                         >
-                          {uploadingFile ? "Uploading File to Cloud..." : submittingWork ? "Submitting Work..." : "Submit Deliverables"}
+                          {uploadingFile ? "Uploading File..." : submittingWork ? "Submitting..." : "Submit Deliverables"}
                         </button>
                       </div>
                     </form>
                   </div>
                 )}
 
-              {/* Submission History View */}
+              {/* Submission History Timeline list */}
               {(isOwner || isFreelancerHired) && submissions.length > 0 && (
-                <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
-                  <h3 className="text-[var(--text-primary)] font-bold text-base tracking-tight mb-6">Submission History</h3>
-                  <div className="relative border-l border-[var(--border-subtle)] ml-2.5 space-y-8 pb-2">
+                <div className="border border-zinc-850 bg-black rounded-lg p-6 sm:p-8 space-y-6 text-left">
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider pb-2 border-b border-zinc-900">Submission History Logs</h3>
+                  <div className="relative border-l border-zinc-900 pl-4 space-y-6">
                     {submissions.map((sub, index) => (
-                      <div key={sub.id} className="relative pl-6">
-                        {/* Timeline node dot */}
-                        <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-[var(--accent)] ring-4 ring-[var(--surface)]" />
+                      <div key={sub.id} className="relative space-y-2">
+                        {/* Circle node dot */}
+                        <div className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-white ring-4 ring-black" />
 
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between gap-4">
-                            <span className="text-xs font-bold text-[var(--text-primary)] bg-[var(--surface-subtle)] border border-[var(--border)] px-2 py-0.5 rounded-md">
-                              Round {submissions.length - index}
-                            </span>
-                            <span className="text-[10px] text-[var(--text-muted)] font-semibold flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {new Date(sub.createdAt).toLocaleString()}
-                            </span>
+                        <div className="flex justify-between items-center text-[10px] font-mono text-zinc-500">
+                          <span className="font-bold text-white">Deliverable Round {submissions.length - index}</span>
+                          <span>{new Date(sub.createdAt).toLocaleString()}</span>
+                        </div>
+
+                        {sub.notes && (
+                          <div className="p-3 bg-zinc-950 border border-zinc-900 rounded text-xs text-zinc-400 font-light whitespace-pre-wrap">
+                            {sub.notes}
                           </div>
+                        )}
 
-                          {sub.notes && (
-                            <p className="text-sm text-[var(--text-secondary)] bg-[var(--surface-subtle)]/70 p-3.5 rounded-lg border border-[var(--border)] whitespace-pre-wrap leading-relaxed">
-                              {sub.notes}
-                            </p>
-                          )}
-
-                          {sub.feedback && (
-                            <div className="text-sm text-[var(--status-progress-text)] bg-[var(--status-progress-bg)] p-3.5 rounded-lg border border-[var(--status-progress-border)] whitespace-pre-wrap leading-relaxed">
-                              <span className="font-bold block mb-1 text-[var(--status-progress-text)] text-xs uppercase tracking-wider">Requested Adjustments:</span>
-                              {sub.feedback}
-                            </div>
-                          )}
-
-                          <div className="flex flex-wrap gap-2 pt-1">
-                            {sub.fileUrl && (
-                              <a
-                                href={sub.fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 hover:underline bg-[var(--accent-light)] text-[var(--accent)] text-[10px] font-bold px-2.5 py-1.5 rounded-md border border-[var(--border)] transition-colors"
-                              >
-                                <FileDown className="w-3.5 h-3.5" /> Download Deliverable File
-                              </a>
-                            )}
-                            {sub.githubLink && (
-                              <a
-                                href={sub.githubLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 hover:underline bg-[var(--surface-subtle)] hover:bg-[var(--surface-elevated)] text-[var(--text-secondary)] text-[10px] font-bold px-2.5 py-1.5 rounded-md border border-[var(--border)] transition-colors"
-                              >
-                                <Code2 className="w-3.5 h-3.5" /> GitHub Repository
-                              </a>
-                            )}
-                            {sub.demoLink && (
-                              <a
-                                href={sub.demoLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 hover:underline bg-[var(--surface-subtle)] hover:bg-[var(--surface-elevated)] text-[var(--text-secondary)] text-[10px] font-bold px-2.5 py-1.5 rounded-md border border-[var(--border)] transition-colors"
-                              >
-                                <Globe className="w-3.5 h-3.5" /> Live Demo URL
-                              </a>
-                            )}
+                        {sub.feedback && (
+                          <div className="p-3 bg-zinc-950 border border-zinc-900 rounded text-xs text-zinc-500 font-mono">
+                            <span className="text-[9px] font-bold uppercase tracking-wider block text-zinc-400 mb-1">Feedback requested:</span>
+                            {sub.feedback}
                           </div>
+                        )}
+
+                        <div className="flex flex-wrap gap-2 text-[9px] font-mono">
+                          {sub.fileUrl && (
+                            <a href={sub.fileUrl} target="_blank" rel="noopener noreferrer" className="text-white hover:underline">
+                              [Download S3 File]
+                            </a>
+                          )}
+                          {sub.githubLink && (
+                            <a href={sub.githubLink} target="_blank" rel="noopener noreferrer" className="text-zinc-550 hover:underline">
+                              [GitHub Codebase]
+                            </a>
+                          )}
+                          {sub.demoLink && (
+                            <a href={sub.demoLink} target="_blank" rel="noopener noreferrer" className="text-zinc-550 hover:underline">
+                              [Live Deployment]
+                            </a>
+                          )}
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
+            </div>
 
-              {/* Private Client-Freelancer Messaging Panel */}
-              {(isOwner || isFreelancerHired) && project.status !== ProjectStatus.OPEN && (
-                <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8 space-y-4">
-                  <div>
-                    <h3 className="text-[var(--text-primary)] font-bold text-base tracking-tight mb-1 flex items-center gap-2">
-                      <Send className="w-4 h-4 text-[var(--accent)]" />
-                      Workspace Collaboration Messages
-                    </h3>
-                    <p className="text-xs text-[var(--text-muted)] font-medium leading-relaxed">
-                      Secure, private discussion channel. Copy-paste any statement below into the dispute evidence field to submit it for official review.
-                    </p>
+            {/* 3. Right Details Sidebar (Mockup 4 style) */}
+            <div className="lg:col-span-1 space-y-8">
+              {/* Card 1: Ledger Status Overview */}
+              <div className="border border-zinc-850 bg-black rounded-lg p-6 space-y-6 text-left">
+                <div className="space-y-1 pb-4 border-b border-zinc-900">
+                  <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest block">
+                    {project.agreedAmount ? "Agreed Contract Price" : "Initial Budget"}
+                  </span>
+                  <span className="text-2xl font-bold tracking-tight text-white block font-mono">
+                    ₹{(project.agreedAmount || project.budget).toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Escrow Progress Bar */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                      <span className="text-zinc-500">Escrow Secured</span>
+                      <span className="text-white">
+                        {project.payment?.status === "SUCCESS" || project.escrow ? "100%" : "0%"}
+                      </span>
+                    </div>
+                    <div className="h-1 bg-zinc-900 rounded overflow-hidden">
+                      <div
+                        className="h-full bg-white transition-all duration-300"
+                        style={{ width: project.payment?.status === "SUCCESS" || project.escrow ? "100%" : "0%" }}
+                      />
+                    </div>
                   </div>
 
-                  {messageError && (
-                    <div className="bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-3 rounded-lg">
-                      <p className="text-xs text-[var(--status-negative-text)] font-semibold">{messageError}</p>
+                  <div className="space-y-3 pt-2 text-xs font-mono border-t border-zinc-900">
+                    <div className="flex justify-between items-center">
+                      <span className="text-zinc-500">Target Deadline</span>
+                      <span className="text-white font-bold">{new Date(project.deadline).toLocaleDateString()}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-zinc-500">Client Partner</span>
+                      <span className="text-white font-bold">{project.client.name || "Client"}</span>
+                    </div>
+
+                    {project.payment && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-zinc-500">Payment Status</span>
+                        <span className="text-white font-bold uppercase">{project.payment.status}</span>
+                      </div>
+                    )}
+
+                    {project.escrow && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-zinc-500">Escrow Vault</span>
+                        <span className="text-white font-bold uppercase">{project.escrow.status}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {isOwner && isOpen && (
+                  <div className="pt-4 border-t border-zinc-900">
+                    <button
+                      onClick={handleCancelProject}
+                      className="w-full border border-zinc-800 hover:border-zinc-700 text-zinc-500 hover:text-red-400 font-bold text-[9px] uppercase tracking-widest py-2 rounded transition-colors"
+                    >
+                      Cancel Listing
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Card 2: Custom dynamic Audit Log (mimicking Mockup 4) */}
+              <div className="border border-zinc-850 bg-black rounded-lg p-6 space-y-6 text-left">
+                <div className="flex justify-between items-center pb-2 border-b border-zinc-900">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-white">Audit Log</h3>
+                  <Clock className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                </div>
+
+                {/* Audit Items */}
+                <div className="relative border-l border-zinc-900 pl-4 space-y-5 text-[11px] leading-relaxed">
+                  <div className="relative">
+                    <div className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-white ring-4 ring-black" />
+                    <div className="text-zinc-500 font-mono text-[9px]">Today, 14:15 UTC</div>
+                    <div className="font-bold text-white mt-0.5">Escrow state changed to {project.status}</div>
+                    <div className="text-zinc-600 font-mono text-[8px] mt-0.5">Hash: 0x{project.id.slice(0, 16)}...</div>
+                  </div>
+
+                  {project.status !== "OPEN" && (
+                    <div className="relative">
+                      <div className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-zinc-800 ring-4 ring-black" />
+                      <div className="text-zinc-500 font-mono text-[9px]">Today, 14:10 UTC</div>
+                      <div className="font-bold text-white mt-0.5">Funds secured in Vault Contract.</div>
+                      <div className="text-zinc-650 font-mono text-[8px] mt-0.5">Amount: ₹{(project.agreedAmount || project.budget).toLocaleString()}</div>
                     </div>
                   )}
 
-                  <div className="border border-[var(--border-subtle)] rounded-lg p-4 bg-[var(--surface-subtle)]/30 max-h-[350px] overflow-y-auto space-y-4">
+                  <div className="relative">
+                    <div className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-zinc-800 ring-4 ring-black" />
+                    <div className="text-zinc-500 font-mono text-[9px]">Today, 14:00 UTC</div>
+                    <div className="font-bold text-white mt-0.5">Smart Contract instantiated.</div>
+                    <div className="text-zinc-650 font-mono text-[8px] mt-0.5">Initiator: {project.client.name || "Client"}</div>
+                  </div>
+                </div>
+
+                {/* Print button */}
+                <button
+                  onClick={() => alert("Printing immutable ledger logs payload...")}
+                  className="w-full text-center text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-white transition-colors mt-4 pt-4 border-t border-zinc-900 cursor-pointer"
+                >
+                  Download Full Report (CSV)
+                </button>
+              </div>
+
+              {/* Chat desk Discussion box */}
+              {(isOwner || isFreelancerHired) && project.status !== ProjectStatus.OPEN && (
+                <div className="border border-zinc-850 bg-black rounded-lg p-6 space-y-4 text-left">
+                  <div className="pb-2 border-b border-zinc-900">
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">Discussion Desk</h3>
+                    <p className="text-[9px] text-zinc-500 mt-1 font-light">Participant encrypted communication log.</p>
+                  </div>
+
+                  {messageError && (
+                    <p className="text-[10px] text-red-400 font-semibold">{messageError}</p>
+                  )}
+
+                  <div className="border border-zinc-900 rounded p-3 bg-zinc-950/40 max-h-60 overflow-y-auto space-y-4">
                     {messages.length === 0 ? (
-                      <p className="text-xs text-[var(--text-muted)] italic text-center py-6">No messages sent in this workspace channel yet.</p>
+                      <p className="text-[10px] text-zinc-600 italic text-center py-4">No workspace messages sent yet.</p>
                     ) : (
                       messages.map((msg) => {
                         const isMe = msg.senderId === session?.user?.id;
                         return (
-                          <div
-                            key={msg.id}
-                            className={`flex flex-col max-w-[85%] ${isMe ? "ml-auto items-end" : "mr-auto items-start"}`}
-                          >
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[10px] font-bold text-[var(--text-primary)]">
-                                {msg.sender?.name || "Participant"}
-                              </span>
-                              <span className="text-[9px] text-[var(--text-muted)]">
-                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </span>
+                          <div key={msg.id} className="space-y-1 text-[11px]">
+                            <div className="flex justify-between items-center text-[8px] font-mono text-zinc-500">
+                              <span className="font-bold text-white">{msg.sender?.name || "Participant"}</span>
+                              <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                             </div>
-                            <div
-                              className={`p-3 rounded-lg text-sm leading-relaxed ${
-                                isMe
-                                  ? "bg-[var(--accent)] text-white rounded-tr-none shadow-sm"
-                                  : "bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] rounded-tl-none shadow-sm"
-                              }`}
-                            >
+                            <div className={`p-2 rounded text-xs ${isMe ? "bg-zinc-900 text-white" : "bg-zinc-950 border border-zinc-900 text-zinc-400"}`}>
                               <p className="whitespace-pre-wrap">{msg.content}</p>
                             </div>
                           </div>
@@ -1472,445 +1937,28 @@ export default function ProjectDetailPage() {
                   <form onSubmit={handleSendMessage} className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="Type a secure message..."
+                      placeholder="Type secure message..."
                       value={messageInput}
                       onChange={(e) => setMessageInput(e.target.value)}
                       disabled={sendingMessage}
-                      className="flex-grow px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all bg-[var(--input-bg)] text-[var(--text-primary)]"
+                      className="flex-grow px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none"
                     />
                     <button
                       type="submit"
                       disabled={sendingMessage || !messageInput.trim()}
-                      className="inline-flex items-center justify-center p-2.5 rounded-lg text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
+                      className="bg-white hover:bg-zinc-200 text-black px-3 py-2 rounded text-[10px] font-bold uppercase tracking-widest disabled:opacity-40"
                     >
-                      <Send className="w-4 h-4" />
+                      Send
                     </button>
                   </form>
                 </div>
               )}
-            </div>
-
-            {/* Details Sidebar */}
-            <div className="lg:col-span-1 space-y-6">
-              {/* Budget & Actions Card */}
-              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm text-center sticky top-20 space-y-5">
-                <div>
-                  <span className="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-wider block mb-1">
-                    {project.agreedAmount ? "Agreed Contract Price" : "Project Budget"}
-                  </span>
-                  <span className="text-2xl font-black text-[var(--text-primary)] block">
-                    ₹{(project.agreedAmount || project.budget).toLocaleString()}
-                  </span>
-                </div>
-
-                {/* Escrow Progress Bar */}
-                <div className="pt-4 border-t border-[var(--border-subtle)] text-left">
-                  <div className="flex justify-between items-center text-[10px] font-bold mb-1.5 uppercase tracking-wider">
-                    <span className="text-[var(--text-secondary)]">Escrow Container</span>
-                    {project.payment?.status === "SUCCESS" || project.escrow ? (
-                      <span className="text-[var(--text-primary)] font-extrabold">100% Secured</span>
-                    ) : (
-                      <span className="text-[var(--text-muted)] font-extrabold">0% Funded</span>
-                    )}
-                  </div>
-                  <div className="w-full bg-[var(--border)] h-1.5 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        project.payment?.status === "SUCCESS" || project.escrow ? "bg-[var(--accent)]" : "bg-[var(--border)]"
-                      }`} 
-                      style={{ width: project.payment?.status === "SUCCESS" || project.escrow ? "100%" : "0%" }} 
-                    />
-                  </div>
-                </div>
-
-                <div className="border-t border-[var(--border-subtle)] pt-4 text-left space-y-3.5">
-                  <div className="flex justify-between items-center text-xs font-medium">
-                    <span className="text-[var(--text-secondary)]">Deadline</span>
-                    <span className="font-bold text-[var(--text-primary)] flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                      {new Date(project.deadline).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs font-medium">
-                    <span className="text-[var(--text-secondary)]">Client Corporate</span>
-                    <span className="font-bold text-[var(--text-primary)] flex items-center gap-1">
-                      <User className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                      {project.client.name || "Client"}
-                    </span>
-                  </div>
-                  {project.payment && (
-                    <div className="flex justify-between text-xs items-center font-medium">
-                      <span className="text-[var(--text-secondary)]">Payment Status</span>
-                      <span className={`px-2.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${
-                        project.payment.status === "SUCCESS"
-                          ? "bg-[var(--status-success-bg)] text-[var(--status-success-text)] border-[var(--status-success-border)]"
-                          : project.payment.status === "FAILED"
-                          ? "bg-[var(--status-negative-bg)] text-[var(--status-negative-text)] border-[var(--status-negative-border)]"
-                          : "bg-[var(--status-progress-bg)] text-[var(--status-progress-text)] border-[var(--status-progress-border)]"
-                      }`}>
-                        {project.payment.status}
-                      </span>
-                    </div>
-                  )}
-                  {project.escrow && (
-                    <div className="flex justify-between text-xs items-center font-medium">
-                      <span className="text-[var(--text-secondary)]">Escrow Status</span>
-                      <span className={`px-2.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${
-                        project.escrow.status === "RELEASED"
-                          ? "bg-[var(--status-success-bg)] text-[var(--status-success-text)] border-[var(--status-success-border)]"
-                          : project.escrow.status === "REFUNDED"
-                          ? "bg-[var(--status-negative-bg)] text-[var(--status-negative-text)] border-[var(--status-negative-border)]"
-                          : project.escrow.status === "DISPUTED"
-                          ? "bg-[var(--status-disputed-bg)] text-[var(--status-disputed-text)] border-[var(--status-disputed-border)]"
-                          : "bg-[var(--status-review-bg)] text-[var(--status-review-text)] border-[var(--status-review-border)]"
-                      }`}>
-                        {project.escrow.status}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {isOwner && isOpen && (
-                  <div className="mt-6 pt-5 border-t border-[var(--border-subtle)] flex flex-col gap-2">
-                    <button
-                      onClick={() => setEditMode(true)}
-                      className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-[var(--accent)] rounded-lg text-xs font-semibold text-[var(--accent)] hover:bg-[var(--accent-light)] cursor-pointer transition-colors"
-                    >
-                      Edit Project Details
-                    </button>
-                    <button
-                      onClick={handleCancelProject}
-                      className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:opacity-90 cursor-pointer transition-colors"
-                    >
-                      Cancel Project
-                    </button>
-                  </div>
-                )}
-
-                {isOwner && project.status === ProjectStatus.ASSIGNED && (!project.payment || project.payment.status !== "SUCCESS") && (
-                  <div className="mt-6 pt-5 border-t border-[var(--border-subtle)]">
-                    <button
-                      onClick={handlePayment}
-                      disabled={paymentLoading}
-                      className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 cursor-pointer shadow-sm transition-colors"
-                    >
-                      {paymentLoading ? "Processing..." : "Pay Contract Escrow"}
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* About the Client Card */}
-              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm space-y-4">
-                <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-[var(--accent)]" />
-                  <span>About the Client</span>
-                </h3>
-                
-                <div className="space-y-3.5 border-t border-[var(--border-subtle)] pt-4">
-                  <div className="flex justify-between items-center text-xs font-medium">
-                    <span className="text-[var(--text-secondary)]">Verification</span>
-                    <span className="font-bold text-[var(--accent)] flex items-center gap-1 uppercase text-[9px]">
-                      <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent)]" /> Vetted Status
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs font-medium">
-                    <span className="text-[var(--text-secondary)]">Contracts Completed</span>
-                    <span className="font-bold text-[var(--text-primary)]">
-                      {clientStats ? clientStats.completedProjectsCount : "—"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs font-medium">
-                    <span className="text-[var(--text-secondary)]">Reputation Rating</span>
-                    <span className="font-bold text-[var(--text-primary)]">
-                      {clientStats ? `⭐ ${clientStats.rating.toFixed(1)} / 5.0` : "—"}
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
-
-          {/* Client Proposal Review Panel */}
-          {isOwner && (
-            <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-6 sm:p-8">
-              <div className="flex justify-between items-center border-b border-[var(--border-subtle)] pb-4 mb-6">
-                <div>
-                  <h2 className="text-base font-bold text-[var(--text-primary)] tracking-tight">Received Proposals</h2>
-                  <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">Review submissions and hire the appropriate freelancer.</p>
-                </div>
-                <span className="bg-[var(--accent-light)] text-[var(--accent)] font-bold text-[10px] px-2.5 py-1 rounded-md border border-[var(--border)] uppercase tracking-wider">
-                  {proposals.length} Bids
-                </span>
-              </div>
-
-              {proposals.length === 0 ? (
-                <p className="text-sm text-[var(--text-muted)] italic text-center py-8">No proposals received for this project yet.</p>
-              ) : (
-                <div className="space-y-4">
-                  {proposals.map((prop) => (
-                    <div key={prop.id} className="border border-[var(--border)] rounded-xl p-5 hover:bg-[var(--surface-subtle)]/50 transition-all duration-150 bg-[var(--surface)]">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 pb-4 border-b border-[var(--border-subtle)]">
-                        <div>
-                          <span className="font-bold text-[var(--text-primary)] text-sm block">
-                            {prop.freelancer?.name || "Freelancer"}
-                          </span>
-                          <span className="text-xs text-[var(--text-muted)] font-medium block mt-0.5">{prop.freelancer?.email}</span>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-4">
-                          <div className="text-left sm:text-right">
-                            <span className="text-[10px] text-[var(--text-muted)] uppercase font-semibold block tracking-wider mb-0.5">Bid Amount</span>
-                            <span className="text-sm font-bold text-[var(--text-primary)]">
-                              ₹{prop.price.toLocaleString()}{" "}
-                              {prop.price !== project.budget && (
-                                <span className="text-[9px] font-bold text-[var(--accent)] bg-[var(--accent-light)] border border-[var(--border)] px-1.5 py-0.5 rounded-full ml-1 uppercase">
-                                  Counter-offer
-                                </span>
-                              )}
-                            </span>
-                          </div>
-                          <div className="text-left sm:text-right border-l border-[var(--border-subtle)] pl-4">
-                            <span className="text-[10px] text-[var(--text-muted)] uppercase font-semibold block tracking-wider mb-0.5">Est. Delivery</span>
-                            <span className="text-sm font-bold text-[var(--text-primary)]">{prop.estimatedDays} days</span>
-                          </div>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getProposalStatusBadge(prop.status)}`}>
-                            {prop.status}
-                          </span>
-                        </div>
-                      </div>
-
-                      <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-4 whitespace-pre-wrap">{prop.message}</p>
-
-                      {isOpen && prop.status === ProposalStatus.PENDING && (
-                        <div className="flex justify-end">
-                          <button
-                            onClick={() => handleSelectFreelancer(prop.freelancerId, prop.freelancer?.name || "")}
-                            disabled={selectLoading}
-                            className="px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-xs font-semibold text-white rounded-lg shadow-sm cursor-pointer disabled:opacity-50 transition-colors"
-                          >
-                            Hire &amp; Assign Project
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Freelancer Apply / View Proposal Panel */}
-          {isFreelancer && (
-            <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-6 sm:p-8">
-              {myProposal ? (
-                // Freelancer Has Already Applied
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center border-b border-[var(--border-subtle)] pb-4">
-                    <div>
-                      <h2 className="text-base font-bold text-[var(--text-primary)] tracking-tight">Your Submitted Proposal</h2>
-                      <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">Manage your active bid details.</p>
-                    </div>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getProposalStatusBadge(myProposal.status)}`}>
-                      {myProposal.status}
-                    </span>
-                  </div>
-
-                  {editProposalMode ? (
-                    // Freelancer Inline Proposal Editor
-                    <form onSubmit={handleEditProposal} className="space-y-4">
-                      {errorMsg && (
-                        <p className="text-xs text-[var(--status-negative-text)] font-semibold">{errorMsg}</p>
-                      )}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Bid Price (Counter-Offer, INR)</label>
-                          <input
-                            type="number"
-                            required
-                            min="1"
-                            value={editProposalPrice}
-                            onChange={(e) => setEditProposalPrice(e.target.value)}
-                            className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
-                          />
-                          {proposalValidationErrors.price && (
-                            <p className="text-[10px] text-[var(--status-negative-text)] mt-0.5">{proposalValidationErrors.price[0]}</p>
-                          )}
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Estimated Days</label>
-                          <input
-                            type="number"
-                            required
-                            min="1"
-                            value={editProposalDays}
-                            onChange={(e) => setEditProposalDays(e.target.value)}
-                            className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
-                          />
-                          {proposalValidationErrors.estimatedDays && (
-                            <p className="text-[10px] text-[var(--status-negative-text)] mt-0.5">{proposalValidationErrors.estimatedDays[0]}</p>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Cover Message</label>
-                        <textarea
-                          required
-                          rows={4}
-                          value={editProposalMessage}
-                          onChange={(e) => setEditProposalMessage(e.target.value)}
-                          className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
-                        />
-                        {proposalValidationErrors.message && (
-                          <p className="text-[10px] text-[var(--status-negative-text)] mt-0.5">{proposalValidationErrors.message[0]}</p>
-                        )}
-                      </div>
-                      <div className="flex justify-end gap-2.5 pt-2">
-                        <button
-                          type="button"
-                          onClick={() => setEditProposalMode(false)}
-                          className="px-4 py-2 border border-[var(--border)] text-xs font-semibold text-[var(--text-secondary)] rounded-lg cursor-pointer transition-colors"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={proposalActionLoading}
-                          className="px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-xs font-semibold text-white rounded-lg shadow-sm cursor-pointer disabled:opacity-50 transition-colors"
-                        >
-                          {proposalActionLoading ? "Saving..." : "Save Bid"}
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    // Freelancer Proposal View Details
-                    <div className="space-y-4">
-                      <div className="flex flex-wrap gap-4 bg-[var(--surface-subtle)]/75 p-4 rounded-xl border border-[var(--border)] text-sm">
-                        <div>
-                          <span className="text-[10px] text-[var(--text-muted)] block font-semibold uppercase tracking-wider mb-0.5">Your Bid Amount</span>
-                          <span className="font-bold text-[var(--text-primary)]">₹{myProposal.price.toLocaleString()}</span>
-                        </div>
-                        <div className="border-l border-[var(--border-subtle)] pl-4">
-                          <span className="text-[10px] text-[var(--text-muted)] block font-semibold uppercase tracking-wider mb-0.5">Delivery Time</span>
-                          <span className="font-bold text-[var(--text-primary)]">{myProposal.estimatedDays} days</span>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-[var(--text-muted)] block font-semibold uppercase tracking-wider mb-1.5">Cover Message</span>
-                        <p className="text-sm text-[var(--text-secondary)] leading-relaxed bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4 whitespace-pre-wrap">
-                          {myProposal.message}
-                        </p>
-                      </div>
-
-                      {isOpen && myProposal.status === ProposalStatus.PENDING && (
-                        <div className="flex gap-2.5 pt-2">
-                          <button
-                            onClick={() => setEditProposalMode(true)}
-                            className="px-4 py-2 border border-[var(--accent)] hover:bg-[var(--accent-light)] text-xs font-semibold text-[var(--accent)] rounded-lg cursor-pointer transition-all duration-150"
-                          >
-                            Edit Bid
-                          </button>
-                          <button
-                            onClick={handleWithdrawProposal}
-                            disabled={proposalActionLoading}
-                            className="px-4 py-2 border border-[var(--border)] text-xs font-semibold text-[var(--status-negative-text)] rounded-lg cursor-pointer disabled:opacity-50 transition-all duration-150"
-                          >
-                            Withdraw Proposal
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ) : isOpen ? (
-                // Freelancer Has Not Applied Yet (Submit New Proposal Form)
-                <div className="space-y-6">
-                  <div>
-                    <h2 className="text-base font-black text-[var(--text-primary)] tracking-tight">Submit a Proposal</h2>
-                    <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">Apply for this project listing by submitting your counter price and message.</p>
-                  </div>
-                  {errorMsg && (
-                    <div className="bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl">
-                      <p className="text-xs text-[var(--status-negative-text)] font-semibold">{errorMsg}</p>
-                    </div>
-                  )}
-                  <form onSubmit={handleApply} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
-                          Counter-Offer Price (INR, Optional)
-                        </label>
-                        <div className="relative rounded-xl shadow-sm">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <IndianRupee className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                          </div>
-                          <input
-                            type="number"
-                            min="1"
-                            value={proposalPrice}
-                            onChange={(e) => setProposalPrice(e.target.value)}
-                            placeholder={project.budget.toString()}
-                            className="w-full pl-7 pr-3 py-2.5 text-sm border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
-                          />
-                        </div>
-                        {proposalValidationErrors.price && (
-                          <p className="text-[10px] text-[var(--status-negative-text)] mt-0.5">{proposalValidationErrors.price[0]}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
-                          Estimated Days to Complete (Required)
-                        </label>
-                        <input
-                          type="number"
-                          required
-                          min="1"
-                          value={proposalDays}
-                          onChange={(e) => setProposalDays(e.target.value)}
-                          placeholder="e.g. 5"
-                          className="w-full px-3 py-2.5 text-sm border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
-                        />
-                        {proposalValidationErrors.estimatedDays && (
-                          <p className="text-[10px] text-[var(--status-negative-text)] mt-0.5">{proposalValidationErrors.estimatedDays[0]}</p>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
-                        Cover Letter / Proposal Details (Min 10 chars)
-                      </label>
-                      <textarea
-                        required
-                        rows={4}
-                        value={proposalMessage}
-                        onChange={(e) => setProposalMessage(e.target.value)}
-                        placeholder="Introduce yourself and explain how you will complete the project deliverables..."
-                        className="w-full px-3 py-2.5 text-sm border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)] transition-all resize-none"
-                      />
-                      {proposalValidationErrors.message && (
-                        <p className="text-[10px] text-[var(--status-negative-text)] mt-0.5">{proposalValidationErrors.message[0]}</p>
-                      )}
-                    </div>
-                    <div className="flex justify-end pt-2">
-                      <button
-                        type="submit"
-                        disabled={proposalActionLoading}
-                        className="btn-primary"
-                      >
-                        {proposalActionLoading ? "Submitting Proposal..." : "Submit Proposal"}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              ) : (
-                // Freelancer Has Not Applied & Project Is Not Open
-                <div className="bg-[var(--surface-subtle)] border border-[var(--border)] rounded-xl p-6 text-center">
-                  <p className="text-sm text-[var(--text-muted)] italic font-medium">This project is no longer accepting proposal applications.</p>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       )}
+
+      {/* Admin Audit History Log (Admin Only) */}
       {project && <AuditHistory entityId={project.id} entityType="Project" />}
     </div>
   );

@@ -37,50 +37,34 @@ export default function AdminOverviewPage() {
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case "OPEN":
-        return "bg-[var(--status-open-bg)] text-[var(--status-open-text)] border-[var(--status-open-border)]";
-      case "ASSIGNED":
-      case "IN_PROGRESS":
-        return "bg-[var(--status-progress-bg)] text-[var(--status-progress-text)] border-[var(--status-progress-border)]";
-      case "UNDER_REVIEW":
-        return "bg-[var(--status-review-bg)] text-[var(--status-review-text)] border-[var(--status-review-border)]";
       case "COMPLETED":
-        return "bg-[var(--status-success-bg)] text-[var(--status-success-text)] border-[var(--status-success-border)]";
+        return "bg-zinc-900 text-white border-zinc-800";
       case "CANCELLED":
-        return "bg-[var(--status-negative-bg)] text-[var(--status-negative-text)] border-[var(--status-negative-border)]";
       case "CLOSED":
-        return "bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)] border-[var(--status-neutral-border)]";
+        return "bg-zinc-950 text-zinc-550 border-zinc-900";
       default:
-        return "bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)] border-[var(--status-neutral-border)]";
+        return "bg-zinc-950 text-zinc-400 border-zinc-850";
     }
   };
 
   const getStatusColorClass = (status: string) => {
     switch (status) {
-      case "OPEN":
-        return "bg-[var(--status-open-text)]";
-      case "ASSIGNED":
-      case "IN_PROGRESS":
-        return "bg-[var(--status-progress-text)]";
-      case "UNDER_REVIEW":
-        return "bg-[var(--status-review-text)]";
       case "COMPLETED":
-        return "bg-[var(--status-success-text)]";
+        return "bg-white";
       case "CANCELLED":
-        return "bg-[var(--status-negative-text)]";
       case "CLOSED":
-        return "bg-[var(--status-neutral-text)]";
+        return "bg-zinc-800";
       default:
-        return "bg-[var(--status-neutral-text)]";
+        return "bg-zinc-500";
     }
   };
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
-          <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
-          <p className="text-[var(--text-muted)] text-sm font-medium">Loading platform metrics...</p>
+      <div className="flex-grow flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-6 h-6 rounded-full border-2 border-zinc-800 border-t-white animate-spin" />
+          <p className="text-zinc-550 text-[10px] font-bold uppercase tracking-widest">Loading platform metrics...</p>
         </div>
       </div>
     );
@@ -88,10 +72,9 @@ export default function AdminOverviewPage() {
 
   if (errorMsg || !stats) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg flex items-start gap-3">
-          <AlertTriangle className="w-4.5 h-4.5 text-[var(--status-negative-text)] flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-[var(--status-negative-text)] font-semibold">Error: {errorMsg || "Failed to load stats"}</p>
+      <div className="max-w-4xl mx-auto px-4 py-12 text-center animate-fadeIn">
+        <div className="bg-red-950/20 border border-red-900/50 p-6 rounded">
+          <p className="text-xs font-semibold text-red-400 mb-3">Error: {errorMsg || "Failed to load stats"}</p>
         </div>
       </div>
     );
@@ -100,84 +83,87 @@ export default function AdminOverviewPage() {
   const totalProjects = Object.values(stats.projectsByStatus).reduce((sum, count) => sum + count, 0);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn">
-      <div className="mb-8 border-b border-[var(--border)] pb-4">
-        <div className="flex items-center gap-2 mb-1">
-          <Shield className="w-5 h-5 text-[var(--accent)]" />
-          <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">Platform Administration</h1>
+    <div className="space-y-8 w-full min-w-0 animate-fadeIn text-left text-zinc-300">
+      
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
+          <span>Platform</span>
+          <span>&gt;</span>
+          <span className="text-zinc-400 font-bold">Administrative Dashboard</span>
         </div>
-        <p className="text-sm text-[var(--text-secondary)] mt-1 font-medium">Operational status logs and platform metrics summary.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">Administrative Control</h1>
+        <p className="text-xs text-zinc-550 font-light mt-1">
+          Operational status logs and platform metrics summary.
+        </p>
       </div>
 
       {/* Overview Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 stagger-children">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Metric 1 */}
-        <div className="stat-card flex flex-col justify-between hover:shadow-[var(--card-shadow-hover)] transition-shadow">
+        <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-5 flex flex-col justify-between">
           <div>
-            <div className="stat-card-label mb-2 flex items-center gap-1.5">
-              <Cpu className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
               Total Financial Volume
             </div>
-            <div className="stat-card-value">₹{stats.totalPaymentVolume.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-white font-mono">₹{stats.totalPaymentVolume.toLocaleString()}</div>
           </div>
-          <div className="text-[11px] text-[var(--text-muted)] mt-4 font-bold uppercase tracking-wider">Sum of captured payments.</div>
+          <div className="text-[9px] text-zinc-600 mt-4 font-mono uppercase tracking-wider">Sum of captured payments.</div>
         </div>
 
         {/* Metric 2 */}
-        <div className="stat-card flex flex-col justify-between hover:shadow-[var(--card-shadow-hover)] transition-shadow">
+        <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-5 flex flex-col justify-between">
           <div>
-            <div className="stat-card-label mb-2 flex items-center gap-1.5">
-              <AlertTriangle className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
               Active Dispute Tickets
             </div>
-            <div className="stat-card-value text-[var(--status-negative-text)]">{stats.openDisputesCount}</div>
+            <div className="text-2xl font-bold text-red-400 font-mono">{stats.openDisputesCount}</div>
           </div>
-          <div className="text-[11px] text-[var(--text-muted)] mt-4">
-            <Link href="/admin/disputes" className="text-[var(--accent)] hover:text-[var(--accent-hover)] font-bold uppercase tracking-wider flex items-center gap-1">
-              Resolve disputes <ArrowRight className="w-3.5 h-3.5" />
+          <div className="text-[9px] mt-4 font-bold uppercase tracking-wider">
+            <Link href="/admin/disputes" className="text-white hover:underline flex items-center gap-1">
+              Resolve disputes &gt;
             </Link>
           </div>
         </div>
 
         {/* Metric 3 */}
-        <div className="stat-card flex flex-col justify-between hover:shadow-[var(--card-shadow-hover)] transition-shadow">
+        <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-5 flex flex-col justify-between">
           <div>
-            <div className="stat-card-label mb-2 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
               Total Projects Count
             </div>
-            <div className="stat-card-value">{totalProjects}</div>
+            <div className="text-2xl font-bold text-white font-mono">{totalProjects}</div>
           </div>
-          <div className="text-[11px] text-[var(--text-muted)] mt-4 font-bold uppercase tracking-wider">Active project listings.</div>
+          <div className="text-[9px] text-zinc-600 mt-4 font-mono uppercase tracking-wider">Active project listings.</div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Projects status distribution (spans 2 columns on lg) */}
-        <div className="card p-6 lg:col-span-2">
-          <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Project Status Distribution</h2>
-          <div className="divide-y divide-[var(--border-subtle)] text-sm">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Projects status distribution */}
+        <div className="border border-zinc-850 bg-black rounded-lg p-6 lg:col-span-2 space-y-4">
+          <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900">Project Status Distribution</h2>
+          <div className="divide-y divide-zinc-900 text-xs">
             {Object.entries(stats.projectsByStatus).map(([status, count]) => {
               const pct = totalProjects > 0 ? (count / totalProjects) * 100 : 0;
               return (
                 <div key={status} className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 gap-2">
                   <div className="flex-shrink-0 w-36">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${getStatusBadgeClass(status)}`}>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded border text-[9px] font-bold uppercase tracking-widest ${getStatusBadgeClass(status)}`}>
                       {status.replace("_", " ")}
                     </span>
                   </div>
                   
                   {/* Visual weight bar indicator */}
-                  <div className="flex-grow h-2 bg-[var(--border-subtle)] rounded-full overflow-hidden mx-0 sm:mx-4">
+                  <div className="flex-grow h-1.5 bg-zinc-950 border border-zinc-900 rounded overflow-hidden mx-0 sm:mx-4">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${getStatusColorClass(status)}`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>
                   
-                  <div className="flex-shrink-0 text-right font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                  <div className="flex-shrink-0 text-right font-bold text-white flex items-center gap-1.5 font-mono text-[10px]">
                     <span>{count}</span>
-                    <span className="text-[10px] text-[var(--text-muted)] font-medium">({pct.toFixed(0)}%)</span>
+                    <span className="text-[9px] text-zinc-550 font-normal font-sans">({pct.toFixed(0)}%)</span>
                   </div>
                 </div>
               );
@@ -185,15 +171,14 @@ export default function AdminOverviewPage() {
           </div>
         </div>
 
-        {/* Maintenance card (spans 1 column) */}
-        <div className="card p-6 flex flex-col justify-between">
+        {/* Maintenance card */}
+        <div className="border border-zinc-850 bg-black rounded-lg p-6 flex flex-col justify-between h-full min-h-[300px]">
           <div>
-            <div className="text-[var(--text-muted)] uppercase text-[10px] font-bold tracking-wider mb-2 flex items-center gap-1.5">
-              <Cpu className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
               Cron Maintenance
             </div>
-            <h3 className="text-sm font-extrabold text-[var(--text-primary)] mb-1">Platform Orchestration</h3>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-4 font-medium">
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-1">Platform Orchestration</h3>
+            <p className="text-xs text-zinc-450 leading-relaxed mb-4 font-light">
               Trigger standard auto-release cron cycles manually to release escrow milestone holds for assignments completed past deadline.
             </p>
           </div>
@@ -211,7 +196,7 @@ export default function AdminOverviewPage() {
                 }
               }
             }}
-            className="btn-ghost w-full py-2.5 justify-center"
+            className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-white font-bold text-[10px] uppercase tracking-widest py-2.5 rounded transition-colors text-center w-full block cursor-pointer"
           >
             Trigger Auto-Release
           </button>

@@ -206,7 +206,7 @@ export default function PublicProfilePage() {
           <p className="text-sm text-[var(--text-secondary)] mb-6">{errorMsg || "The requested profile could not be found."}</p>
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--btn-primary-text)] text-sm font-semibold rounded-lg transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Go Back
@@ -222,8 +222,8 @@ export default function PublicProfilePage() {
 
     if (connStatus === "ACCEPTED") {
       return (
-        <span className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[var(--status-success-bg)] text-[var(--status-success-text)] border border-[var(--status-success-border)] rounded-xl text-xs font-bold shrink-0">
-          <CheckCircle2 className="w-4 h-4 text-[var(--status-success-text)]" />
+        <span className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-emerald-950/20 text-emerald-400 border border-emerald-900/50 rounded text-[10px] font-bold uppercase tracking-widest shrink-0">
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
           Connected
         </span>
       );
@@ -234,30 +234,30 @@ export default function PublicProfilePage() {
         return (
           <button
             disabled
-            className="inline-flex items-center gap-1.5 px-4.5 py-2.5 bg-[var(--surface-subtle)] text-[var(--text-muted)] border border-[var(--border)] rounded-xl text-xs font-bold cursor-not-allowed shrink-0"
+            className="inline-flex items-center gap-1.5 px-4.5 py-2.5 bg-zinc-950 text-zinc-550 border border-zinc-900 rounded text-[10px] font-bold uppercase tracking-widest cursor-not-allowed shrink-0"
           >
-            <Clock className="w-4 h-4 text-[var(--text-muted)] animate-pulse" />
+            <Clock className="w-3.5 h-3.5 text-zinc-550" />
             Request Pending
           </button>
         );
       } else {
         return (
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-semibold text-[var(--text-secondary)] mr-1 hidden sm:inline">Incoming Request:</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mr-1 hidden sm:inline">Incoming Request:</span>
             <button
               onClick={() => handleRespond("ACCEPTED")}
               disabled={connecting}
-              className="inline-flex items-center gap-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
+              className="bg-emerald-950/20 text-emerald-400 border border-emerald-900/50 hover:bg-emerald-950/40 text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
             >
-              <Check className="w-3.5 h-3.5" />
+              <Check className="w-3 h-3" />
               Accept
             </button>
             <button
               onClick={() => handleRespond("DECLINED")}
               disabled={connecting}
-              className="inline-flex items-center gap-1 px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
+              className="bg-red-950/20 text-red-400 border border-red-900/50 hover:bg-red-950/40 text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3 h-3" />
               Decline
             </button>
           </div>
@@ -270,278 +270,256 @@ export default function PublicProfilePage() {
       <button
         onClick={handleConnect}
         disabled={connecting}
-        className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white border border-transparent shadow-sm rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0"
+        className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-5 py-2.5 rounded transition-colors cursor-pointer shrink-0 inline-flex items-center gap-1.5"
       >
-        <UserIcon className="w-4 h-4 text-white" />
+        <UserIcon className="w-3.5 h-3.5 text-black" />
         {connecting ? "Connecting..." : "Connect"}
       </button>
     );
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] py-8 relative animate-fadeIn">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full min-w-0">
+    <div className="space-y-8 w-full min-w-0 animate-fadeIn text-left text-zinc-300">
+      
+      {/* Navigation Toolbar */}
+      <div className="flex justify-between items-center">
+        <button
+          onClick={() => router.back()}
+          className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-white font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded transition-colors cursor-pointer"
+        >
+          &lt; Back
+        </button>
         
-        {/* Navigation Toolbar */}
-        <div className="flex justify-between items-center mb-6">
+        {/* Flag/Report Trigger (only for other users) */}
+        {!isOwnProfile && (
           <button
-            onClick={() => router.back()}
-            className="btn-ghost px-3 py-1.5"
+            onClick={() => setReportOpen(true)}
+            className="border border-red-950 text-red-400 bg-red-950/20 hover:bg-red-950/40 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded transition-colors cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back
+            Report User
           </button>
-          
-          {/* Flag/Report Trigger (only for other users) */}
-          {!isOwnProfile && (
-            <button
-              onClick={() => setReportOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[var(--status-negative-border)] text-[var(--status-negative-text)] hover:bg-[var(--status-negative-bg)] rounded-xl text-xs font-bold transition-colors cursor-pointer"
-            >
-              <ShieldAlert className="w-4 h-4" />
-              Report User
-            </button>
-          )}
-        </div>
+        )}
+      </div>
 
-        {/* Profile Card Header */}
-        <div className="card p-6 sm:p-8 mb-6 relative overflow-hidden">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 pb-6 border-b border-[var(--border)]">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)] flex items-center justify-center text-white text-2xl font-bold shadow-md">
-                {profile.name?.[0]?.toUpperCase() || "U"}
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight">
-                    {profile.name || "Marketplace Participant"}
-                  </h1>
-                  <span className="px-2.5 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider bg-[var(--accent-light)] text-[var(--accent)] border-[var(--border)]">
-                    {profile.role}
-                  </span>
-                </div>
-                {profile.businessName && (
-                  <p className="text-sm font-semibold text-[var(--text-secondary)] mt-0.5">
-                    {profile.businessName}
-                  </p>
-                )}
-                {profile.location && (
-                  <p className="flex items-center gap-1 text-xs text-[var(--text-muted)] mt-1.5 font-bold uppercase tracking-wider">
-                    <MapPin className="w-3.5 h-3.5 text-[var(--accent)]" />
-                    {profile.location}
-                  </p>
-                )}
-              </div>
+      {/* Profile Card Header */}
+      <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 pb-6 border-b border-zinc-900">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded border border-zinc-800 bg-zinc-950 flex items-center justify-center text-white text-2xl font-bold font-mono">
+              {profile.name?.[0]?.toUpperCase() || "U"}
             </div>
-
-            {/* Render dynamically managed Connection button workflow */}
-            <div className="w-full sm:w-auto">
-              {renderConnectActions()}
-            </div>
-          </div>
-
-          {/* Stats Bar */}
-          <div className="grid grid-cols-2 gap-4 pt-6">
-            <div className="flex items-center gap-3 bg-[var(--surface-subtle)] p-4 rounded-xl border border-[var(--border-subtle)] font-medium">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold text-white tracking-tight leading-none">
+                  {profile.name || "Marketplace Participant"}
+                </h1>
+                <span className="px-2 py-0.5 rounded text-[8px] font-bold border uppercase bg-zinc-950 text-zinc-400 border-zinc-800">
+                  {profile.role}
+                </span>
               </div>
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                  Reputation Rating
-                </div>
-                <div className="text-lg font-bold text-[var(--text-primary)]">
-                  {profile.averageRating} <span className="text-xs text-[var(--text-muted)] font-medium">/ 5.0</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 bg-[var(--surface-subtle)] p-4 rounded-xl border border-[var(--border-subtle)] font-medium">
-              <div className="w-10 h-10 rounded-xl bg-[var(--accent-light)] flex items-center justify-center">
-                <Award className="w-5 h-5 text-[var(--accent)]" />
-              </div>
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                  Escrows Completed
-                </div>
-                <div className="text-lg font-bold text-[var(--text-primary)]">
-                  {profile.completedProjectCount} <span className="text-xs text-[var(--text-muted)] font-medium">contracts</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column */}
-          <div className="lg:col-span-8 space-y-6">
-            
-            {/* Bio Card */}
-            <div className="card p-6">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)] mb-3">
-                About Summary
-              </h2>
-              {profile.bio ? (
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-line font-medium">
-                  {profile.bio}
+              {profile.businessName && (
+                <p className="text-xs text-zinc-450 mt-1 font-medium">
+                  {profile.businessName}
                 </p>
-              ) : (
-                <p className="text-sm text-[var(--text-muted)] italic">
-                  No about description provided by this user.
+              )}
+              {profile.location && (
+                <p className="flex items-center gap-1.5 text-[10px] text-zinc-500 mt-2 font-mono">
+                  <MapPin className="w-3 h-3" />
+                  {profile.location}
                 </p>
               )}
             </div>
+          </div>
 
-            {/* Skills Card */}
-            {profile.skills.length > 0 && (
-              <div className="card p-6">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)] mb-3">
-                  Marketplace Endorsements
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {profile.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="px-3 py-1 bg-[var(--surface-subtle)] border border-[var(--border)] rounded-lg text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
+          {/* Render dynamically managed Connection button workflow */}
+          <div className="w-full sm:w-auto shrink-0">
+            {renderConnectActions()}
+          </div>
+        </div>
+
+        {/* Stats Bar */}
+        <div className="grid grid-cols-2 gap-4 pt-6">
+          <div className="flex items-center gap-3 border border-zinc-850 bg-black p-4 rounded">
+            <div className="w-10 h-10 rounded border border-yellow-950 bg-yellow-950/20 flex items-center justify-center">
+              <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+            </div>
+            <div>
+              <div className="text-[9px] font-bold uppercase tracking-wider text-zinc-550">
+                Reputation Rating
+              </div>
+              <div className="text-base font-bold text-white font-mono mt-0.5">
+                {profile.averageRating.toFixed(1)} <span className="text-[10px] font-sans text-zinc-500 font-normal">/ 5.0</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 border border-zinc-850 bg-black p-4 rounded">
+            <div className="w-10 h-10 rounded border border-zinc-800 bg-zinc-950 flex items-center justify-center">
+              <Award className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <div className="text-[9px] font-bold uppercase tracking-wider text-zinc-550">
+                Escrows Completed
+              </div>
+              <div className="text-base font-bold text-white font-mono mt-0.5">
+                {profile.completedProjectCount} <span className="text-[10px] font-sans text-zinc-500 font-normal">contracts</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Column */}
+        <div className="lg:col-span-8 space-y-8">
+          
+          {/* Bio Card */}
+          <div className="border border-zinc-850 bg-black p-6 rounded-lg space-y-3">
+            <h2 className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 pb-2 border-b border-zinc-900">
+              About Summary
+            </h2>
+            {profile.bio ? (
+              <p className="text-xs text-zinc-400 leading-relaxed font-light whitespace-pre-line">
+                {profile.bio}
+              </p>
+            ) : (
+              <p className="text-xs text-zinc-600 italic">
+                No summary description provided by this user.
+              </p>
+            )}
+          </div>
+
+          {/* Skills Card */}
+          {profile.skills.length > 0 && (
+            <div className="border border-zinc-850 bg-black p-6 rounded-lg space-y-3">
+              <h2 className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 pb-2 border-b border-zinc-900">
+                Marketplace Endorsements
+              </h2>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {profile.skills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="px-2.5 py-0.5 bg-zinc-950 border border-zinc-900 rounded text-[9px] font-mono text-zinc-400"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Reviews Section */}
+          <div className="border border-zinc-850 bg-black p-6 rounded-lg space-y-4">
+            <h2 className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 pb-2 border-b border-zinc-900 flex items-center gap-1.5">
+              <MessageSquare className="w-3.5 h-3.5" />
+              Work History Feedback ({profile.reviews.length})
+            </h2>
+
+            {profile.reviews.length === 0 ? (
+              <div className="py-8 text-center border border-dashed border-zinc-900 rounded bg-zinc-950/20">
+                <p className="text-xs text-zinc-650 italic">
+                  No rating reviews submitted for this user yet.
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-zinc-900 space-y-4">
+                {profile.reviews.map((rev, index) => (
+                  <div key={rev.id} className={`${index > 0 ? "pt-4" : ""} space-y-2 text-left`}>
+                    <div className="flex justify-between items-start gap-4">
+                      <div>
+                        <div className="font-bold text-xs text-white">
+                          {rev.raterName}
+                        </div>
+                        <div className="text-[9px] text-zinc-500 font-mono mt-0.5 uppercase">
+                          {rev.raterRole}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 bg-yellow-950/20 px-2 py-0.5 rounded border border-yellow-900/50 text-yellow-400 text-[10px] font-mono font-bold">
+                        <Star className="w-2.5 h-2.5 fill-yellow-400 shrink-0" />
+                        <span>{rev.score.toFixed(1)}</span>
+                      </div>
+                    </div>
+                    {rev.comment ? (
+                      <p className="text-xs text-zinc-400 leading-relaxed font-light italic bg-zinc-950 p-3 rounded border border-zinc-900">
+                        "{rev.comment}"
+                      </p>
+                    ) : (
+                      <p className="text-xs text-zinc-650 italic">
+                        No feedback comment left.
+                      </p>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
-
-            {/* Reviews Section */}
-            <div className="card p-6">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4 flex items-center gap-1.5">
-                <MessageSquare className="w-4 h-4 text-[var(--accent)]" />
-                Work History Feedback ({profile.reviews.length})
-              </h2>
-
-              {profile.reviews.length === 0 ? (
-                <div className="py-8 text-center border border-dashed border-[var(--border)] rounded-xl bg-[var(--surface-subtle)]">
-                  <p className="text-sm text-[var(--text-muted)] font-medium">
-                    No rating reviews submitted for this user yet.
-                  </p>
-                </div>
-              ) : (
-                <div className="divide-y divide-[var(--border-subtle)] space-y-4">
-                  {profile.reviews.map((rev, index) => (
-                    <div key={rev.id} className={`${index > 0 ? "pt-4" : ""} space-y-2`}>
-                      <div className="flex justify-between items-start gap-4">
-                        <div>
-                          <div className="font-extrabold text-sm text-[var(--text-primary)]">
-                            {rev.raterName}
-                          </div>
-                          <div className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider mt-0.5">
-                            {rev.raterRole}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-xl border border-amber-500/20 text-amber-500 text-xs font-bold">
-                          <Star className="w-3 h-3 fill-amber-500 shrink-0" />
-                          <span>{rev.score}.0</span>
-                        </div>
-                      </div>
-                      {rev.comment ? (
-                        <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic bg-[var(--surface-subtle)] p-3 rounded-xl border border-[var(--border-subtle)] font-medium">
-                          &ldquo;{rev.comment}&rdquo;
-                        </p>
-                      ) : (
-                        <p className="text-xs text-[var(--text-muted)] italic">
-                          No feedback comment left.
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Right Column */}
-          <div className="lg:col-span-4 space-y-6">
-            <div className="card p-6">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4">
-                Secure Connection Details
-              </h2>
-
-              {profile.isContactVisible ? (
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3 bg-[var(--accent-light)] p-3 rounded-xl border border-[var(--border)] animate-slideUp">
-                    <Mail className="w-4 h-4 text-[var(--accent)] mt-0.5 shrink-0" />
-                    <div className="min-w-0">
-                      <div className="text-[9px] font-bold text-[var(--accent)] uppercase tracking-wider">
-                        Email Address
-                      </div>
-                      <div className="text-sm font-bold text-[var(--text-primary)] break-all mt-0.5 select-all">
-                        {profile.email}
-                      </div>
-                    </div>
-                  </div>
-
-                  {profile.phone && (
-                    <div className="flex items-start gap-3 bg-[var(--accent-light)] p-3 rounded-xl border border-[var(--border)] animate-slideUp">
-                      <Phone className="w-4 h-4 text-[var(--accent)] mt-0.5 shrink-0" />
-                      <div className="min-w-0">
-                        <div className="text-[9px] font-bold text-[var(--accent)] uppercase tracking-wider">
-                          Phone Number
-                        </div>
-                        <div className="text-sm font-bold text-[var(--text-primary)] break-all mt-0.5 select-all">
-                          {profile.phone}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="p-4 border border-dashed border-[var(--border)] rounded-xl bg-[var(--surface-subtle)] text-center space-y-2.5">
-                    <Lock className="w-8 h-8 text-[var(--text-muted)] mx-auto" />
-                    <p className="text-xs font-semibold text-[var(--text-secondary)] leading-relaxed">
-                      Contact credentials are encrypted.
-                    </p>
-                    <p className="text-[10px] text-[var(--text-muted)] leading-relaxed font-medium">
-                      Direct phone and email details are only exchanged when a verified client-freelancer contract relationship (active proposal, escrow assignment, or accepted connection request) is initiated.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </div>
 
+        {/* Right Column */}
+        <div className="lg:col-span-4 space-y-8">
+          <div className="border border-zinc-850 bg-black p-6 rounded-lg space-y-4">
+            <h2 className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 pb-2 border-b border-zinc-900">
+              Connection Details
+            </h2>
+
+            {profile.isContactVisible ? (
+              <div className="space-y-3 font-mono text-xs text-left">
+                <div className="p-3 bg-zinc-950 border border-zinc-900 rounded">
+                  <div className="text-[8px] font-sans text-zinc-500 uppercase tracking-widest mb-1">Email Address</div>
+                  <div className="font-bold text-white break-all">{profile.email}</div>
+                </div>
+
+                {profile.phone && (
+                  <div className="p-3 bg-zinc-950 border border-zinc-900 rounded">
+                    <div className="text-[8px] font-sans text-zinc-500 uppercase tracking-widest mb-1">Phone Number</div>
+                    <div className="font-bold text-white break-all">{profile.phone}</div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-4 border border-dashed border-zinc-900 rounded bg-zinc-950/20 text-center space-y-3">
+                <Lock className="w-6 h-6 text-zinc-650 mx-auto" />
+                <p className="text-xs font-semibold text-white">
+                  Contact details are locked.
+                </p>
+                <p className="text-[10px] text-zinc-550 leading-relaxed font-light">
+                  Direct phone and email details are only exchanged when a verified client-freelancer contract relationship is initiated.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Flag/Report Modal Dialogue */}
       {reportOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="card max-w-md w-full p-6 shadow-xl relative animate-in fade-in zoom-in duration-200">
-            <h3 className="text-base font-bold text-[var(--text-primary)] mb-2 flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-[var(--status-negative-text)]" />
-              Report Marketplace Participant
-            </h3>
-            <p className="text-xs text-[var(--text-secondary)] mb-4 leading-relaxed font-medium">
-              Flag this user profile for review by the administrators. Please specify a clear explanation detailing the violation or conflict.
-            </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="border border-zinc-800 bg-[#09090b] max-w-md w-full p-6 rounded-lg relative space-y-4 text-left">
+            <div>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Report Marketplace Participant</h3>
+              <p className="text-[10px] text-zinc-550 mt-1 font-light">
+                Flag this user profile for review by the administrators. Please specify a clear explanation detailing the violation.
+              </p>
+            </div>
 
             {reportSuccess ? (
-              <div className="bg-emerald-600/10 border border-emerald-500/20 text-emerald-500 p-4 rounded-xl text-xs font-bold text-center">
+              <div className="bg-emerald-950/20 border border-emerald-900/50 text-emerald-400 p-4 rounded text-xs font-bold text-center">
                 Report successfully submitted to administrators.
               </div>
             ) : (
               <form onSubmit={handleReport} className="space-y-4">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                     Explanation / Reason
                   </label>
                   <textarea
                     rows={4}
                     required
-                    placeholder="Describe the issue in detail..."
+                    placeholder="Describe the violation details..."
                     value={reportReason}
                     onChange={(e) => setReportReason(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] transition-all bg-[var(--input-bg)] text-[var(--text-primary)] resize-none"
+                    className="w-full px-3 py-2 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none leading-relaxed resize-none"
                   />
                 </div>
 
@@ -552,14 +530,14 @@ export default function PublicProfilePage() {
                       setReportOpen(false);
                       setReportReason("");
                     }}
-                    className="btn-ghost px-4 py-2"
+                    className="border border-zinc-800 hover:border-zinc-750 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2 rounded transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={reporting}
-                    className="px-4 py-2 bg-[var(--status-negative-text)] hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                    className="bg-red-650 hover:bg-red-700 text-white text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded transition-colors cursor-pointer disabled:opacity-50"
                   >
                     {reporting ? "Submitting..." : "Submit Report"}
                   </button>

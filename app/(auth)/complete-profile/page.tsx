@@ -44,9 +44,9 @@ export default function CompleteProfilePage() {
 
   if (status === "loading") {
     return (
-      <div className="flex-grow flex flex-col justify-center items-center py-12 px-4 bg-[var(--background)]">
-        <div className="w-8 h-8 rounded-full border-4 border-[var(--border)] border-t-[var(--accent)] animate-spin mb-4" />
-        <p className="text-sm text-[var(--text-secondary)] font-medium">Checking onboarding status...</p>
+      <div className="flex-grow flex flex-col justify-center items-center py-12 px-4 bg-black text-white">
+        <div className="w-6 h-6 rounded-full border-2 border-zinc-800 border-t-white animate-spin mb-4" />
+        <p className="text-xs text-zinc-400 font-bold uppercase tracking-widest animate-pulse">Checking onboarding status...</p>
       </div>
     );
   }
@@ -98,39 +98,37 @@ export default function CompleteProfilePage() {
   };
 
   return (
-    <div className="flex-grow flex flex-col justify-center items-center py-16 px-4 sm:px-6 lg:px-8 bg-[var(--background)]">
-      <div className="w-full max-w-md animate-slideUp">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)] flex items-center justify-center shadow-lg mb-6">
-            <User className="w-7 h-7 text-white" />
+    <div className="flex-grow flex flex-col justify-center items-center py-20 px-4 sm:px-6 lg:px-8 bg-black text-white">
+      <div className="w-full max-w-md space-y-8 animate-slideUp">
+        {/* Brand Header */}
+        <div className="text-center">
+          <div className="flex justify-center items-center gap-2 mb-2">
+            <img src="/logo-mark.png" alt="TrustLance" className="w-6 h-6 rounded" />
+            <span className="text-lg font-bold tracking-tight text-white">TrustLance</span>
           </div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">
-            Complete Your Profile
-          </h1>
-          <p className="mt-2 text-sm text-[var(--text-secondary)] max-w-sm mx-auto font-medium">
-            Provide details for your <span className="font-bold text-[var(--accent)] uppercase">{userRole.toLowerCase()}</span> profile to access the platform.
+          <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold">
+            Complete your <span className="text-white">{userRole.toLowerCase()}</span> profile
           </p>
         </div>
 
-        {/* Card */}
-        <div className="card p-8 sm:p-10">
+        {/* Card Container */}
+        <div className="border border-zinc-800 bg-[#09090b] rounded-lg p-8 space-y-6 shadow-2xl">
           {error && (
-            <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
-              <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-[var(--status-negative-text)] font-medium leading-relaxed">{error}</p>
+            <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs flex items-start gap-2.5 text-red-400 animate-fadeIn">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <p className="font-semibold leading-relaxed">{error}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 text-left">
             {/* Full Name */}
-            <div>
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
                 Full Name
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <User className="h-4 w-4 text-[var(--text-muted)]" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-550">
+                  <User className="h-4.5 w-4.5" />
                 </div>
                 <input
                   type="text"
@@ -138,22 +136,22 @@ export default function CompleteProfilePage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Jane Doe"
-                  className="w-full pl-10 pr-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white focus:ring-0"
                 />
               </div>
               {fieldErrors.name && (
-                <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{fieldErrors.name[0]}</p>
+                <p className="text-[10px] text-red-400 font-semibold mt-1">{fieldErrors.name[0]}</p>
               )}
             </div>
 
             {/* Phone Number */}
-            <div>
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
                 Phone Number
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <Phone className="h-4 w-4 text-[var(--text-muted)]" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-550">
+                  <Phone className="h-4.5 w-4.5" />
                 </div>
                 <input
                   type="tel"
@@ -161,22 +159,22 @@ export default function CompleteProfilePage() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="e.g. +1 555-0199"
-                  className="w-full pl-10 pr-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white focus:ring-0"
                 />
               </div>
               {fieldErrors.phone && (
-                <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{fieldErrors.phone[0]}</p>
+                <p className="text-[10px] text-red-400 font-semibold mt-1">{fieldErrors.phone[0]}</p>
               )}
             </div>
 
             {/* Location */}
-            <div>
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
                 Location
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <MapPin className="h-4 w-4 text-[var(--text-muted)]" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-550">
+                  <MapPin className="h-4.5 w-4.5" />
                 </div>
                 <input
                   type="text"
@@ -184,23 +182,23 @@ export default function CompleteProfilePage() {
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="e.g. San Francisco, CA"
-                  className="w-full pl-10 pr-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white focus:ring-0"
                 />
               </div>
               {fieldErrors.location && (
-                <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{fieldErrors.location[0]}</p>
+                <p className="text-[10px] text-red-400 font-semibold mt-1">{fieldErrors.location[0]}</p>
               )}
             </div>
 
             {/* Conditional Business Name for Clients */}
             {userRole === Role.CLIENT && (
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
                   Business Name
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                    <Building className="h-4 w-4 text-[var(--text-muted)]" />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-550">
+                    <Building className="h-4.5 w-4.5" />
                   </div>
                   <input
                     type="text"
@@ -208,24 +206,24 @@ export default function CompleteProfilePage() {
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
                     placeholder="e.g. Acme Corporation"
-                    className="w-full pl-10 pr-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white focus:ring-0"
                   />
                 </div>
                 {fieldErrors.businessName && (
-                  <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{fieldErrors.businessName[0]}</p>
+                  <p className="text-[10px] text-red-400 font-semibold mt-1">{fieldErrors.businessName[0]}</p>
                 )}
               </div>
             )}
 
             {/* Conditional Bio for Freelancers */}
             {userRole === Role.FREELANCER && (
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
                   Professional Bio
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 pt-3 flex items-start pointer-events-none">
-                    <FileText className="h-4 w-4 text-[var(--text-muted)]" />
+                  <div className="absolute inset-y-0 left-0 pl-3 pt-3 flex items-start pointer-events-none text-zinc-550">
+                    <FileText className="h-4.5 w-4.5" />
                   </div>
                   <textarea
                     required
@@ -233,11 +231,11 @@ export default function CompleteProfilePage() {
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     placeholder="Describe your professional skills and experience..."
-                    className="w-full pl-10 pr-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm bg-[var(--input-bg)] text-[var(--text-primary)] transition-all leading-relaxed resize-none"
+                    className="w-full pl-10 pr-4 py-2.5 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white focus:ring-0 leading-relaxed resize-none"
                   />
                 </div>
                 {fieldErrors.bio && (
-                  <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{fieldErrors.bio[0]}</p>
+                  <p className="text-[10px] text-red-400 font-semibold mt-1">{fieldErrors.bio[0]}</p>
                 )}
               </div>
             )}
@@ -245,7 +243,7 @@ export default function CompleteProfilePage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full inline-flex justify-center items-center px-4 py-3 text-sm font-bold uppercase tracking-wider rounded-xl text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-[var(--card-shadow)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent)] disabled:opacity-50 cursor-pointer transition-all duration-200 mt-2"
+              className="w-full flex justify-center items-center py-3 px-4 rounded bg-white text-xs font-bold text-black uppercase tracking-widest hover:bg-zinc-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus:outline-none mt-4"
             >
               {loading ? "Completing Profile..." : "Complete Profile"}
             </button>

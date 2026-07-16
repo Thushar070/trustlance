@@ -122,48 +122,49 @@ export default function ConnectionsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0 animate-fadeIn">
-      
+    <div className="space-y-8 w-full min-w-0 animate-fadeIn">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight mb-1 flex items-center gap-2">
-          <Users className="w-6 h-6 text-[var(--accent)]" />
-          Connections Inbox
-        </h1>
-        <p className="text-sm text-[var(--text-secondary)] font-medium">
+      <div>
+        <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
+          <span>Enterprise</span>
+          <span>&gt;</span>
+          <span className="text-zinc-400 font-bold">Connections Network</span>
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">Connections Network</h1>
+        <p className="text-xs text-zinc-550 font-light mt-1">
           Manage your accepted connection network and respond to incoming requests.
         </p>
       </div>
 
       {errorMsg && (
-        <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
-          <AlertCircle className="w-4.5 h-4.5 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-[var(--status-negative-text)] font-semibold">{errorMsg}</p>
+        <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs text-red-400 flex items-start gap-3 animate-fadeIn">
+          <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+          <p className="font-semibold">{errorMsg}</p>
         </div>
       )}
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-[var(--border)] mb-6 gap-6">
+      <div className="flex border-b border-zinc-900 gap-6">
         <button
           onClick={() => setActiveTab("connections")}
-          className={`pb-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
+          className={`pb-3 text-[10px] font-bold uppercase tracking-widest border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
             activeTab === "connections"
-              ? "border-[var(--accent)] text-[var(--text-primary)]"
-              : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+              ? "border-white text-white"
+              : "border-transparent text-zinc-500 hover:text-zinc-400"
           }`}
         >
-          <UserCheck className="w-4 h-4" />
+          <UserCheck className="w-3.5 h-3.5" />
           My Network ({connections.length})
         </button>
         <button
           onClick={() => setActiveTab("pending")}
-          className={`pb-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
+          className={`pb-3 text-[10px] font-bold uppercase tracking-widest border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
             activeTab === "pending"
-              ? "border-[var(--accent)] text-[var(--text-primary)]"
-              : "border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+              ? "border-white text-white"
+              : "border-transparent text-zinc-500 hover:text-zinc-400"
           }`}
         >
-          <Clock className="w-4 h-4" />
+          <Clock className="w-3.5 h-3.5" />
           Pending Invites ({pending.length})
         </button>
       </div>
@@ -171,73 +172,71 @@ export default function ConnectionsPage() {
       {/* Tab Contents */}
       {activeTab === "connections" ? (
         connections.length === 0 ? (
-          <div className="card p-16 text-center">
-            <div className="empty-state">
-              <Users className="empty-state-icon" />
-              <h3 className="empty-state-title">No Connections Yet</h3>
-              <p className="empty-state-text mb-6">
-                You haven&apos;t connected with any talent or client yet. Explore the directory to build your professional network.
-              </p>
-              <Link
-                href="/search"
-                className="btn-primary"
-              >
-                Search Directory
-              </Link>
-            </div>
+          <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-16 text-center">
+            <Users className="w-8 h-8 text-zinc-650 mx-auto mb-4" />
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-1">No Connections Yet</h3>
+            <p className="text-xs text-zinc-600 font-light max-w-sm mx-auto mb-6">
+              You haven't connected with any talent or client yet. Explore the directory to build your professional network.
+            </p>
+            <Link
+              href="/search"
+              className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-4 py-2.5 rounded transition-colors"
+            >
+              Search Directory
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {connections.map((item) => (
               <div
                 key={item.connectionId}
-                className="card p-5 hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)] transition-all flex flex-col justify-between group"
+                className="border border-zinc-850 bg-black rounded-lg p-5 flex flex-col justify-between"
               >
                 <div>
                   {/* Header */}
                   <div className="flex justify-between items-start gap-4 mb-3">
                     <div>
-                      <h3 className="text-base font-bold text-[var(--text-primary)] truncate">
+                      <h3 className="text-sm font-bold text-white truncate">
                         {item.user.name}
                       </h3>
                       {item.user.businessName && (
-                        <p className="text-xs text-[var(--text-secondary)] font-semibold truncate mt-0.5">
+                        <p className="text-[11px] text-zinc-450 font-medium truncate mt-0.5">
                           {item.user.businessName}
                         </p>
                       )}
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[9px] font-bold border uppercase bg-[var(--accent-light)] text-[var(--accent)] border-[var(--border)]">
+                    <span className="px-2 py-0.5 rounded text-[8px] font-bold border uppercase bg-zinc-950 text-zinc-400 border-zinc-800">
                       {item.user.role}
                     </span>
                   </div>
 
                   {/* Bio */}
                   {item.user.bio && (
-                    <p className="text-xs text-[var(--text-secondary)] line-clamp-2 mb-4 leading-relaxed">
+                    <p className="text-xs text-zinc-400 line-clamp-2 mb-4 leading-relaxed font-light">
                       {item.user.bio}
                     </p>
                   )}
 
                   {/* Location */}
                   {item.user.location && (
-                    <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] mb-4">
-                      <MapPin className="w-3.5 h-3.5" />
+                    <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 mb-4 font-mono">
+                      <MapPin className="w-3 h-3" />
                       <span>{item.user.location}</span>
                     </div>
                   )}
                 </div>
 
                 {/* Footer Link & Profile */}
-                <div className="border-t border-[var(--border-subtle)] pt-4 flex flex-col sm:flex-row justify-between gap-3 items-stretch sm:items-center">
-                  <div className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
-                    Connected on {new Date(item.connectedAt).toLocaleDateString()}
+                <div className="border-t border-zinc-900 pt-4 flex flex-col sm:flex-row justify-between gap-3 items-stretch sm:items-center">
+                  <div className="text-[9px] text-zinc-550 font-bold uppercase tracking-wider">
+                    Connected: {new Date(item.connectedAt).toLocaleDateString()}
                   </div>
                   <Link
                     href={`/profiles/${item.user.id}`}
-                    className="btn-ghost px-3 py-1.5 justify-center hover:bg-[var(--accent)] hover:text-white hover:border-transparent transition-all"
+                    className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-white font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded transition-colors inline-flex items-center justify-center gap-1"
                   >
                     View Profile
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <ExternalLink className="w-3 h-3 text-zinc-400" />
                   </Link>
                 </div>
               </div>
@@ -246,62 +245,60 @@ export default function ConnectionsPage() {
         )
       ) : (
         pending.length === 0 ? (
-          <div className="card p-16 text-center">
-            <div className="empty-state">
-              <Clock className="empty-state-icon" />
-              <h3 className="empty-state-title">No Pending Invites</h3>
-              <p className="empty-state-text">
-                Your inbox is clean! You don&apos;t have any pending connection requests.
-              </p>
-            </div>
+          <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-16 text-center">
+            <Clock className="w-8 h-8 text-zinc-650 mx-auto mb-4" />
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-1">No Pending Invites</h3>
+            <p className="text-xs text-zinc-600 font-light max-w-sm mx-auto">
+              Your network inbox is clean! You don't have any pending incoming connection requests.
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
             {pending.map((item) => (
               <div
                 key={item.connectionId}
-                className="card p-5 hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)] transition-all flex flex-col sm:flex-row justify-between sm:items-center gap-4"
+                className="border border-zinc-850 bg-black rounded-lg p-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4 text-left"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-[var(--text-primary)] truncate">
+                    <h3 className="text-sm font-bold text-white truncate">
                       {item.requester.name}
                     </h3>
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase bg-[var(--accent-light)] text-[var(--accent)] border-[var(--border)]">
+                    <span className="px-2 py-0.5 rounded text-[8px] font-bold border uppercase bg-zinc-950 text-zinc-400 border-zinc-800">
                       {item.requester.role}
                     </span>
                   </div>
                   {item.requester.businessName && (
-                    <p className="text-xs text-[var(--text-secondary)] font-semibold mt-0.5 truncate">
+                    <p className="text-[11px] text-zinc-450 font-medium mt-0.5 truncate">
                       {item.requester.businessName}
                     </p>
                   )}
-                  <p className="text-[10px] text-[var(--text-muted)] mt-1 font-medium">
-                    Received on {new Date(item.createdAt).toLocaleDateString()} at {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <p className="text-[9px] text-zinc-550 mt-1 font-mono">
+                    Received: {new Date(item.createdAt).toLocaleDateString()} at {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                   <Link
                     href={`/profiles/${item.requester.id}`}
-                    className="btn-ghost px-3 py-1.5"
+                    className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-white font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded transition-colors"
                   >
                     Details
                   </Link>
                   <button
                     onClick={() => handleRespond(item.connectionId, "ACCEPTED")}
                     disabled={processingId === item.connectionId}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50"
+                    className="bg-emerald-950/20 text-emerald-400 border border-emerald-900/50 hover:bg-emerald-950/40 text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
                   >
-                    <Check className="w-3.5 h-3.5" />
+                    <Check className="w-3 h-3" />
                     Accept
                   </button>
                   <button
                     onClick={() => handleRespond(item.connectionId, "DECLINED")}
                     disabled={processingId === item.connectionId}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50"
+                    className="bg-red-950/20 text-red-400 border border-red-900/50 hover:bg-red-950/40 text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-3 h-3" />
                     Decline
                   </button>
                 </div>

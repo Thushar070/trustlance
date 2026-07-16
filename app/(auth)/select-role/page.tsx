@@ -41,118 +41,102 @@ export default function SelectRolePage() {
   };
 
   return (
-    <div className="flex-grow flex flex-col items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-[var(--background)] min-h-screen">
-      <div className="w-full max-w-2xl animate-slideUp">
-        {/* Brand */}
-        <div className="text-center mb-10">
-          <h2 className="text-lg font-black tracking-tight mb-1">
-            Trust<span className="text-[var(--accent)]">Lance</span>
-          </h2>
-          <h1 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] tracking-tight">
-            Choose Your Path
-          </h1>
-          <p className="mt-2 text-sm text-[var(--text-secondary)] font-medium">
-            How do you plan to use TrustLance?
-          </p>
+    <div className="flex-grow flex flex-col items-center justify-center py-20 px-4 sm:px-6 lg:px-8 bg-black text-white min-h-screen">
+      <div className="w-full max-w-xl space-y-8 animate-slideUp">
+        {/* Brand Header */}
+        <div className="text-center">
+          <div className="flex justify-center items-center gap-2 mb-2">
+            <img src="/logo-mark.png" alt="TrustLance" className="w-6 h-6 rounded" />
+            <span className="text-lg font-bold tracking-tight text-white">TrustLance</span>
+          </div>
+          <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold">Account Setup Phase 1</p>
         </div>
 
         {error && (
-          <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
-            <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-[var(--status-negative-text)] font-medium">{error}</p>
+          <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs flex items-start gap-2.5 text-red-400 animate-fadeIn">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <p className="font-semibold leading-relaxed">{error}</p>
           </div>
         )}
 
-        {/* Role Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 stagger-children">
+        {/* Role Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Client Card */}
           <button
             type="button"
             onClick={() => setSelectedRole("CLIENT")}
-            className={`relative text-left p-7 rounded-2xl border-2 transition-all duration-200 cursor-pointer bg-[var(--surface)] shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] hover:-translate-y-0.5 ${
+            className={`relative text-left p-6 rounded-lg border transition-all duration-150 cursor-pointer bg-[#09090b] ${
               selectedRole === "CLIENT"
-                ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/20"
-                : "border-[var(--border)] hover:border-[var(--accent)]/40"
+                ? "border-white ring-1 ring-white"
+                : "border-zinc-800 hover:border-zinc-700"
             }`}
           >
-            {/* Radio indicator */}
+            {/* Custom Dot Indicator */}
             <div className="absolute top-5 right-5">
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                selectedRole === "CLIENT"
-                  ? "border-[var(--accent)] bg-[var(--accent)]"
-                  : "border-[var(--text-muted)]"
+              <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                selectedRole === "CLIENT" ? "border-white bg-white" : "border-zinc-650"
               }`}>
                 {selectedRole === "CLIENT" && (
-                  <div className="w-2 h-2 rounded-full bg-white" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-black" />
                 )}
               </div>
             </div>
 
-            <div className="w-12 h-12 rounded-xl bg-[var(--accent-light)] flex items-center justify-center mb-5">
-              <Briefcase className="w-6 h-6 text-[var(--accent)]" />
+            <div className="w-8 h-8 rounded border border-zinc-800 flex items-center justify-center mb-4 text-zinc-400">
+              <Briefcase className="w-4 h-4" />
             </div>
-            <h3 className="text-lg font-black text-[var(--text-primary)] mb-1.5">I want to Hire Talent</h3>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed pr-6 font-medium">
-              Post projects, fund escrow, and manage teams.
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-1">Hire Talent</h3>
+            <p className="text-[11px] text-zinc-400 leading-normal font-light">
+              Post contract projects, lock payments into secure escrow, and hire certified specialists.
             </p>
-
-            <div className="mt-6 h-20 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border)] flex items-center justify-center">
-              <Briefcase className="w-8 h-8 text-[var(--text-muted)]/30" />
-            </div>
           </button>
 
           {/* Freelancer Card */}
           <button
             type="button"
             onClick={() => setSelectedRole("FREELANCER")}
-            className={`relative text-left p-7 rounded-2xl border-2 transition-all duration-200 cursor-pointer bg-[var(--surface)] shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] hover:-translate-y-0.5 ${
+            className={`relative text-left p-6 rounded-lg border transition-all duration-150 cursor-pointer bg-[#09090b] ${
               selectedRole === "FREELANCER"
-                ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/20"
-                : "border-[var(--border)] hover:border-[var(--accent)]/40"
+                ? "border-white ring-1 ring-white"
+                : "border-zinc-800 hover:border-zinc-700"
             }`}
           >
-            {/* Radio indicator */}
+            {/* Custom Dot Indicator */}
             <div className="absolute top-5 right-5">
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                selectedRole === "FREELANCER"
-                  ? "border-[var(--accent)] bg-[var(--accent)]"
-                  : "border-[var(--text-muted)]"
+              <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                selectedRole === "FREELANCER" ? "border-white bg-white" : "border-zinc-650"
               }`}>
                 {selectedRole === "FREELANCER" && (
-                  <div className="w-2 h-2 rounded-full bg-white" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-black" />
                 )}
               </div>
             </div>
 
-            <div className="w-12 h-12 rounded-xl bg-[var(--status-success-bg)] flex items-center justify-center mb-5">
-              <Wrench className="w-6 h-6 text-[var(--status-success-text)]" />
+            <div className="w-8 h-8 rounded border border-zinc-800 flex items-center justify-center mb-4 text-zinc-400">
+              <Wrench className="w-4 h-4" />
             </div>
-            <h3 className="text-lg font-black text-[var(--text-primary)] mb-1.5">I want to Work</h3>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed pr-6 font-medium">
-              Browse jobs, build connections, and get paid securely.
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-1">Offer Services</h3>
+            <p className="text-[11px] text-zinc-400 leading-normal font-light">
+              Submit work milestones, bid on projects, and secure payments in escrow before starting.
             </p>
-
-            <div className="mt-6 h-20 rounded-xl bg-[var(--surface-subtle)] border border-[var(--border)] flex items-center justify-center">
-              <Wrench className="w-8 h-8 text-[var(--text-muted)]/30" />
-            </div>
           </button>
         </div>
 
-        {/* Continue Button */}
+        {/* Action Button */}
         <button
           onClick={handleContinue}
           disabled={!selectedRole || loading}
-          className="w-full inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-sm font-bold uppercase tracking-wider text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-[var(--card-shadow)] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all duration-200"
+          className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded bg-white text-xs font-bold text-black uppercase tracking-widest hover:bg-zinc-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus:outline-none"
         >
-          {loading ? "Processing..." : "Continue"}
-          {!loading && <ArrowRight className="w-4 h-4" />}
+          {loading ? "Processing..." : "Continue Setup"}
+          {!loading && <ArrowRight className="w-3.5 h-3.5 shrink-0" />}
         </button>
 
-        {/* Footer link */}
-        <p className="mt-6 text-sm text-[var(--text-muted)] text-center">
-          Already have an account?{" "}
-          <Link href="/login" className="text-[var(--accent)] font-bold hover:text-[var(--accent-hover)]">
-            Sign in
+        {/* Footer Link */}
+        <p className="text-center text-[11px] text-zinc-500">
+          Want to access another account?{" "}
+          <Link href="/login" className="text-white font-bold hover:underline">
+            Sign In
           </Link>
         </p>
       </div>
