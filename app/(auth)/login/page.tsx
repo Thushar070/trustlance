@@ -15,40 +15,68 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex-grow flex flex-col justify-center items-center py-16 px-4 sm:px-6 lg:px-8 bg-[var(--background)]">
-      <div className="w-full max-w-md animate-slideUp">
-        {/* Logo & Header */}
-        <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 rounded-2xl shadow-lg mb-6 overflow-hidden ring-2 ring-[var(--border)]">
-            <img src="/logo-mark.png" alt="TrustLance" width={64} height={64} className="w-16 h-16" />
+    <div className="flex-grow flex flex-col justify-center items-center py-20 px-4 sm:px-6 lg:px-8 bg-black text-white">
+      <div className="w-full max-w-sm space-y-8 animate-slideUp">
+        {/* Logo Header */}
+        <div className="text-center">
+          <div className="flex justify-center items-center gap-2 mb-2">
+            <img src="/logo-mark.png" alt="TrustLance" className="w-6 h-6 rounded" />
+            <span className="text-lg font-bold tracking-tight text-white">TrustLance</span>
           </div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">
-            Welcome to Trust<span className="text-[var(--accent)]">Lance</span>
-          </h1>
-          <p className="mt-2 text-sm text-[var(--text-secondary)] font-medium">
-            Secure, escrow-backed freelance marketplace.
-          </p>
+          <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold">Secure Escrow Authorization</p>
         </div>
 
-        {/* Card */}
-        <div className="card p-8 sm:p-10">
+        {/* Card Container */}
+        <div className="border border-zinc-800 bg-[#09090b] rounded-lg p-8 space-y-6 shadow-2xl">
           {error && (
-            <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
-              <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-[var(--status-negative-text)] font-medium">
-                Authentication error: {error === "OAuthSignin" || error === "OAuthCallback"
-                  ? "Unable to sign in with Google. Check server logs."
+            <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs flex items-start gap-2.5 text-red-400 animate-fadeIn">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <p className="font-semibold leading-relaxed">
+                Auth Error: {error === "OAuthSignin" || error === "OAuthCallback"
+                  ? "Unable to complete Google authentication."
                   : error}
               </p>
             </div>
           )}
 
+          {/* Form visual elements matching reference mockup 5 */}
           <div className="space-y-4">
+            <div className="space-y-1 text-left">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
+                Work Email
+              </label>
+              <input
+                type="text"
+                disabled
+                placeholder="name@company.com"
+                className="w-full bg-black border border-zinc-800 rounded px-3 py-2 text-xs text-zinc-600 cursor-not-allowed placeholder-zinc-700 focus:outline-none"
+              />
+            </div>
+            <div className="space-y-1 text-left">
+              <div className="flex justify-between items-center">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
+                  Password
+                </label>
+                <span className="text-[9px] font-bold text-zinc-600 uppercase hover:text-zinc-400 cursor-pointer">
+                  Forgot Password?
+                </span>
+              </div>
+              <input
+                type="password"
+                disabled
+                placeholder="••••••••"
+                className="w-full bg-black border border-zinc-800 rounded px-3 py-2 text-xs text-zinc-600 cursor-not-allowed placeholder-zinc-700 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            {/* Real Active Auth Trigger */}
             <button
               onClick={handleGoogleLogin}
-              className="w-full flex justify-center items-center py-3.5 px-4 border border-[var(--border)] rounded-xl bg-[var(--surface)] text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent)] cursor-pointer transition-all duration-200"
+              className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded bg-white text-xs font-bold text-black uppercase tracking-widest hover:bg-zinc-200 transition-colors cursor-pointer focus:outline-none"
             >
-              <svg className="h-5 w-5 mr-3" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+              <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -56,14 +84,19 @@ function LoginForm() {
               </svg>
               Sign in with Google
             </button>
-          </div>
 
-          <div className="mt-8 pt-6 border-t border-[var(--border-subtle)]">
-            <p className="text-center text-xs text-[var(--text-muted)] leading-relaxed">
-              By signing in, you agree to our terms of service. Your data is secured with application-level escrow protections.
-            </p>
+            <button
+              disabled
+              className="w-full flex justify-center items-center py-3 px-4 rounded border border-zinc-800 text-xs font-bold text-zinc-500 uppercase tracking-widest bg-transparent cursor-not-allowed"
+            >
+              Sign In with Credentials
+            </button>
           </div>
         </div>
+
+        <p className="text-center text-[10px] text-zinc-600 leading-relaxed max-w-xs mx-auto">
+          By signing in, you authorize database transactions under strict multi-signature escrow protocols.
+        </p>
       </div>
     </div>
   );
@@ -72,8 +105,8 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="flex-grow flex items-center justify-center">
-        <div className="w-5 h-5 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
+      <div className="flex-grow flex items-center justify-center bg-black text-white">
+        <div className="w-5 h-5 rounded-full border-2 border-zinc-800 border-t-white animate-spin" />
       </div>
     }>
       <LoginForm />

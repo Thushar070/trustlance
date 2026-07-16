@@ -337,28 +337,28 @@ html.theme-transition *::after {
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 12px;
   box-shadow: var(--card-shadow);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 .card:hover {
-  box-shadow: var(--card-shadow-hover);
+  border-color: var(--text-primary);
 }
 .card-hover-lift:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 /* Status Badge */
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 10px;
+  padding: 0.25rem 0.75rem;
   border-radius: 9999px;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 9px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  line-height: 1.6;
+  letter-spacing: 0.08em;
+  line-height: 1;
 }
 
 /* Buttons */
@@ -367,22 +367,21 @@ html.theme-transition *::after {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.5rem;
-  border-radius: 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 700;
+  padding: 0.6rem 1.25rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   color: var(--btn-primary-text);
   background: var(--accent);
-  border: none;
-  box-shadow: var(--card-shadow);
+  border: 1px solid var(--accent);
   cursor: pointer;
-  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 .btn-primary:hover {
   background: var(--accent-hover);
-  box-shadow: var(--card-shadow-hover);
+  border-color: var(--accent-hover);
 }
 .btn-primary:active {
   transform: scale(0.98);
@@ -393,12 +392,12 @@ html.theme-transition *::after {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.5rem;
-  border-radius: 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 700;
+  padding: 0.6rem 1.25rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   color: var(--text-primary);
   background: var(--surface);
   border: 1px solid var(--border);
@@ -407,7 +406,7 @@ html.theme-transition *::after {
 }
 .btn-ghost:hover {
   background: var(--surface-subtle);
-  border-color: var(--text-muted);
+  border-color: var(--text-primary);
 }
 
 /* Section Header */

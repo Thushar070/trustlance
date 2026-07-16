@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
-import Navbar from "@/components/Navbar";
+import DashboardLayoutWrapper from "@/components/DashboardLayoutWrapper";
 
 export const metadata: Metadata = {
   title: "TrustLance - Secure Freelance Escrow Marketplace",
@@ -32,25 +32,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
         <Providers>
-          <Navbar />
-          <main className="flex-1 flex flex-col">{children}</main>
-          <footer className="border-t border-[var(--border)] bg-[var(--surface)]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <img src="/logo-mark.png" alt="" width={18} height={18} className="w-[18px] h-[18px] rounded opacity-50" />
-                <p className="text-xs text-[var(--text-muted)] font-medium tracking-wide">
-                  © 2026 TrustLance. All rights reserved.
-                </p>
-              </div>
-              <div className="flex items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                <span>Secure</span>
-                <span className="w-1 h-1 rounded-full bg-[var(--text-muted)] opacity-40" />
-                <span>Verified</span>
-                <span className="w-1 h-1 rounded-full bg-[var(--text-muted)] opacity-40" />
-                <span>Escrow-Backed</span>
-              </div>
-            </div>
-          </footer>
+          <DashboardLayoutWrapper>{children}</DashboardLayoutWrapper>
         </Providers>
       </body>
     </html>
