@@ -653,3 +653,8 @@ html:not(.dark) .ring-zinc-800 {
   --tw-ring-color: var(--border) !important;
 }
 
+/* Force padding-left on inputs with absolute icons to override generic selector resets */
+input.pl-10,
+textarea.pl-10 {
+  padding-left: 2.5rem !important;
+}
