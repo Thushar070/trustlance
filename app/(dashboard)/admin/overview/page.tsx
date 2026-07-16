@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useNotification } from "@/components/NotificationProvider";
 import { ProjectStatus } from "@prisma/client";
 import { Shield, IndianRupee, AlertTriangle, Cpu, ArrowRight, Layers } from "lucide-react";
 
@@ -12,6 +13,7 @@ interface OverviewStats {
 }
 
 export default function AdminOverviewPage() {
+  const { showSuccess, showError } = useNotification();
   const [stats, setStats] = useState<OverviewStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -189,10 +191,12 @@ export default function AdminOverviewPage() {
                   const res = await fetch("/api/admin/run-auto-release", { method: "POST" });
                   if (!res.ok) throw new Error("Error running auto-release");
                   const result = await res.json();
-                  alert(`Auto-release run completed.\nReleased: ${result.released} projects\nWarned: ${result.warned} projects`);
-                  window.location.reload();
+                  showSuccess(`Auto-release run completed.\nReleased: ${result.released} projects\nWarned: ${result.warned} projects`);
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 2000);
                 } catch (err: unknown) {
-                  alert(err instanceof Error ? err.message : "Failure executing trigger");
+                  showError(err instanceof Error ? err.message : "Failure executing trigger");
                 }
               }
             }}

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useNotification } from "@/components/NotificationProvider";
 import { DisputeStatus, EscrowStatus } from "@prisma/client";
 import AuditHistory from "@/components/AuditHistory";
 import {
@@ -61,6 +62,7 @@ export default function DisputeDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { data: session } = useSession();
+  const { showWarning } = useNotification();
 
   const [dispute, setDispute] = useState<DisputeDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -108,7 +110,7 @@ export default function DisputeDetailPage() {
     if (!file) return;
 
     if (file.size > 50 * 1024 * 1024) {
-      alert("File size exceeds the 50MB limit.");
+      showWarning("File size exceeds the 50MB limit.");
       return;
     }
 

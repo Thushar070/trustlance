@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useNotification } from "@/components/NotificationProvider";
 import { 
   User as UserIcon, 
   MapPin, 
@@ -55,6 +56,7 @@ export default function PublicProfilePage() {
   const params = useParams();
   const router = useRouter();
   const { data: session } = useSession();
+  const { showSuccess, showError, showInfo } = useNotification();
   
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -124,9 +126,10 @@ export default function PublicProfilePage() {
       setConnStatus("PENDING");
       setConnId(data.id);
       setConnRequesterId(callerId || null);
+      showSuccess("Connection request sent successfully!");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error sending request.";
-      alert(msg);
+      showError(msg);
     } finally {
       setConnecting(false);
     }
@@ -147,12 +150,15 @@ export default function PublicProfilePage() {
       }
       setConnStatus(response);
       if (response === "ACCEPTED") {
+        showSuccess("Connection request accepted!");
         // Reload public profile to load newly unmasked contact credentials
         await fetchProfile();
+      } else {
+        showInfo("Connection request declined.");
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error responding to request.";
-      alert(msg);
+      showError(msg);
     } finally {
       setConnecting(false);
     }
@@ -174,13 +180,14 @@ export default function PublicProfilePage() {
       }
       setReportSuccess(true);
       setReportReason("");
+      showSuccess("Report submitted successfully.");
       setTimeout(() => {
         setReportOpen(false);
         setReportSuccess(false);
       }, 1500);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error submitting report.";
-      alert(msg);
+      showError(msg);
     } finally {
       setReporting(false);
     }

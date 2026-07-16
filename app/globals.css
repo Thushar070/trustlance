@@ -658,3 +658,22 @@ input.pl-10,
 textarea.pl-10 {
   padding-left: 2.5rem !important;
 }
+
+/* =============================================
+   Toast Notification Animations
+   ============================================= */
+@keyframes slideInFromRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-toast-slide-in {
+  animation: slideInFromRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

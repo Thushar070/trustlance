@@ -93,12 +93,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (pathname === "/payments") {
-    if (role === "ADMIN") {
-      return NextResponse.redirect(new URL("/admin/assignments", request.url));
-    }
-  }
-
   // API Gating for Admin endpoints
   if (pathname.startsWith("/api/admin/")) {
     if (role !== "ADMIN") {

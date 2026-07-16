@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useNotification } from "@/components/NotificationProvider";
 import { 
   Users, 
   UserCheck, 
@@ -37,6 +38,7 @@ interface PendingItem {
 
 export default function ConnectionsPage() {
   const { data: session, status } = useSession();
+  const { showSuccess, showError, showInfo } = useNotification();
   const [activeTab, setActiveTab] = useState<"connections" | "pending">("connections");
   
   const [connections, setConnections] = useState<ConnectionItem[]>([]);
@@ -85,13 +87,15 @@ export default function ConnectionsPage() {
       
       // Update UI state locally
       if (response === "ACCEPTED") {
+        showSuccess("Connection request accepted!");
         // Re-fetch to load full profile/contact details
         await fetchConnections();
       } else {
+        showInfo("Connection request declined.");
         setPending(prev => prev.filter(p => p.connectionId !== connectionId));
       }
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "Error processing request.");
+      showError(err instanceof Error ? err.message : "Error processing request.");
     } finally {
       setProcessingId(null);
     }
@@ -125,32 +129,32 @@ export default function ConnectionsPage() {
     <div className="space-y-8 w-full min-w-0 animate-fadeIn">
       {/* Header */}
       <div>
-        <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
+        <div className="flex items-center gap-2 text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-1">
           <span>Enterprise</span>
           <span>&gt;</span>
-          <span className="text-zinc-400 font-bold">Connections Network</span>
+          <span className="text-[var(--text-muted)] font-bold">Connections Network</span>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">Connections Network</h1>
-        <p className="text-xs text-zinc-550 font-light mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)] leading-tight">Connections Network</h1>
+        <p className="text-xs text-[var(--text-secondary)] font-light mt-1">
           Manage your accepted connection network and respond to incoming requests.
         </p>
       </div>
 
       {errorMsg && (
-        <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs text-red-400 flex items-start gap-3 animate-fadeIn">
-          <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+        <div className="bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded text-xs text-[var(--status-negative-text)] flex items-start gap-3 animate-fadeIn">
+          <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
           <p className="font-semibold">{errorMsg}</p>
         </div>
       )}
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-zinc-900 gap-6">
+      <div className="flex border-b border-[var(--border)] gap-6">
         <button
           onClick={() => setActiveTab("connections")}
           className={`pb-3 text-[10px] font-bold uppercase tracking-widest border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
             activeTab === "connections"
-              ? "border-white text-white"
-              : "border-transparent text-zinc-500 hover:text-zinc-400"
+              ? "border-[var(--text-primary)] text-[var(--text-primary)]"
+              : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           }`}
         >
           <UserCheck className="w-3.5 h-3.5" />
@@ -160,8 +164,8 @@ export default function ConnectionsPage() {
           onClick={() => setActiveTab("pending")}
           className={`pb-3 text-[10px] font-bold uppercase tracking-widest border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
             activeTab === "pending"
-              ? "border-white text-white"
-              : "border-transparent text-zinc-500 hover:text-zinc-400"
+              ? "border-[var(--text-primary)] text-[var(--text-primary)]"
+              : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           }`}
         >
           <Clock className="w-3.5 h-3.5" />
@@ -172,10 +176,10 @@ export default function ConnectionsPage() {
       {/* Tab Contents */}
       {activeTab === "connections" ? (
         connections.length === 0 ? (
-          <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-16 text-center">
-            <Users className="w-8 h-8 text-zinc-650 mx-auto mb-4" />
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-1">No Connections Yet</h3>
-            <p className="text-xs text-zinc-600 font-light max-w-sm mx-auto mb-6">
+          <div className="border border-[var(--border)] bg-[var(--surface-subtle)] rounded-lg p-16 text-center shadow-sm">
+            <Users className="w-8 h-8 text-[var(--text-muted)] mx-auto mb-4" />
+            <h3 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider mb-1">No Connections Yet</h3>
+            <p className="text-xs text-[var(--text-secondary)] font-light max-w-sm mx-auto mb-6">
               You haven't connected with any talent or client yet. Explore the directory to build your professional network.
             </p>
             <Link

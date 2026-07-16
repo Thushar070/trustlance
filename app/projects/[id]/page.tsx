@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
+import { useNotification } from "@/components/NotificationProvider";
 import { ProjectStatus, ProposalStatus, EscrowStatus } from "@prisma/client";
 import { SKILL_GROUPS } from "@/lib/constants/skills";
 import Link from "next/link";
@@ -137,6 +138,7 @@ export default function ProjectDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { data: session } = useSession();
+  const { showSuccess, showError, showInfo, showWarning } = useNotification();
 
   const [project, setProject] = useState<ProjectDetails | null>(null);
   const [myProposal, setMyProposal] = useState<ProposalDetails | null>(null);
@@ -265,7 +267,7 @@ export default function ProjectDetailPage() {
       setGithubLink("");
       setDemoLink("");
       setSubmissionNotes("");
-      alert("Work submitted successfully!");
+      showSuccess("Work submitted successfully!");
       setRefreshTrigger((prev) => prev + 1);
     } catch (err: unknown) {
       let msg = err instanceof Error ? err.message : "An error occurred submitting work.";
@@ -297,7 +299,7 @@ export default function ProjectDetailPage() {
       if (!res.ok) {
         throw new Error(data.error || "Approval failed.");
       }
-      alert("Project approved and funds released successfully!");
+      showSuccess("Project approved and funds released successfully!");
       setActiveReviewAction(null);
       setRefreshTrigger((prev) => prev + 1);
     } catch (err: unknown) {
@@ -326,7 +328,7 @@ export default function ProjectDetailPage() {
       if (!res.ok) {
         throw new Error(data.error || "Request changes failed.");
       }
-      alert("Changes requested successfully! Project is back in progress.");
+      showSuccess("Changes requested successfully! Project is back in progress.");
       setReviewFeedback("");
       setActiveReviewAction(null);
       setRefreshTrigger((prev) => prev + 1);
@@ -356,7 +358,7 @@ export default function ProjectDetailPage() {
       if (!res.ok) {
         throw new Error(data.error || "Raising dispute failed.");
       }
-      alert("Dispute raised successfully! Project is now flagged.");
+      showWarning("Dispute raised successfully! Project is now flagged.");
       setDisputeReason("");
       setActiveReviewAction(null);
       setRefreshTrigger((prev) => prev + 1);
@@ -458,7 +460,7 @@ export default function ProjectDetailPage() {
     try {
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
-        alert("Razorpay Checkout SDK failed to load. Please check your internet connection.");
+        showError("Razorpay Checkout SDK failed to load. Please check your internet connection.");
         setPaymentLoading(false);
         return;
       }
@@ -504,7 +506,7 @@ export default function ProjectDetailPage() {
             setRefreshTrigger((prev) => prev + 1);
           } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : "Payment verification failed.";
-            alert(msg);
+            showError(msg);
             setRefreshTrigger((prev) => prev + 1);
           } finally {
             setPaymentLoading(false);
@@ -710,7 +712,7 @@ export default function ProjectDetailPage() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Could not cancel project.";
-      alert(msg);
+      showError(msg);
     }
   };
 
@@ -821,7 +823,7 @@ export default function ProjectDetailPage() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Could not withdraw proposal.";
-      alert(msg);
+      showError(msg);
     } finally {
       setProposalActionLoading(false);
     }
@@ -846,7 +848,7 @@ export default function ProjectDetailPage() {
       setRefreshTrigger((prev) => prev + 1);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Could not assign project.";
-      alert(msg);
+      showError(msg);
     } finally {
       setSelectLoading(false);
     }
@@ -909,7 +911,7 @@ export default function ProjectDetailPage() {
         {/* Top actions */}
         <div className="flex items-center gap-2 shrink-0">
           <button
-            onClick={() => alert(`Smart contract address mapping: 0x${project.id.slice(0, 20)}...`)}
+            onClick={() => showInfo(`Smart contract address mapping: 0x${project.id.slice(0, 20)}...`)}
             className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-white font-bold text-[10px] uppercase tracking-widest px-4 py-2.5 rounded transition-colors cursor-pointer"
           >
             View Smart Contract
@@ -1894,7 +1896,7 @@ export default function ProjectDetailPage() {
 
                 {/* Print button */}
                 <button
-                  onClick={() => alert("Printing immutable ledger logs payload...")}
+                  onClick={() => showSuccess("Immutable ledger logs payload report downloading...")}
                   className="w-full text-center text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-white transition-colors mt-4 pt-4 border-t border-zinc-900 cursor-pointer"
                 >
                   Download Full Report (CSV)

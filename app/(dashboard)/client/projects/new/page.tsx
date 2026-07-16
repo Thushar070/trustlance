@@ -2,11 +2,13 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useNotification } from "@/components/NotificationProvider";
 import { SKILL_GROUPS } from "@/lib/constants/skills";
 import { Plus, IndianRupee, Calendar, Briefcase, AlertCircle, ArrowLeft } from "lucide-react";
 
 export default function NewProjectPage() {
   const router = useRouter();
+  const { showSuccess } = useNotification();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [budget, setBudget] = useState("");
@@ -60,6 +62,7 @@ export default function NewProjectPage() {
         return;
       }
 
+      showSuccess("Project posted successfully!");
       router.push("/client/projects");
       router.refresh();
     } catch {

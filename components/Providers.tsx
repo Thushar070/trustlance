@@ -2,6 +2,7 @@
 
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { NotificationProvider } from "@/components/NotificationProvider";
 import React, { useEffect } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -25,7 +26,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <SessionProvider>
-      <ThemeProvider>{children}</ThemeProvider>
+      <ThemeProvider>
+        <NotificationProvider>{children}</NotificationProvider>
+      </ThemeProvider>
     </SessionProvider>
   );
 }
