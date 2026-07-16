@@ -114,31 +114,31 @@ export default function AdminAssignmentsPage() {
                     <th className="py-4 px-6 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-900 bg-black">
+                <tbody className="divide-y divide-[var(--border-subtle)] bg-[var(--surface)]">
                   {assignments.map((assignment) => (
                     <tr
                       key={assignment.projectId}
-                      className="hover:bg-zinc-950/40 transition-colors"
+                      className="hover:bg-[var(--surface-subtle)] transition-colors"
                     >
                       <td className="py-4 px-6">
-                        <div className="font-bold text-white">
+                        <div className="font-bold text-[var(--text-primary)]">
                           {assignment.clientName || "Client"}
                         </div>
-                        <div className="text-[10px] text-zinc-500 font-mono mt-0.5">{assignment.clientEmail}</div>
+                        <div className="text-[10px] text-[var(--text-secondary)] font-mono mt-0.5">{assignment.clientEmail}</div>
                       </td>
                       <td className="py-4 px-6">
                         {assignment.freelancerEmail ? (
                           <>
-                            <div className="font-bold text-white">
+                            <div className="font-bold text-[var(--text-primary)]">
                               {assignment.freelancerName || "Freelancer"}
                             </div>
-                            <div className="text-[10px] text-zinc-500 font-mono mt-0.5">{assignment.freelancerEmail}</div>
+                            <div className="text-[10px] text-[var(--text-secondary)] font-mono mt-0.5">{assignment.freelancerEmail}</div>
                           </>
                         ) : (
-                          <span className="text-zinc-650 italic">Unassigned</span>
+                          <span className="text-[var(--text-muted)] italic">Unassigned</span>
                         )}
                       </td>
-                      <td className="py-4 px-6 font-medium text-zinc-300 max-w-xs truncate">
+                      <td className="py-4 px-6 font-medium text-[var(--text-primary)] max-w-xs truncate">
                         {assignment.projectTitle}
                       </td>
                       <td className="py-4 px-6">
@@ -150,13 +150,13 @@ export default function AdminAssignmentsPage() {
                         {assignment.disputeId ? (
                           <Link
                             href={`/disputes/${assignment.disputeId}`}
-                            className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-white font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded transition-colors inline-flex items-center gap-1"
+                            className="border border-[var(--border)] hover:border-[var(--text-primary)] bg-[var(--surface-subtle)] text-[var(--text-primary)] font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded transition-colors inline-flex items-center gap-1"
                           >
                             Review Case
-                            <ArrowRight className="w-3 h-3 text-zinc-400" />
+                            <ArrowRight className="w-3 h-3 text-[var(--text-muted)]" />
                           </Link>
                         ) : (
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-650">No Active Dispute</span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">No Active Dispute</span>
                         )}
                       </td>
                     </tr>
@@ -171,11 +171,11 @@ export default function AdminAssignmentsPage() {
             {assignments.map((assignment) => (
               <div
                 key={assignment.projectId}
-                className="border border-zinc-850 bg-black rounded-lg p-5 space-y-4"
+                className="border border-[var(--border)] bg-[var(--surface)] rounded-lg p-5 space-y-4 shadow-sm"
               >
                 <div className="flex justify-between items-start gap-4">
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-bold text-white break-words">
+                    <h3 className="text-sm font-bold text-[var(--text-primary)] break-words">
                       {assignment.projectTitle}
                     </h3>
                     <span className={`mt-2 inline-flex items-center px-2 py-0.5 rounded border text-[9px] font-bold uppercase tracking-widest ${getStatusBadgeClass(assignment.projectStatus)}`}>
@@ -186,47 +186,47 @@ export default function AdminAssignmentsPage() {
                     {assignment.disputeId ? (
                       <Link
                         href={`/disputes/${assignment.disputeId}`}
-                        className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded transition-colors inline-flex items-center gap-1"
+                        className="bg-[var(--btn-primary)] hover:bg-[var(--btn-primary-hover)] text-[var(--btn-primary-text)] font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded transition-colors inline-flex items-center gap-1"
                       >
                         Review
-                        <ArrowRight className="w-3 h-3 text-black" />
+                        <ArrowRight className="w-3 h-3 text-[var(--btn-primary-text)]" />
                       </Link>
                     ) : (
-                      <span className="text-[9px] font-bold text-zinc-550 bg-zinc-950 px-2 py-1 rounded border border-zinc-850">
+                      <span className="text-[9px] font-bold text-[var(--text-muted)] bg-[var(--surface-subtle)] px-2 py-1 rounded border border-[var(--border)]">
                         No Dispute
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-3 border-t border-zinc-900 text-xs">
+                <div className="grid grid-cols-2 gap-4 pt-3 border-t border-[var(--border)] text-xs">
                   <div className="min-w-0">
-                    <div className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 mb-1">
+                    <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
                       Client
                     </div>
-                    <div className="font-bold text-white truncate">
+                    <div className="font-bold text-[var(--text-primary)] truncate">
                       {assignment.clientName || "Client"}
                     </div>
-                    <div className="text-[10px] text-zinc-550 truncate font-mono">
+                    <div className="text-[10px] text-[var(--text-muted)] truncate font-mono">
                       {assignment.clientEmail}
                     </div>
                   </div>
 
                   <div className="min-w-0">
-                    <div className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 mb-1">
+                    <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
                       Freelancer
                     </div>
                     {assignment.freelancerEmail ? (
                       <>
-                        <div className="font-bold text-white truncate">
+                        <div className="font-bold text-[var(--text-primary)] truncate">
                           {assignment.freelancerName || "Freelancer"}
                         </div>
-                        <div className="text-[10px] text-zinc-550 truncate font-mono">
+                        <div className="text-[10px] text-[var(--text-muted)] truncate font-mono">
                           {assignment.freelancerEmail}
                         </div>
                       </>
                     ) : (
-                      <span className="text-zinc-650 italic">Unassigned</span>
+                      <span className="text-[var(--text-muted)] italic">Unassigned</span>
                     )}
                   </div>
                 </div>

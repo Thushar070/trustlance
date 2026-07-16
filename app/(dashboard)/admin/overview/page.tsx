@@ -127,22 +127,22 @@ export default function AdminOverviewPage() {
         </div>
 
         {/* Metric 3 */}
-        <div className="border border-zinc-800 bg-[#09090b]/40 rounded-lg p-5 flex flex-col justify-between">
+        <div className="border border-[var(--border)] bg-[var(--surface)] rounded-lg p-5 flex flex-col justify-between shadow-sm">
           <div>
-            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+            <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
               Total Projects Count
             </div>
-            <div className="text-2xl font-bold text-white font-mono">{totalProjects}</div>
+            <div className="text-2xl font-bold text-[var(--text-primary)] font-mono">{totalProjects}</div>
           </div>
-          <div className="text-[9px] text-zinc-600 mt-4 font-mono uppercase tracking-wider">Active project listings.</div>
+          <div className="text-[9px] text-[var(--text-muted)] mt-4 font-mono uppercase tracking-wider">Active project listings.</div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Projects status distribution */}
-        <div className="border border-zinc-850 bg-black rounded-lg p-6 lg:col-span-2 space-y-4">
-          <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900">Project Status Distribution</h2>
-          <div className="divide-y divide-zinc-900 text-xs">
+        <div className="border border-[var(--border)] bg-[var(--surface)] rounded-lg p-6 lg:col-span-2 space-y-4 shadow-sm">
+          <h2 className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider pb-2 border-b border-[var(--border)]">Project Status Distribution</h2>
+          <div className="divide-y divide-[var(--border-subtle)] text-xs">
             {Object.entries(stats.projectsByStatus).map(([status, count]) => {
               const pct = totalProjects > 0 ? (count / totalProjects) * 100 : 0;
               return (
@@ -154,16 +154,16 @@ export default function AdminOverviewPage() {
                   </div>
                   
                   {/* Visual weight bar indicator */}
-                  <div className="flex-grow h-1.5 bg-zinc-950 border border-zinc-900 rounded overflow-hidden mx-0 sm:mx-4">
+                  <div className="flex-grow h-1.5 bg-[var(--surface-subtle)] border border-[var(--border)] rounded overflow-hidden mx-0 sm:mx-4">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${getStatusColorClass(status)}`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>
                   
-                  <div className="flex-shrink-0 text-right font-bold text-white flex items-center gap-1.5 font-mono text-[10px]">
+                  <div className="flex-shrink-0 text-right font-bold text-[var(--text-primary)] flex items-center gap-1.5 font-mono text-[10px]">
                     <span>{count}</span>
-                    <span className="text-[9px] text-zinc-550 font-normal font-sans">({pct.toFixed(0)}%)</span>
+                    <span className="text-[9px] text-[var(--text-muted)] font-normal font-sans">({pct.toFixed(0)}%)</span>
                   </div>
                 </div>
               );
@@ -172,13 +172,13 @@ export default function AdminOverviewPage() {
         </div>
 
         {/* Maintenance card */}
-        <div className="border border-zinc-850 bg-black rounded-lg p-6 flex flex-col justify-between h-full min-h-[300px]">
+        <div className="border border-[var(--border)] bg-[var(--surface)] rounded-lg p-6 flex flex-col justify-between h-full min-h-[300px] shadow-sm">
           <div>
-            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">
+            <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
               Cron Maintenance
             </div>
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-1">Platform Orchestration</h3>
-            <p className="text-xs text-zinc-450 leading-relaxed mb-4 font-light">
+            <h3 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider mb-1">Platform Orchestration</h3>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-4 font-light">
               Trigger standard auto-release cron cycles manually to release escrow milestone holds for assignments completed past deadline.
             </p>
           </div>
@@ -196,7 +196,7 @@ export default function AdminOverviewPage() {
                 }
               }
             }}
-            className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-white font-bold text-[10px] uppercase tracking-widest py-2.5 rounded transition-colors text-center w-full block cursor-pointer"
+            className="border border-[var(--border)] hover:border-[var(--text-primary)] bg-[var(--surface-subtle)] text-[var(--text-primary)] font-bold text-[10px] uppercase tracking-widest py-2.5 rounded transition-colors text-center w-full block cursor-pointer"
           >
             Trigger Auto-Release
           </button>

@@ -44,9 +44,9 @@ export default function CompleteProfilePage() {
 
   if (status === "loading") {
     return (
-      <div className="flex-grow flex flex-col justify-center items-center py-12 px-4 bg-black text-white">
-        <div className="w-6 h-6 rounded-full border-2 border-zinc-800 border-t-white animate-spin mb-4" />
-        <p className="text-xs text-zinc-400 font-bold uppercase tracking-widest animate-pulse">Checking onboarding status...</p>
+      <div className="flex-grow flex flex-col justify-center items-center py-12 px-4 bg-[var(--background)] text-[var(--foreground)]">
+        <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--text-primary)] animate-spin mb-4" />
+        <p className="text-xs text-[var(--text-secondary)] font-bold uppercase tracking-widest animate-pulse">Checking onboarding status...</p>
       </div>
     );
   }
@@ -98,21 +98,21 @@ export default function CompleteProfilePage() {
   };
 
   return (
-    <div className="flex-grow flex flex-col justify-center items-center py-20 px-4 sm:px-6 lg:px-8 bg-black text-white">
+    <div className="flex-grow flex flex-col justify-center items-center py-20 px-4 sm:px-6 lg:px-8 bg-[var(--background)] text-[var(--foreground)]">
       <div className="w-full max-w-md space-y-8 animate-slideUp">
         {/* Brand Header */}
         <div className="text-center">
           <div className="flex justify-center items-center gap-2 mb-2">
             <img src="/logo-mark.png" alt="TrustLance" className="w-6 h-6 rounded" />
-            <span className="text-lg font-bold tracking-tight text-white">TrustLance</span>
+            <span className="text-lg font-bold tracking-tight text-[var(--text-primary)]">TrustLance</span>
           </div>
-          <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold">
-            Complete your <span className="text-white">{userRole.toLowerCase()}</span> profile
+          <p className="text-xs text-zinc-550 uppercase tracking-widest font-bold">
+            Complete your <span className="text-[var(--text-primary)]">{userRole.toLowerCase()}</span> profile
           </p>
         </div>
 
         {/* Card Container */}
-        <div className="border border-zinc-800 bg-[#09090b] rounded-lg p-8 space-y-6 shadow-2xl">
+        <div className="border border-[var(--border)] bg-[var(--surface)] rounded-lg p-8 space-y-6 shadow-sm">
           {error && (
             <div className="bg-red-950/20 border border-red-900/50 p-4 rounded text-xs flex items-start gap-2.5 text-red-400 animate-fadeIn">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -127,7 +127,7 @@ export default function CompleteProfilePage() {
                 Full Name
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-550">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                   <User className="h-4.5 w-4.5" />
                 </div>
                 <input
@@ -136,11 +136,11 @@ export default function CompleteProfilePage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Jane Doe"
-                  className="w-full pl-10 pr-4 py-2.5 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white focus:ring-0"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-bg)] border border-[var(--input-border)] rounded text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-primary)] focus:ring-0"
                 />
               </div>
               {fieldErrors.name && (
-                <p className="text-[10px] text-red-400 font-semibold mt-1">{fieldErrors.name[0]}</p>
+                <p className="text-[10px] text-red-450 font-semibold mt-1">{fieldErrors.name[0]}</p>
               )}
             </div>
 
@@ -150,20 +150,20 @@ export default function CompleteProfilePage() {
                 Phone Number
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-550">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                   <Phone className="h-4.5 w-4.5" />
                 </div>
                 <input
-                  type="tel"
+                  type="text"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="e.g. +1 555-0199"
-                  className="w-full pl-10 pr-4 py-2.5 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white focus:ring-0"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-bg)] border border-[var(--input-border)] rounded text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-primary)] focus:ring-0"
                 />
               </div>
               {fieldErrors.phone && (
-                <p className="text-[10px] text-red-400 font-semibold mt-1">{fieldErrors.phone[0]}</p>
+                <p className="text-[10px] text-red-455 font-semibold mt-1">{fieldErrors.phone[0]}</p>
               )}
             </div>
 
@@ -173,7 +173,7 @@ export default function CompleteProfilePage() {
                 Location
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-550">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                   <MapPin className="h-4.5 w-4.5" />
                 </div>
                 <input
@@ -182,11 +182,11 @@ export default function CompleteProfilePage() {
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="e.g. San Francisco, CA"
-                  className="w-full pl-10 pr-4 py-2.5 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white focus:ring-0"
+                  className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-bg)] border border-[var(--input-border)] rounded text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-primary)] focus:ring-0"
                 />
               </div>
               {fieldErrors.location && (
-                <p className="text-[10px] text-red-400 font-semibold mt-1">{fieldErrors.location[0]}</p>
+                <p className="text-[10px] text-red-455 font-semibold mt-1">{fieldErrors.location[0]}</p>
               )}
             </div>
 
@@ -197,7 +197,7 @@ export default function CompleteProfilePage() {
                   Business Name
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-550">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                     <Building className="h-4.5 w-4.5" />
                   </div>
                   <input
@@ -206,11 +206,11 @@ export default function CompleteProfilePage() {
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
                     placeholder="e.g. Acme Corporation"
-                    className="w-full pl-10 pr-4 py-2.5 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white focus:ring-0"
+                    className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-bg)] border border-[var(--input-border)] rounded text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-primary)] focus:ring-0"
                   />
                 </div>
                 {fieldErrors.businessName && (
-                  <p className="text-[10px] text-red-400 font-semibold mt-1">{fieldErrors.businessName[0]}</p>
+                  <p className="text-[10px] text-red-455 font-semibold mt-1">{fieldErrors.businessName[0]}</p>
                 )}
               </div>
             )}
@@ -222,7 +222,7 @@ export default function CompleteProfilePage() {
                   Professional Bio
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 pt-3 flex items-start pointer-events-none text-zinc-550">
+                  <div className="absolute inset-y-0 left-0 pl-3 pt-3 flex items-start pointer-events-none text-zinc-400">
                     <FileText className="h-4.5 w-4.5" />
                   </div>
                   <textarea
@@ -231,11 +231,11 @@ export default function CompleteProfilePage() {
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     placeholder="Describe your professional skills and experience..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-black border border-zinc-800 rounded text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white focus:ring-0 leading-relaxed resize-none"
+                    className="w-full pl-10 pr-4 py-2.5 bg-[var(--input-bg)] border border-[var(--input-border)] rounded text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-primary)] focus:ring-0 leading-relaxed resize-none"
                   />
                 </div>
                 {fieldErrors.bio && (
-                  <p className="text-[10px] text-red-400 font-semibold mt-1">{fieldErrors.bio[0]}</p>
+                  <p className="text-[10px] text-red-455 font-semibold mt-1">{fieldErrors.bio[0]}</p>
                 )}
               </div>
             )}
@@ -243,7 +243,7 @@ export default function CompleteProfilePage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center py-3 px-4 rounded bg-white text-xs font-bold text-black uppercase tracking-widest hover:bg-zinc-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus:outline-none mt-4"
+              className="w-full flex justify-center items-center py-3 px-4 rounded bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-xs font-bold text-[var(--btn-primary-text)] border border-[var(--accent)] uppercase tracking-widest transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer focus:outline-none mt-4"
             >
               {loading ? "Completing Profile..." : "Complete Profile"}
             </button>

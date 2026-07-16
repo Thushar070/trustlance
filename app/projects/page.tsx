@@ -162,33 +162,32 @@ export default function BrowseProjectsPage() {
     switch (status) {
       case "OPEN":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-transparent border border-zinc-800 text-[9px] font-bold text-zinc-400 uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[var(--status-open-bg)] border border-[var(--status-open-border)] text-[9px] font-bold text-[var(--status-open-text)] uppercase tracking-wider">
             ● Open
           </span>
         );
       case "UNDER_REVIEW":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white text-[9px] font-bold text-black border border-white uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[var(--status-review-bg)] border border-[var(--status-review-border)] text-[9px] font-bold text-[var(--status-review-text)] uppercase tracking-wider">
             Review
           </span>
         );
       case "ASSIGNED":
       case "IN_PROGRESS":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[9px] font-bold text-white uppercase tracking-wider">
-            <span className="w-1 h-1 rounded-full bg-white" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[var(--status-success-bg)] border border-[var(--status-success-border)] text-[9px] font-bold text-[var(--status-success-text)] uppercase tracking-wider">
             Active
           </span>
         );
       case "COMPLETED":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-850 text-[9px] font-bold text-zinc-500 uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[var(--status-success-bg)] border border-[var(--status-success-border)] text-[9px] font-bold text-[var(--status-success-text)] uppercase tracking-wider">
             Released
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-950 border border-zinc-900 text-[9px] font-bold text-zinc-500 uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[var(--status-neutral-bg)] border border-[var(--status-neutral-border)] text-[9px] font-bold text-[var(--status-neutral-text)] uppercase tracking-wider">
             Closed
           </span>
         );
@@ -229,7 +228,7 @@ export default function BrowseProjectsPage() {
             setPage(1);
             setStatusFilter(e.target.value);
           }}
-          className="w-full text-xs px-2.5 py-2 bg-black border border-zinc-800 rounded text-white focus:outline-none"
+          className="w-full text-xs px-2.5 py-2 bg-[var(--input-bg)] border border-[var(--input-border)] rounded text-[var(--text-primary)] focus:outline-none"
         >
           <option value="">All Statuses</option>
           <option value="OPEN">Open Opportunities</option>
@@ -252,7 +251,7 @@ export default function BrowseProjectsPage() {
               setPage(1);
               setMinBudget(e.target.value);
             }}
-            className="w-1/2 text-xs px-2.5 py-2 bg-black border border-zinc-800 rounded text-white placeholder-zinc-700 focus:outline-none"
+            className="w-1/2 text-xs px-2.5 py-2 bg-[var(--input-bg)] border border-[var(--input-border)] rounded text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none"
           />
           <input
             type="number"
@@ -262,7 +261,7 @@ export default function BrowseProjectsPage() {
               setPage(1);
               setMaxBudget(e.target.value);
             }}
-            className="w-1/2 text-xs px-2.5 py-2 bg-black border border-zinc-800 rounded text-white placeholder-zinc-700 focus:outline-none"
+            className="w-1/2 text-xs px-2.5 py-2 bg-[var(--input-bg)] border border-[var(--input-border)] rounded text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none"
           />
         </div>
       </div>
@@ -272,7 +271,7 @@ export default function BrowseProjectsPage() {
         <label className="block text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Timeline Bounds</label>
         <div className="space-y-2">
           <div>
-            <span className="text-[8px] text-zinc-600 block uppercase font-bold">After</span>
+            <span className="text-[8px] text-zinc-650 block uppercase font-bold">After</span>
             <input
               type="date"
               value={deadlineAfter}
@@ -280,11 +279,11 @@ export default function BrowseProjectsPage() {
                 setPage(1);
                 setDeadlineAfter(e.target.value);
               }}
-              className="w-full text-xs px-2.5 py-1.5 bg-black border border-zinc-800 rounded text-white focus:outline-none"
+              className="w-full text-xs px-2.5 py-1.5 bg-[var(--input-bg)] border border-[var(--input-border)] rounded text-[var(--text-primary)] focus:outline-none"
             />
           </div>
           <div>
-            <span className="text-[8px] text-zinc-600 block uppercase font-bold">Before</span>
+            <span className="text-[8px] text-zinc-650 block uppercase font-bold">Before</span>
             <input
               type="date"
               value={deadlineBefore}
@@ -292,7 +291,7 @@ export default function BrowseProjectsPage() {
                 setPage(1);
                 setDeadlineBefore(e.target.value);
               }}
-              className="w-full text-xs px-2.5 py-1.5 bg-black border border-zinc-800 rounded text-white focus:outline-none"
+              className="w-full text-xs px-2.5 py-1.5 bg-[var(--input-bg)] border border-[var(--input-border)] rounded text-[var(--text-primary)] focus:outline-none"
             />
           </div>
         </div>
@@ -328,8 +327,8 @@ export default function BrowseProjectsPage() {
                       onClick={() => toggleSkill(skill)}
                       className={`text-[9px] px-2 py-0.5 rounded transition-colors duration-150 cursor-pointer ${
                         isSelected
-                          ? "bg-white text-black border border-white font-bold"
-                          : "bg-transparent border border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-400"
+                          ? "bg-[var(--accent)] text-[var(--btn-primary-text)] border border-[var(--accent)] font-bold"
+                          : "bg-transparent border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--text-primary)] hover:text-[var(--text-primary)]"
                       }`}
                     >
                       {skill}
@@ -347,22 +346,22 @@ export default function BrowseProjectsPage() {
   if (session && session.user && session.user.role === "CLIENT") {
     return (
       <div className="max-w-xl mx-auto py-16 text-center">
-        <div className="border border-zinc-800 bg-[#09090b] p-8 rounded-lg space-y-6">
+        <div className="border border-[var(--border)] bg-[var(--surface-elevated)] p-8 rounded-lg space-y-6">
           <FolderSearch className="w-12 h-12 text-zinc-500 mx-auto" />
-          <h1 className="text-sm font-bold text-white uppercase tracking-wider">Client Accounts Workspace</h1>
-          <p className="text-xs text-zinc-400 max-w-sm mx-auto font-light">
+          <h1 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">Client Accounts Workspace</h1>
+          <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto font-light">
             You are logged in as a Client. To hire specialists, search the directory, or manage contract milestones, please use the client portal.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
             <Link
               href="/client/projects"
-              className="bg-white hover:bg-zinc-200 text-black font-bold text-xs uppercase tracking-widest px-5 py-3 rounded text-center transition-colors"
+              className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--btn-primary-text)] font-bold text-xs uppercase tracking-widest px-5 py-3 rounded text-center transition-colors"
             >
               My Projects
             </Link>
             <Link
               href="/client/projects/new"
-              className="border border-zinc-800 hover:border-zinc-700 text-white font-bold text-xs uppercase tracking-widest px-5 py-3 rounded text-center transition-colors"
+              className="border border-[var(--border)] hover:border-[var(--text-primary)] text-[var(--text-primary)] font-bold text-xs uppercase tracking-widest px-5 py-3 rounded text-center transition-colors"
             >
               Post Project
             </Link>

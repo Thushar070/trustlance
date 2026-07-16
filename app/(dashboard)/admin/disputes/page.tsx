@@ -136,7 +136,7 @@ export default function AdminDisputesPage() {
                     <th className="py-4 px-6 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-900 bg-black">
+                <tbody className="divide-y divide-[var(--border-subtle)] bg-[var(--surface)]">
                   {disputes.map((dispute) => {
                     const projectObj = dispute.escrow?.project;
                     const clientName = projectObj?.client?.name || "Client";
@@ -144,20 +144,20 @@ export default function AdminDisputesPage() {
                     const amount = projectObj?.agreedAmount || projectObj?.budget || 0;
 
                     return (
-                      <tr key={dispute.id} className="hover:bg-zinc-950/40 transition-colors">
-                        <td className="py-4 px-6 font-medium text-zinc-300 max-w-xs truncate">
+                      <tr key={dispute.id} className="hover:bg-[var(--surface-subtle)] transition-colors">
+                        <td className="py-4 px-6 font-medium text-[var(--text-primary)] max-w-xs truncate">
                           {projectObj?.title}
                         </td>
-                        <td className="py-4 px-6 text-zinc-400">
+                        <td className="py-4 px-6 text-[var(--text-secondary)]">
                           {clientName}
                         </td>
-                        <td className="py-4 px-6 text-zinc-400">
+                        <td className="py-4 px-6 text-[var(--text-secondary)]">
                           {freelancerName}
                         </td>
-                        <td className="py-4 px-6 text-right font-bold text-white font-mono">
+                        <td className="py-4 px-6 text-right font-bold text-[var(--text-primary)] font-mono">
                           ₹{amount.toLocaleString()}
                         </td>
-                        <td className="py-4 px-6 text-zinc-400 font-mono">
+                        <td className="py-4 px-6 text-[var(--text-secondary)] font-mono">
                           {getDaysOpen(dispute.createdAt)}
                         </td>
                         <td className="py-4 px-6">
@@ -168,9 +168,9 @@ export default function AdminDisputesPage() {
                         <td className="py-4 px-6 text-right">
                           <Link
                             href={`/disputes/${dispute.id}`}
-                            className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-white font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded transition-colors inline-flex items-center gap-1"
+                            className="border border-[var(--border)] hover:border-[var(--text-primary)] bg-[var(--surface-subtle)] text-[var(--text-primary)] font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded transition-colors inline-flex items-center gap-1"
                           >
-                            Review Case <ArrowRight className="w-3 h-3 text-zinc-400" />
+                            Review Case <ArrowRight className="w-3 h-3 text-[var(--text-muted)]" />
                           </Link>
                         </td>
                       </tr>
@@ -192,11 +192,11 @@ export default function AdminDisputesPage() {
               return (
                 <div
                   key={dispute.id}
-                  className="border border-zinc-850 bg-black rounded-lg p-5 space-y-4"
+                  className="border border-[var(--border)] bg-[var(--surface)] rounded-lg p-5 space-y-4 shadow-sm"
                 >
                   <div className="flex justify-between items-start gap-4">
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-sm font-bold text-white break-words">
+                      <h3 className="text-sm font-bold text-[var(--text-primary)] break-words">
                         {projectObj?.title}
                       </h3>
                       <span className={`mt-2 inline-flex items-center px-2 py-0.5 rounded border text-[9px] font-bold uppercase tracking-widest ${getStatusBadge(dispute.status)}`}>
@@ -206,55 +206,55 @@ export default function AdminDisputesPage() {
                     <div className="flex-shrink-0">
                       <Link
                         href={`/disputes/${dispute.id}`}
-                        className="bg-white hover:bg-zinc-200 text-black font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded transition-colors inline-flex items-center gap-1"
+                        className="bg-[var(--btn-primary)] hover:bg-[var(--btn-primary-hover)] text-[var(--btn-primary-text)] font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded transition-colors inline-flex items-center gap-1"
                       >
                         Review
-                        <ArrowRight className="w-3 h-3 text-black" />
+                        <ArrowRight className="w-3 h-3 text-[var(--btn-primary-text)]" />
                       </Link>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 pt-3 border-t border-zinc-900 text-xs">
+                  <div className="grid grid-cols-2 gap-4 pt-3 border-t border-[var(--border)] text-xs">
                     <div className="min-w-0">
-                      <div className="text-[9px] font-bold uppercase tracking-wider text-zinc-550 mb-1">
+                      <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
                         Client
                       </div>
-                      <div className="font-bold text-white truncate">
+                      <div className="font-bold text-[var(--text-primary)] truncate">
                         {clientName}
                       </div>
-                      <div className="text-[10px] text-zinc-550 truncate font-mono">
+                      <div className="text-[10px] text-[var(--text-muted)] truncate font-mono">
                         {projectObj?.client?.email}
                       </div>
                     </div>
 
                     <div className="min-w-0">
-                      <div className="text-[9px] font-bold uppercase tracking-wider text-zinc-550 mb-1">
+                      <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1">
                         Freelancer
                       </div>
-                      <div className="font-bold text-white truncate">
+                      <div className="font-bold text-[var(--text-primary)] truncate">
                         {freelancerName}
                       </div>
-                      <div className="text-[10px] text-zinc-550 truncate font-mono">
+                      <div className="text-[10px] text-[var(--text-muted)] truncate font-mono">
                         {projectObj?.freelancer?.email || "Unassigned"}
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 pt-3 border-t border-zinc-900 text-xs">
+                  <div className="grid grid-cols-2 gap-4 pt-3 border-t border-[var(--border)] text-xs">
                     <div>
-                      <div className="text-[9px] font-bold uppercase tracking-wider text-zinc-550 mb-0.5">
+                      <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-0.5">
                         Amount in Dispute
                       </div>
-                      <div className="text-sm font-bold text-white font-mono">
+                      <div className="text-sm font-bold text-[var(--text-primary)] font-mono">
                         ₹{amount.toLocaleString()}
                       </div>
                     </div>
 
                     <div>
-                      <div className="text-[9px] font-bold uppercase tracking-wider text-zinc-550 mb-0.5">
+                      <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-0.5">
                         Days Open
                       </div>
-                      <div className="text-sm font-bold text-white font-mono">
+                      <div className="text-sm font-bold text-[var(--text-primary)] font-mono">
                         {getDaysOpen(dispute.createdAt)}
                       </div>
                     </div>

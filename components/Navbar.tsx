@@ -323,7 +323,7 @@ export default function Navbar() {
                   </Link>
                   <Link
                     href="/login"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-lg transition-all shadow-[var(--card-shadow)]"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--btn-primary-text)] bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-lg transition-all shadow-[var(--card-shadow)]"
                   >
                     <Shield className="w-3.5 h-3.5" />
                     Sign Up
@@ -407,7 +407,7 @@ export default function Navbar() {
                   setMobileMenuOpen(false);
                   handleSignOut();
                 }}
-                className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-xl text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] transition-colors cursor-pointer text-center"
+                className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-xl text-[var(--btn-primary-text)] bg-[var(--accent)] hover:bg-[var(--accent-hover)] transition-colors cursor-pointer text-center"
               >
                 <LogOut className="w-4 h-4 shrink-0" />
                 <span>Sign Out</span>

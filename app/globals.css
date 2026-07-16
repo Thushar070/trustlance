@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* =============================================
    TrustLance Design System — CSS Variables
    =============================================
@@ -9,142 +11,134 @@
 
 :root {
   /* ---- Brand ---- */
-  --background: #ffffff;
-  --foreground: #000000;
+  --background: #fbfbfb;
+  --foreground: #09090b;
   --accent: #000000;
-  --accent-hover: #1e1e1e;
-  --accent-light: #f3f4f6;
-  --brand-primary: #000000;
+  --accent-hover: #18181b;
+  --accent-light: #f4f4f5;
+  --brand-primary: #09090b;
   --btn-primary-text: #ffffff;
 
   /* ---- Surfaces ---- */
   --surface: #ffffff;
   --surface-elevated: #ffffff;
-  --surface-subtle: #f9fafb;
+  --surface-subtle: #f4f4f5;
 
   /* ---- Borders ---- */
-  --border: #000000;
-  --border-subtle: rgba(0, 0, 0, 0.15);
+  --border: #e4e4e7;
+  --border-subtle: #f4f4f5;
 
   /* ---- Text ---- */
-  --text-primary: #000000;
-  --text-secondary: #374151;
-  --text-muted: #6b7280;
+  --text-primary: #09090b;
+  --text-secondary: #71717a;
+  --text-muted: #a1a1aa;
 
   /* ---- Inputs ---- */
   --input-bg: #ffffff;
-  --input-border: #000000;
-  --input-focus-ring: rgba(0, 0, 0, 0.1);
+  --input-border: #e4e4e7;
+  --input-focus-ring: rgba(0, 0, 0, 0.05);
 
-  /* ---- Status (Light Monochrome Grayscale) ---- */
-  --status-open-bg: rgba(0, 0, 0, 0.05);
-  --status-open-text: #000000;
-  --status-open-border: rgba(0, 0, 0, 0.2);
+  /* ---- Status (Light Mode Color & Grayscale) ---- */
+  --status-open-bg: #f4f4f5;
+  --status-open-text: #18181b;
+  --status-open-border: #e4e4e7;
 
-  --status-progress-bg: rgba(0, 0, 0, 0.05);
-  --status-progress-text: #000000;
-  --status-progress-border: rgba(0, 0, 0, 0.2);
+  --status-progress-bg: #f4f4f5;
+  --status-progress-text: #18181b;
+  --status-progress-border: #e4e4e7;
 
-  --status-review-bg: rgba(0, 0, 0, 0.05);
-  --status-review-text: #000000;
-  --status-review-border: rgba(0, 0, 0, 0.2);
+  --status-review-bg: #fffbeb;
+  --status-review-text: #b45309;
+  --status-review-border: #fde68a;
 
-  --status-success-bg: rgba(0, 0, 0, 0.05);
-  --status-success-text: #000000;
-  --status-success-border: rgba(0, 0, 0, 0.2);
+  --status-success-bg: #ecfdf5;
+  --status-success-text: #047857;
+  --status-success-border: #a7f3d0;
 
-  --status-disputed-bg: rgba(0, 0, 0, 0.05);
-  --status-disputed-text: #000000;
-  --status-disputed-border: rgba(0, 0, 0, 0.2);
+  --status-negative-bg: #fff1f2;
+  --status-negative-text: #be123c;
+  --status-negative-border: #fecdd3;
 
-  --status-negative-bg: rgba(0, 0, 0, 0.05);
-  --status-negative-text: #000000;
-  --status-negative-border: rgba(0, 0, 0, 0.2);
-
-  --status-neutral-bg: rgba(0, 0, 0, 0.05);
-  --status-neutral-text: #000000;
-  --status-neutral-border: rgba(0, 0, 0, 0.2);
+  --status-neutral-bg: #f4f4f5;
+  --status-neutral-text: #27272a;
+  --status-neutral-border: #e4e4e7;
 
   /* ---- Scrollbar ---- */
-  --scrollbar-thumb: #d1d5db;
-  --scrollbar-thumb-hover: #9ca3af;
+  --scrollbar-thumb: #e4e4e7;
+  --scrollbar-thumb-hover: #d4d4d8;
 
   /* ---- Gradient accent shades ---- */
   --gradient-from: #000000;
   --gradient-to: #000000;
-  --gradient-subtle-from: #f3f4f6;
-  --gradient-subtle-to: #e5e7eb;
+  --gradient-subtle-from: #f4f4f5;
+  --gradient-subtle-to: #e4e4e7;
 
   /* ---- Elevation ---- */
-  --card-shadow: none;
-  --card-shadow-hover: none;
-  --card-shadow-lg: none;
+  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  --card-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --card-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
 /* =============================================
-   Dark Theme — Independently Designed Palette
+   Dark Theme — Vice-Versa Grayscale Palette
    ============================================= */
 
 .dark {
   --background: #000000;
-  --foreground: #ffffff;
+  --foreground: #fafafa;
   --accent: #ffffff;
-  --accent-hover: #e5e7eb;
-  --accent-light: #111111;
+  --accent-hover: #e4e4e7;
+  --accent-light: #18181b;
   --btn-primary-text: #000000;
 
-  --surface: #000000;
-  --surface-elevated: #111111;
-  --brand-primary: #ffffff;
-  --surface-subtle: #111111;
+  --surface: #09090b;
+  --surface-elevated: #18181b;
+  --brand-primary: #fafafa;
+  --surface-subtle: #18181b;
 
-  --border: #ffffff;
-  --border-subtle: rgba(255, 255, 255, 0.15);
+  --border: #27272a;
+  --border-subtle: #18181b;
 
-  --text-primary: #ffffff;
-  --text-secondary: #d1d5db;
-  --text-muted: #9ca3af;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
 
-  --input-bg: #000000;
-  --input-border: #ffffff;
-  --input-focus-ring: rgba(255, 255, 255, 0.2);
+  --input-bg: #09090b;
+  --input-border: #27272a;
+  --input-focus-ring: rgba(255, 255, 255, 0.1);
 
   /* ---- Status (Dark Monochrome Grayscale) ---- */
-  --status-open-bg: rgba(255, 255, 255, 0.08);
-  --status-open-text: #ffffff;
-  --status-open-border: rgba(255, 255, 255, 0.3);
+  --status-open-bg: #18181b;
+  --status-open-text: #d4d4d8;
+  --status-open-border: #27272a;
 
-  --status-progress-bg: rgba(255, 255, 255, 0.08);
-  --status-progress-text: #ffffff;
-  --status-progress-border: rgba(255, 255, 255, 0.3);
+  --status-progress-bg: #18181b;
+  --status-progress-text: #d4d4d8;
+  --status-progress-border: #27272a;
 
-  --status-review-bg: rgba(255, 255, 255, 0.08);
-  --status-review-text: #ffffff;
-  --status-review-border: rgba(255, 255, 255, 0.3);
+  --status-review-bg: rgba(245, 158, 11, 0.1);
+  --status-review-text: #fbbf24;
+  --status-review-border: rgba(245, 158, 11, 0.2);
 
-  --status-success-bg: rgba(255, 255, 255, 0.08);
-  --status-success-text: #ffffff;
-  --status-success-border: rgba(255, 255, 255, 0.3);
+  --status-success-bg: rgba(16, 185, 129, 0.1);
+  --status-success-text: #34d399;
+  --status-success-border: rgba(16, 185, 129, 0.2);
 
-  --status-disputed-bg: rgba(255, 255, 255, 0.08);
-  --status-disputed-text: #ffffff;
-  --status-disputed-border: rgba(255, 255, 255, 0.3);
+  --status-negative-bg: rgba(239, 68, 68, 0.1);
+  --status-negative-text: #f87171;
+  --status-negative-border: rgba(239, 68, 68, 0.2);
 
-  --status-negative-bg: rgba(255, 255, 255, 0.08);
-  --status-negative-text: #ffffff;
-  --status-negative-border: rgba(255, 255, 255, 0.3);
+  --status-neutral-bg: #18181b;
+  --status-neutral-text: #d4d4d8;
+  --status-neutral-border: #27272a;
 
-  --status-neutral-bg: rgba(255, 255, 255, 0.08);
-  --status-neutral-text: #ffffff;
-  --status-neutral-border: rgba(255, 255, 255, 0.3);
-
-  --scrollbar-thumb: #374151;
-  --scrollbar-thumb-hover: #4b5563;
+  --scrollbar-thumb: #27272a;
+  --scrollbar-thumb-hover: #3f3f46;
 
   --gradient-from: #ffffff;
   --gradient-to: #ffffff;
-  --gradient-subtle-from: #111111;
-  --gradient-subtle-to: #1f2937;
+  --gradient-subtle-from: #09090b;
+  --gradient-subtle-to: #18181b;
 
   --card-shadow: none;
   --card-shadow-hover: none;
@@ -552,3 +546,110 @@ input::placeholder, textarea::placeholder {
   color: var(--text-secondary);
   max-width: 20rem;
 }
+
+/* =============================================
+   Light Theme Contrast Fixes (Cascade Overrides)
+   ============================================= */
+html:not(.dark) div.bg-black,
+html:not(.dark) section.bg-black,
+html:not(.dark) form.bg-black,
+html:not(.dark) div.bg-black\/40,
+html:not(.dark) div.bg-\[\#09090b\]\/40 {
+  background-color: var(--surface) !important;
+  color: var(--text-primary) !important;
+}
+
+html:not(.dark) div.bg-zinc-950,
+html:not(.dark) section.bg-zinc-950,
+html:not(.dark) span.bg-zinc-950,
+html:not(.dark) div.bg-zinc-950\/20,
+html:not(.dark) select.bg-zinc-950 {
+  background-color: var(--surface-subtle) !important;
+  color: var(--text-primary) !important;
+}
+
+html:not(.dark) div.border-zinc-800,
+html:not(.dark) div.border-zinc-850,
+html:not(.dark) div.border-zinc-900,
+html:not(.dark) border-zinc-900,
+html:not(.dark) select.border-zinc-800,
+html:not(.dark) input.border-zinc-800,
+html:not(.dark) textarea.border-zinc-800,
+html:not(.dark) span.border-zinc-800,
+html:not(.dark) span.border-zinc-900,
+html:not(.dark) div.border-zinc-900 {
+  border-color: var(--border) !important;
+}
+
+html:not(.dark) input.bg-black,
+html:not(.dark) textarea.bg-black,
+html:not(.dark) select.bg-black,
+html:not(.dark) input.bg-zinc-950,
+html:not(.dark) textarea.bg-zinc-950,
+html:not(.dark) select.bg-zinc-950 {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-primary) !important;
+}
+
+html:not(.dark) input::placeholder,
+html:not(.dark) textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Force dark text inside card containers that fall back to white backgrounds */
+html:not(.dark) .bg-black h1,
+html:not(.dark) .bg-black h2,
+html:not(.dark) .bg-black h3,
+html:not(.dark) .bg-black h4,
+html:not(.dark) .bg-black p,
+html:not(.dark) .bg-black span:not(.px-2),
+html:not(.dark) .bg-black td,
+html:not(.dark) .bg-black th,
+html:not(.dark) h1.text-white,
+html:not(.dark) h2.text-white,
+html:not(.dark) h3.text-white,
+html:not(.dark) h4.text-white,
+html:not(.dark) span.text-white:not(.px-2),
+html:not(.dark) td.text-white,
+html:not(.dark) div.text-white,
+html:not(.dark) p.text-white {
+  color: var(--text-primary) !important;
+}
+
+/* Fix connecting line and grey labels in light mode timeline */
+html:not(.dark) .bg-zinc-800 {
+  background-color: var(--border) !important;
+}
+html:not(.dark) .border-zinc-800 {
+  border-color: var(--border) !important;
+}
+html:not(.dark) .text-zinc-650,
+html:not(.dark) .text-zinc-450 {
+  color: var(--text-secondary) !important;
+}
+
+/* Handle View Smart Contract/Actions buttons in light mode */
+html:not(.dark) button.bg-zinc-950,
+html:not(.dark) a.bg-zinc-950 {
+  background-color: var(--surface-subtle) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
+}
+html:not(.dark) button.bg-zinc-950:hover,
+html:not(.dark) a.bg-zinc-950:hover {
+  background-color: var(--border-subtle) !important;
+}
+
+/* Correct white borders and circle markers in timeline */
+html:not(.dark) .border-white {
+  border-color: var(--text-primary) !important;
+}
+html:not(.dark) .bg-white:not(button):not(a) {
+  background-color: var(--text-primary) !important;
+  color: var(--background) !important;
+}
+html:not(.dark) .ring-zinc-800 {
+  --tw-ring-color: var(--border) !important;
+}
+

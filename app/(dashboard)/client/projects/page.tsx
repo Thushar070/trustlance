@@ -95,39 +95,38 @@ export default function ClientProjectsPage() {
     switch (status) {
       case "OPEN":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-transparent border border-zinc-800 text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[var(--status-open-bg)] border border-[var(--status-open-border)] text-[10px] font-bold text-[var(--status-open-text)] uppercase tracking-wider">
             ● Open
           </span>
         );
       case "UNDER_REVIEW":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-white text-[10px] font-bold text-black border border-white uppercase tracking-wider">
-            Review
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[var(--status-review-bg)] border border-[var(--status-review-border)] text-[10px] font-bold text-[var(--status-review-text)] uppercase tracking-wider">
+            Review Pending
           </span>
         );
       case "ASSIGNED":
       case "IN_PROGRESS":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-[10px] font-bold text-white uppercase tracking-wider">
-            <span className="w-1 h-1 rounded-full bg-white" />
-            In Progress
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[var(--status-success-bg)] border border-[var(--status-success-border)] text-[10px] font-bold text-[var(--status-success-text)] uppercase tracking-wider">
+            On Track
           </span>
         );
       case "COMPLETED":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-850 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[var(--status-success-bg)] border border-[var(--status-success-border)] text-[10px] font-bold text-[var(--status-success-text)] uppercase tracking-wider">
             Completed
           </span>
         );
       case "CANCELLED":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-950 border border-zinc-900 text-[10px] font-bold text-zinc-600 uppercase tracking-wider">
-            Cancelled
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] text-[10px] font-bold text-[var(--status-negative-text)] uppercase tracking-wider">
+            Blocked
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-950 border border-zinc-900 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[var(--status-neutral-bg)] border border-[var(--status-neutral-border)] text-[10px] font-bold text-[var(--status-neutral-text)] uppercase tracking-wider">
             Closed
           </span>
         );
@@ -279,7 +278,7 @@ export default function ClientProjectsPage() {
                         {project.status === "OPEN" && `Review ${project._count?.proposals || 0} Proposals`}
                         {project.status === "IN_PROGRESS" && "Work in Progress"}
                         {project.status === "UNDER_REVIEW" && (
-                          <span className="text-white font-bold bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded">
+                          <span className="text-[var(--btn-primary-text)] font-bold bg-[var(--accent)] border border-[var(--accent)] px-2 py-0.5 rounded">
                             Review Deliverable
                           </span>
                         )}
