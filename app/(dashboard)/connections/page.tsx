@@ -122,21 +122,21 @@ export default function ConnectionsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0 animate-fadeIn">
       
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight mb-1 flex items-center gap-2">
+        <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight mb-1 flex items-center gap-2">
           <Users className="w-6 h-6 text-[var(--accent)]" />
           Connections Inbox
         </h1>
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-[var(--text-secondary)] font-medium">
           Manage your accepted connection network and respond to incoming requests.
         </p>
       </div>
 
       {errorMsg && (
-        <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg flex items-start gap-3">
+        <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
           <AlertCircle className="w-4.5 h-4.5 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
           <p className="text-sm text-[var(--status-negative-text)] font-semibold">{errorMsg}</p>
         </div>
@@ -171,27 +171,27 @@ export default function ConnectionsPage() {
       {/* Tab Contents */}
       {activeTab === "connections" ? (
         connections.length === 0 ? (
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-16 text-center shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-[var(--surface-subtle)] flex items-center justify-center mx-auto mb-4 border border-[var(--border)]">
-              <Users className="w-6 h-6 text-[var(--text-muted)]" />
+          <div className="card p-16 text-center">
+            <div className="empty-state">
+              <Users className="empty-state-icon" />
+              <h3 className="empty-state-title">No Connections Yet</h3>
+              <p className="empty-state-text mb-6">
+                You haven&apos;t connected with any talent or client yet. Explore the directory to build your professional network.
+              </p>
+              <Link
+                href="/search"
+                className="btn-primary"
+              >
+                Search Directory
+              </Link>
             </div>
-            <h3 className="text-lg font-bold text-[var(--text-primary)] mb-1">No Connections Yet</h3>
-            <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto mb-6">
-              You haven&apos;t connected with any talent or client yet. Explore the directory to build your professional network.
-            </p>
-            <Link
-              href="/search"
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
-            >
-              Search Directory
-            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {connections.map((item) => (
               <div
                 key={item.connectionId}
-                className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm flex flex-col justify-between"
+                className="card p-5 hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)] transition-all flex flex-col justify-between group"
               >
                 <div>
                   {/* Header */}
@@ -229,12 +229,12 @@ export default function ConnectionsPage() {
 
                 {/* Footer Link & Profile */}
                 <div className="border-t border-[var(--border-subtle)] pt-4 flex flex-col sm:flex-row justify-between gap-3 items-stretch sm:items-center">
-                  <div className="text-[10px] text-[var(--text-muted)] font-medium">
+                  <div className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
                     Connected on {new Date(item.connectedAt).toLocaleDateString()}
                   </div>
                   <Link
                     href={`/profiles/${item.user.id}`}
-                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[var(--surface-subtle)] hover:bg-[var(--accent)] hover:text-white border border-[var(--border)] hover:border-transparent rounded-lg text-xs font-bold text-[var(--text-secondary)] transition-all cursor-pointer"
+                    className="btn-ghost px-3 py-1.5 justify-center hover:bg-[var(--accent)] hover:text-white hover:border-transparent transition-all"
                   >
                     View Profile
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -246,21 +246,21 @@ export default function ConnectionsPage() {
         )
       ) : (
         pending.length === 0 ? (
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-16 text-center shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-[var(--surface-subtle)] flex items-center justify-center mx-auto mb-4 border border-[var(--border)]">
-              <Clock className="w-6 h-6 text-[var(--text-muted)]" />
+          <div className="card p-16 text-center">
+            <div className="empty-state">
+              <Clock className="empty-state-icon" />
+              <h3 className="empty-state-title">No Pending Invites</h3>
+              <p className="empty-state-text">
+                Your inbox is clean! You don&apos;t have any pending connection requests.
+              </p>
             </div>
-            <h3 className="text-lg font-bold text-[var(--text-primary)] mb-1">No Pending Invites</h3>
-            <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto">
-              Your inbox is clean! You don&apos;t have any pending incoming connection requests.
-            </p>
           </div>
         ) : (
           <div className="space-y-4">
             {pending.map((item) => (
               <div
                 key={item.connectionId}
-                className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-4"
+                className="card p-5 hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)] transition-all flex flex-col sm:flex-row justify-between sm:items-center gap-4"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -281,17 +281,17 @@ export default function ConnectionsPage() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                   <Link
                     href={`/profiles/${item.requester.id}`}
-                    className="px-3 py-1.5 border border-[var(--border)] hover:bg-[var(--surface-subtle)] text-xs font-semibold rounded-lg transition-colors cursor-pointer text-[var(--text-secondary)]"
+                    className="btn-ghost px-3 py-1.5"
                   >
                     Details
                   </Link>
                   <button
                     onClick={() => handleRespond(item.connectionId, "ACCEPTED")}
                     disabled={processingId === item.connectionId}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50"
                   >
                     <Check className="w-3.5 h-3.5" />
                     Accept
@@ -299,7 +299,7 @@ export default function ConnectionsPage() {
                   <button
                     onClick={() => handleRespond(item.connectionId, "DECLINED")}
                     disabled={processingId === item.connectionId}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50"
                   >
                     <X className="w-3.5 h-3.5" />
                     Decline

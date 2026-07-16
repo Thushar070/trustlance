@@ -279,14 +279,14 @@ export default function PublicProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] py-8 relative">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] py-8 relative animate-fadeIn">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full min-w-0">
         
         {/* Navigation Toolbar */}
         <div className="flex justify-between items-center mb-6">
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+            className="btn-ghost px-3 py-1.5"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
@@ -296,7 +296,7 @@ export default function PublicProfilePage() {
           {!isOwnProfile && (
             <button
               onClick={() => setReportOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[var(--status-negative-border)] text-[var(--status-negative-text)] hover:bg-[var(--status-negative-bg)] rounded-lg text-xs font-bold transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[var(--status-negative-border)] text-[var(--status-negative-text)] hover:bg-[var(--status-negative-bg)] rounded-xl text-xs font-bold transition-colors cursor-pointer"
             >
               <ShieldAlert className="w-4 h-4" />
               Report User
@@ -305,7 +305,7 @@ export default function PublicProfilePage() {
         </div>
 
         {/* Profile Card Header */}
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 sm:p-8 shadow-sm mb-6 relative overflow-hidden">
+        <div className="card p-6 sm:p-8 mb-6 relative overflow-hidden">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 pb-6 border-b border-[var(--border)]">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--gradient-from)] to-[var(--gradient-to)] flex items-center justify-center text-white text-2xl font-bold shadow-md">
@@ -313,7 +313,7 @@ export default function PublicProfilePage() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] tracking-tight">
+                  <h1 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight">
                     {profile.name || "Marketplace Participant"}
                   </h1>
                   <span className="px-2.5 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider bg-[var(--accent-light)] text-[var(--accent)] border-[var(--border)]">
@@ -326,8 +326,8 @@ export default function PublicProfilePage() {
                   </p>
                 )}
                 {profile.location && (
-                  <p className="flex items-center gap-1 text-xs text-[var(--text-muted)] mt-1.5 font-medium">
-                    <MapPin className="w-3.5 h-3.5" />
+                  <p className="flex items-center gap-1 text-xs text-[var(--text-muted)] mt-1.5 font-bold uppercase tracking-wider">
+                    <MapPin className="w-3.5 h-3.5 text-[var(--accent)]" />
                     {profile.location}
                   </p>
                 )}
@@ -343,7 +343,7 @@ export default function PublicProfilePage() {
           {/* Stats Bar */}
           <div className="grid grid-cols-2 gap-4 pt-6">
             <div className="flex items-center gap-3 bg-[var(--surface-subtle)] p-4 rounded-xl border border-[var(--border-subtle)] font-medium">
-              <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
                 <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
               </div>
               <div>
@@ -357,7 +357,7 @@ export default function PublicProfilePage() {
             </div>
 
             <div className="flex items-center gap-3 bg-[var(--surface-subtle)] p-4 rounded-xl border border-[var(--border-subtle)] font-medium">
-              <div className="w-10 h-10 rounded-lg bg-[var(--accent-light)] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-[var(--accent-light)] flex items-center justify-center">
                 <Award className="w-5 h-5 text-[var(--accent)]" />
               </div>
               <div>
@@ -378,12 +378,12 @@ export default function PublicProfilePage() {
           <div className="lg:col-span-8 space-y-6">
             
             {/* Bio Card */}
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 shadow-sm">
+            <div className="card p-6">
               <h2 className="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)] mb-3">
                 About Summary
               </h2>
               {profile.bio ? (
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-line font-medium">
                   {profile.bio}
                 </p>
               ) : (
@@ -395,7 +395,7 @@ export default function PublicProfilePage() {
 
             {/* Skills Card */}
             {profile.skills.length > 0 && (
-              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 shadow-sm">
+              <div className="card p-6">
                 <h2 className="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)] mb-3">
                   Marketplace Endorsements
                 </h2>
@@ -403,7 +403,7 @@ export default function PublicProfilePage() {
                   {profile.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="px-3 py-1 bg-[var(--surface-subtle)] border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-secondary)]"
+                      className="px-3 py-1 bg-[var(--surface-subtle)] border border-[var(--border)] rounded-lg text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]"
                     >
                       {skill}
                     </span>
@@ -413,7 +413,7 @@ export default function PublicProfilePage() {
             )}
 
             {/* Reviews Section */}
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 shadow-sm">
+            <div className="card p-6">
               <h2 className="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4 flex items-center gap-1.5">
                 <MessageSquare className="w-4 h-4 text-[var(--accent)]" />
                 Work History Feedback ({profile.reviews.length})
@@ -431,20 +431,20 @@ export default function PublicProfilePage() {
                     <div key={rev.id} className={`${index > 0 ? "pt-4" : ""} space-y-2`}>
                       <div className="flex justify-between items-start gap-4">
                         <div>
-                          <div className="font-semibold text-sm text-[var(--text-primary)]">
+                          <div className="font-extrabold text-sm text-[var(--text-primary)]">
                             {rev.raterName}
                           </div>
                           <div className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider mt-0.5">
                             {rev.raterRole}
                           </div>
                         </div>
-                        <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 text-amber-500 text-xs font-bold">
+                        <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-xl border border-amber-500/20 text-amber-500 text-xs font-bold">
                           <Star className="w-3 h-3 fill-amber-500 shrink-0" />
                           <span>{rev.score}.0</span>
                         </div>
                       </div>
                       {rev.comment ? (
-                        <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic bg-[var(--surface-subtle)] p-3 rounded-lg border border-[var(--border-subtle)]">
+                        <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic bg-[var(--surface-subtle)] p-3 rounded-xl border border-[var(--border-subtle)] font-medium">
                           &ldquo;{rev.comment}&rdquo;
                         </p>
                       ) : (
@@ -461,14 +461,14 @@ export default function PublicProfilePage() {
 
           {/* Right Column */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 shadow-sm">
+            <div className="card p-6">
               <h2 className="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4">
                 Secure Connection Details
               </h2>
 
               {profile.isContactVisible ? (
                 <div className="space-y-4">
-                  <div className="flex items-start gap-3 bg-[var(--accent-light)] p-3 rounded-xl border border-[var(--border)]">
+                  <div className="flex items-start gap-3 bg-[var(--accent-light)] p-3 rounded-xl border border-[var(--border)] animate-slideUp">
                     <Mail className="w-4 h-4 text-[var(--accent)] mt-0.5 shrink-0" />
                     <div className="min-w-0">
                       <div className="text-[9px] font-bold text-[var(--accent)] uppercase tracking-wider">
@@ -481,7 +481,7 @@ export default function PublicProfilePage() {
                   </div>
 
                   {profile.phone && (
-                    <div className="flex items-start gap-3 bg-[var(--accent-light)] p-3 rounded-xl border border-[var(--border)]">
+                    <div className="flex items-start gap-3 bg-[var(--accent-light)] p-3 rounded-xl border border-[var(--border)] animate-slideUp">
                       <Phone className="w-4 h-4 text-[var(--accent)] mt-0.5 shrink-0" />
                       <div className="min-w-0">
                         <div className="text-[9px] font-bold text-[var(--accent)] uppercase tracking-wider">
@@ -501,7 +501,7 @@ export default function PublicProfilePage() {
                     <p className="text-xs font-semibold text-[var(--text-secondary)] leading-relaxed">
                       Contact credentials are encrypted.
                     </p>
-                    <p className="text-[10px] text-[var(--text-muted)] leading-relaxed">
+                    <p className="text-[10px] text-[var(--text-muted)] leading-relaxed font-medium">
                       Direct phone and email details are only exchanged when a verified client-freelancer contract relationship (active proposal, escrow assignment, or accepted connection request) is initiated.
                     </p>
                   </div>
@@ -516,12 +516,12 @@ export default function PublicProfilePage() {
       {/* Flag/Report Modal Dialogue */}
       {reportOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl max-w-md w-full p-6 shadow-xl relative animate-in fade-in zoom-in duration-200">
+          <div className="card max-w-md w-full p-6 shadow-xl relative animate-in fade-in zoom-in duration-200">
             <h3 className="text-base font-bold text-[var(--text-primary)] mb-2 flex items-center gap-2">
               <ShieldAlert className="w-5 h-5 text-[var(--status-negative-text)]" />
               Report Marketplace Participant
             </h3>
-            <p className="text-xs text-[var(--text-secondary)] mb-4 leading-relaxed">
+            <p className="text-xs text-[var(--text-secondary)] mb-4 leading-relaxed font-medium">
               Flag this user profile for review by the administrators. Please specify a clear explanation detailing the violation or conflict.
             </p>
 
@@ -541,7 +541,7 @@ export default function PublicProfilePage() {
                     placeholder="Describe the issue in detail..."
                     value={reportReason}
                     onChange={(e) => setReportReason(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-[var(--border)] rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all bg-[var(--input-bg)] text-[var(--text-primary)] resize-none"
+                    className="w-full px-3 py-2 text-xs border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] transition-all bg-[var(--input-bg)] text-[var(--text-primary)] resize-none"
                   />
                 </div>
 
@@ -552,14 +552,14 @@ export default function PublicProfilePage() {
                       setReportOpen(false);
                       setReportReason("");
                     }}
-                    className="px-4 py-2 border border-[var(--border)] hover:bg-[var(--surface-subtle)] text-xs font-semibold rounded-lg transition-colors cursor-pointer text-[var(--text-secondary)]"
+                    className="btn-ghost px-4 py-2"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={reporting}
-                    className="px-4 py-2 bg-[var(--status-negative-text)] hover:bg-rose-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                    className="px-4 py-2 bg-[var(--status-negative-text)] hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                   >
                     {reporting ? "Submitting..." : "Submit Report"}
                   </button>

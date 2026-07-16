@@ -100,62 +100,61 @@ export default function AdminOverviewPage() {
   const totalProjects = Object.values(stats.projectsByStatus).reduce((sum, count) => sum + count, 0);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn">
       <div className="mb-8 border-b border-[var(--border)] pb-4">
         <div className="flex items-center gap-2 mb-1">
           <Shield className="w-5 h-5 text-[var(--accent)]" />
-          <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Platform Administration</h1>
+          <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">Platform Administration</h1>
         </div>
-        <p className="text-sm text-[var(--text-secondary)] mt-1">Operational status logs and platform metrics summary.</p>
+        <p className="text-sm text-[var(--text-secondary)] mt-1 font-medium">Operational status logs and platform metrics summary.</p>
       </div>
 
       {/* Overview Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 stagger-children">
         {/* Metric 1 */}
-        <div className="bg-[var(--surface)] p-6 border border-[var(--border)] rounded-xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+        <div className="stat-card flex flex-col justify-between hover:shadow-[var(--card-shadow-hover)] transition-shadow">
           <div>
-            <div className="text-[var(--text-muted)] uppercase text-[10px] font-bold tracking-wider mb-2 flex items-center gap-1.5">
-              <IndianRupee className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+            <div className="stat-card-label mb-2 flex items-center gap-1.5">
+              <Cpu className="w-3.5 h-3.5 text-[var(--text-muted)]" />
               Total Financial Volume
             </div>
-            <div className="text-2xl font-bold text-[var(--text-primary)]">₹{stats.totalPaymentVolume.toLocaleString()}</div>
+            <div className="stat-card-value">₹{stats.totalPaymentVolume.toLocaleString()}</div>
           </div>
-          <div className="text-[11px] text-[var(--text-muted)] mt-4 font-medium">Sum of all successfully captured payments.</div>
+          <div className="text-[11px] text-[var(--text-muted)] mt-4 font-bold uppercase tracking-wider">Sum of captured payments.</div>
         </div>
 
         {/* Metric 2 */}
-        <div className="bg-[var(--surface)] p-6 border border-[var(--border)] rounded-xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+        <div className="stat-card flex flex-col justify-between hover:shadow-[var(--card-shadow-hover)] transition-shadow">
           <div>
-            <div className="text-[var(--text-muted)] uppercase text-[10px] font-bold tracking-wider mb-2 flex items-center gap-1.5">
+            <div className="stat-card-label mb-2 flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5 text-[var(--text-muted)]" />
               Active Dispute Tickets
             </div>
-            <div className="text-2xl font-bold text-[var(--status-negative-text)]">{stats.openDisputesCount}</div>
+            <div className="stat-card-value text-[var(--status-negative-text)]">{stats.openDisputesCount}</div>
           </div>
-          <div className="text-[11px] text-[var(--text-muted)] mt-4 font-medium">
-            <Link href="/admin/disputes" className="text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold flex items-center gap-1">
-              Resolve disputes page <ArrowRight className="w-3.5 h-3.5" />
+          <div className="text-[11px] text-[var(--text-muted)] mt-4">
+            <Link href="/admin/disputes" className="text-[var(--accent)] hover:text-[var(--accent-hover)] font-bold uppercase tracking-wider flex items-center gap-1">
+              Resolve disputes <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
 
         {/* Metric 3 */}
-        <div className="bg-[var(--surface)] p-6 border border-[var(--border)] rounded-xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+        <div className="stat-card flex flex-col justify-between hover:shadow-[var(--card-shadow-hover)] transition-shadow">
           <div>
-            <div className="text-[var(--text-muted)] uppercase text-[10px] font-bold tracking-wider mb-2 flex items-center gap-1.5">
+            <div className="stat-card-label mb-2 flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-[var(--text-muted)]" />
               Total Projects Count
             </div>
-            <div className="text-2xl font-bold text-[var(--text-primary)]">{totalProjects}</div>
+            <div className="stat-card-value">{totalProjects}</div>
           </div>
-          <div className="text-[11px] text-[var(--text-muted)] mt-4 font-medium">Active project listings registered in database.</div>
+          <div className="text-[11px] text-[var(--text-muted)] mt-4 font-bold uppercase tracking-wider">Active project listings.</div>
         </div>
       </div>
 
-      {/* Reorganized bottom section to utilize desktop width */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Projects status distribution (spans 2 columns on lg) */}
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-sm p-6 lg:col-span-2">
+        <div className="card p-6 lg:col-span-2">
           <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Project Status Distribution</h2>
           <div className="divide-y divide-[var(--border-subtle)] text-sm">
             {Object.entries(stats.projectsByStatus).map(([status, count]) => {
@@ -187,14 +186,14 @@ export default function AdminOverviewPage() {
         </div>
 
         {/* Maintenance card (spans 1 column) */}
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-sm p-6 flex flex-col justify-between">
+        <div className="card p-6 flex flex-col justify-between">
           <div>
             <div className="text-[var(--text-muted)] uppercase text-[10px] font-bold tracking-wider mb-2 flex items-center gap-1.5">
               <Cpu className="w-3.5 h-3.5 text-[var(--text-muted)]" />
               Cron Maintenance
             </div>
-            <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-1">Platform Orchestration</h3>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-4">
+            <h3 className="text-sm font-extrabold text-[var(--text-primary)] mb-1">Platform Orchestration</h3>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-4 font-medium">
               Trigger standard auto-release cron cycles manually to release escrow milestone holds for assignments completed past deadline.
             </p>
           </div>
@@ -212,7 +211,7 @@ export default function AdminOverviewPage() {
                 }
               }
             }}
-            className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-primary)] bg-[var(--surface)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-secondary)] transition-all cursor-pointer"
+            className="btn-ghost w-full py-2.5 justify-center"
           >
             Trigger Auto-Release
           </button>

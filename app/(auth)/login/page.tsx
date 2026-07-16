@@ -15,23 +15,25 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex-grow flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[var(--background)]">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="mx-auto w-14 h-14 rounded-2xl shadow-lg mb-6 overflow-hidden">
-          <img src="/logo-mark.png" alt="TrustLance" width={56} height={56} className="w-14 h-14" />
+    <div className="flex-grow flex flex-col justify-center items-center py-16 px-4 sm:px-6 lg:px-8 bg-[var(--background)]">
+      <div className="w-full max-w-md animate-slideUp">
+        {/* Logo & Header */}
+        <div className="text-center mb-8">
+          <div className="mx-auto w-16 h-16 rounded-2xl shadow-lg mb-6 overflow-hidden ring-2 ring-[var(--border)]">
+            <img src="/logo-mark.png" alt="TrustLance" width={64} height={64} className="w-16 h-16" />
+          </div>
+          <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">
+            Welcome to Trust<span className="text-[var(--accent)]">Lance</span>
+          </h1>
+          <p className="mt-2 text-sm text-[var(--text-secondary)] font-medium">
+            Secure, escrow-backed freelance marketplace.
+          </p>
         </div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">
-          Welcome to TrustLance
-        </h1>
-        <p className="mt-2 text-sm text-[var(--text-secondary)]">
-          The escrow-backed freelance marketplace.
-        </p>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-[var(--surface)] py-8 px-6 shadow-sm border border-[var(--border)] rounded-xl">
+        {/* Card */}
+        <div className="card p-8 sm:p-10">
           {error && (
-            <div className="mb-5 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg flex items-start gap-3">
+            <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
               <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
               <p className="text-sm text-[var(--status-negative-text)] font-medium">
                 Authentication error: {error === "OAuthSignin" || error === "OAuthCallback"
@@ -44,7 +46,7 @@ function LoginForm() {
           <div className="space-y-4">
             <button
               onClick={handleGoogleLogin}
-              className="w-full flex justify-center items-center py-3 px-4 border border-[var(--border)] rounded-lg bg-[var(--surface)] text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)] hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent)] cursor-pointer transition-all duration-150"
+              className="w-full flex justify-center items-center py-3.5 px-4 border border-[var(--border)] rounded-xl bg-[var(--surface)] text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] hover:border-[var(--text-muted)] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent)] cursor-pointer transition-all duration-200"
             >
               <svg className="h-5 w-5 mr-3" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -56,7 +58,7 @@ function LoginForm() {
             </button>
           </div>
 
-          <div className="mt-6 pt-5 border-t border-[var(--border-subtle)]">
+          <div className="mt-8 pt-6 border-t border-[var(--border-subtle)]">
             <p className="text-center text-xs text-[var(--text-muted)] leading-relaxed">
               By signing in, you agree to our terms of service. Your data is secured with application-level escrow protections.
             </p>

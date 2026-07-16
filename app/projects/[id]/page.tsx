@@ -857,7 +857,7 @@ export default function ProjectDetailPage() {
       <div className="flex-grow flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
           <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
-          <p className="text-[var(--text-muted)] text-sm">Loading project details...</p>
+          <p className="text-[var(--text-muted)] text-xs font-bold uppercase tracking-wider">Loading project details...</p>
         </div>
       </div>
     );
@@ -865,12 +865,12 @@ export default function ProjectDetailPage() {
 
   if (errorMsg && !project) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <div className="bg-[var(--status-negative-bg)] border-l-4 border-[var(--status-negative-text)] p-4 rounded-lg text-center">
+      <div className="max-w-4xl mx-auto px-4 py-12 animate-fadeIn">
+        <div className="bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-6 rounded-xl text-center">
           <p className="text-sm text-[var(--status-negative-text)] font-semibold mb-3">{errorMsg}</p>
           <button
             onClick={() => router.push("/projects")}
-            className="text-xs px-4 py-2 bg-[var(--surface)] hover:bg-[var(--surface-subtle)] text-[var(--status-negative-text)] font-bold rounded-lg border border-[var(--border)] cursor-pointer transition-colors"
+            className="btn-ghost px-4 py-2 border-[var(--status-negative-border)] text-[var(--status-negative-text)]"
           >
             Back to browse
           </button>
@@ -1508,7 +1508,7 @@ export default function ProjectDetailPage() {
                   <div className="flex justify-between items-center text-[10px] font-bold mb-1.5 uppercase tracking-wider">
                     <span className="text-[var(--text-secondary)]">Escrow Container</span>
                     {project.payment?.status === "SUCCESS" || project.escrow ? (
-                      <span className="text-emerald-500 font-extrabold">100% Secured</span>
+                      <span className="text-[var(--text-primary)] font-extrabold">100% Secured</span>
                     ) : (
                       <span className="text-[var(--text-muted)] font-extrabold">0% Funded</span>
                     )}
@@ -1516,7 +1516,7 @@ export default function ProjectDetailPage() {
                   <div className="w-full bg-[var(--border)] h-1.5 rounded-full overflow-hidden">
                     <div 
                       className={`h-full rounded-full transition-all duration-300 ${
-                        project.payment?.status === "SUCCESS" || project.escrow ? "bg-emerald-500" : "bg-[var(--border)]"
+                        project.payment?.status === "SUCCESS" || project.escrow ? "bg-[var(--accent)]" : "bg-[var(--border)]"
                       }`} 
                       style={{ width: project.payment?.status === "SUCCESS" || project.escrow ? "100%" : "0%" }} 
                     />
@@ -1610,8 +1610,8 @@ export default function ProjectDetailPage() {
                 <div className="space-y-3.5 border-t border-[var(--border-subtle)] pt-4">
                   <div className="flex justify-between items-center text-xs font-medium">
                     <span className="text-[var(--text-secondary)]">Verification</span>
-                    <span className="font-bold text-emerald-500 flex items-center gap-1 uppercase text-[9px]">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Vetted Status
+                    <span className="font-bold text-[var(--accent)] flex items-center gap-1 uppercase text-[9px]">
+                      <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent)]" /> Vetted Status
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-xs font-medium">
@@ -1825,21 +1825,21 @@ export default function ProjectDetailPage() {
                 // Freelancer Has Not Applied Yet (Submit New Proposal Form)
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-base font-bold text-[var(--text-primary)] tracking-tight">Submit a Proposal</h2>
+                    <h2 className="text-base font-black text-[var(--text-primary)] tracking-tight">Submit a Proposal</h2>
                     <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">Apply for this project listing by submitting your counter price and message.</p>
                   </div>
                   {errorMsg && (
-                    <div className="bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-3 rounded-lg">
+                    <div className="bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl">
                       <p className="text-xs text-[var(--status-negative-text)] font-semibold">{errorMsg}</p>
                     </div>
                   )}
                   <form onSubmit={handleApply} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+                        <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                           Counter-Offer Price (INR, Optional)
                         </label>
-                        <div className="relative rounded-lg shadow-sm">
+                        <div className="relative rounded-xl shadow-sm">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <IndianRupee className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                           </div>
@@ -1849,7 +1849,7 @@ export default function ProjectDetailPage() {
                             value={proposalPrice}
                             onChange={(e) => setProposalPrice(e.target.value)}
                             placeholder={project.budget.toString()}
-                            className="w-full pl-7 pr-3 py-2 text-sm border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
+                            className="w-full pl-7 pr-3 py-2.5 text-sm border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
                           />
                         </div>
                         {proposalValidationErrors.price && (
@@ -1857,7 +1857,7 @@ export default function ProjectDetailPage() {
                         )}
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+                        <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                           Estimated Days to Complete (Required)
                         </label>
                         <input
@@ -1867,7 +1867,7 @@ export default function ProjectDetailPage() {
                           value={proposalDays}
                           onChange={(e) => setProposalDays(e.target.value)}
                           placeholder="e.g. 5"
-                          className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
+                          className="w-full px-3 py-2.5 text-sm border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
                         />
                         {proposalValidationErrors.estimatedDays && (
                           <p className="text-[10px] text-[var(--status-negative-text)] mt-0.5">{proposalValidationErrors.estimatedDays[0]}</p>
@@ -1875,7 +1875,7 @@ export default function ProjectDetailPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+                      <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
                         Cover Letter / Proposal Details (Min 10 chars)
                       </label>
                       <textarea
@@ -1884,7 +1884,7 @@ export default function ProjectDetailPage() {
                         value={proposalMessage}
                         onChange={(e) => setProposalMessage(e.target.value)}
                         placeholder="Introduce yourself and explain how you will complete the project deliverables..."
-                        className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
+                        className="w-full px-3 py-2.5 text-sm border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)] transition-all resize-none"
                       />
                       {proposalValidationErrors.message && (
                         <p className="text-[10px] text-[var(--status-negative-text)] mt-0.5">{proposalValidationErrors.message[0]}</p>
@@ -1894,7 +1894,7 @@ export default function ProjectDetailPage() {
                       <button
                         type="submit"
                         disabled={proposalActionLoading}
-                        className="px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 shadow-sm cursor-pointer transition-colors"
+                        className="btn-primary"
                       >
                         {proposalActionLoading ? "Submitting Proposal..." : "Submit Proposal"}
                       </button>
@@ -1904,7 +1904,7 @@ export default function ProjectDetailPage() {
               ) : (
                 // Freelancer Has Not Applied & Project Is Not Open
                 <div className="bg-[var(--surface-subtle)] border border-[var(--border)] rounded-xl p-6 text-center">
-                  <p className="text-sm text-[var(--text-muted)] italic">This project is no longer accepting proposal applications.</p>
+                  <p className="text-sm text-[var(--text-muted)] italic font-medium">This project is no longer accepting proposal applications.</p>
                 </div>
               )}
             </div>

@@ -98,31 +98,31 @@ export default function AdminDisputesPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0 animate-fadeIn">
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-1">
           <Shield className="w-5 h-5 text-[var(--accent)]" />
-          <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Admin Disputes Queue</h1>
+          <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">Admin Disputes Queue</h1>
         </div>
-        <p className="text-sm text-[var(--text-secondary)] mt-1">
+        <p className="text-sm text-[var(--text-secondary)] mt-1 font-medium">
           Review evidence files, verify contractual milestones, and resolve active platform disputes.
         </p>
       </div>
 
       {disputes.length === 0 ? (
-        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
-          <div className="w-12 h-12 rounded-xl bg-[var(--surface-subtle)] flex items-center justify-center mx-auto mb-4">
-            <Shield className="w-6 h-6 text-[var(--status-success-text)]" />
+        <div className="card p-16 text-center">
+          <div className="empty-state">
+            <Shield className="empty-state-icon text-[var(--status-success-text)]" />
+            <h2 className="empty-state-title">Queue is Empty</h2>
+            <p className="empty-state-text">
+              All disputes have been resolved. Excellent work!
+            </p>
           </div>
-          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">Queue is Empty</h2>
-          <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto">
-            All disputes have been resolved. Excellent work!
-          </p>
         </div>
       ) : (
         <div className="space-y-6">
           {/* Desktop Table View */}
-          <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm overflow-hidden hidden lg:block">
+          <div className="card shadow-sm overflow-hidden hidden lg:block">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
@@ -168,7 +168,7 @@ export default function AdminDisputesPage() {
                         <td className="py-4 px-6 text-right">
                           <Link
                             href={`/disputes/${dispute.id}`}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 border border-[var(--border)] hover:border-[var(--accent)] text-xs font-semibold rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-[var(--accent-light)] transition-colors"
+                            className="btn-ghost px-3 py-1.5 hover:bg-[var(--accent)] hover:text-white hover:border-transparent transition-all"
                           >
                             Review Case <ArrowRight className="w-3 h-3" />
                           </Link>
@@ -192,7 +192,7 @@ export default function AdminDisputesPage() {
               return (
                 <div
                   key={dispute.id}
-                  className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-5 shadow-sm space-y-4"
+                  className="card p-5 space-y-4 hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)] transition-all duration-200 animate-slideUp"
                 >
                   <div className="flex justify-between items-start gap-4">
                     <div className="min-w-0 flex-1">
@@ -206,7 +206,7 @@ export default function AdminDisputesPage() {
                     <div className="flex-shrink-0">
                       <Link
                         href={`/disputes/${dispute.id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-[var(--accent-light)] hover:bg-[var(--accent)] hover:text-white text-[11px] font-bold text-[var(--accent)] rounded-lg transition-colors border border-[var(--border)]"
+                        className="btn-primary px-3 py-1.5 text-[11px] hover:bg-[var(--accent-hover)] shrink-0"
                       >
                         <span>Review</span>
                         <ArrowRight className="w-3 h-3" />

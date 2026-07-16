@@ -84,31 +84,31 @@ export default function AdminAssignmentsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0 animate-fadeIn">
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-1">
           <Users className="w-5 h-5 text-[var(--accent)]" />
-          <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Contract Assignments Directory</h1>
+          <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">Contract Assignments Directory</h1>
         </div>
-        <p className="text-sm text-[var(--text-secondary)] mt-1">
+        <p className="text-sm text-[var(--text-secondary)] mt-1 font-medium">
           Monitor assigned projects, client-freelancer connections, and active dispute reviews.
         </p>
       </div>
 
       {assignments.length === 0 ? (
-        <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm p-16 text-center">
-          <div className="w-12 h-12 rounded-xl bg-[var(--surface-subtle)] flex items-center justify-center mx-auto mb-4">
-            <Shield className="w-6 h-6 text-[var(--text-muted)]" />
+        <div className="card p-16 text-center">
+          <div className="empty-state">
+            <Shield className="empty-state-icon text-[var(--text-muted)]" />
+            <h2 className="empty-state-title">No Active Assignments</h2>
+            <p className="empty-state-text">
+              There are currently no projects with assigned freelancers or active contracts.
+            </p>
           </div>
-          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">No Active Assignments</h2>
-          <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto">
-            There are currently no projects with assigned freelancers or active contracts.
-          </p>
         </div>
       ) : (
         <div className="space-y-6">
           {/* Desktop Table View */}
-          <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-sm overflow-hidden hidden lg:block">
+          <div className="card shadow-sm overflow-hidden hidden lg:block">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
@@ -156,10 +156,10 @@ export default function AdminAssignmentsPage() {
                         {assignment.disputeId ? (
                           <Link
                             href={`/disputes/${assignment.disputeId}`}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors"
+                            className="btn-ghost px-3 py-1.5 hover:bg-[var(--accent)] hover:text-white hover:border-transparent transition-all inline-flex items-center gap-1.5"
                           >
                             Review Case
-                            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                            <ArrowRight className="w-3.5 h-3.5" />
                           </Link>
                         ) : (
                           <span className="text-xs text-[var(--text-muted)]">No Active Dispute</span>
@@ -175,10 +175,10 @@ export default function AdminAssignmentsPage() {
           {/* Mobile / Tablet Card View */}
           <div className="block lg:hidden space-y-4">
             {assignments.map((assignment) => (
-              <div
-                key={assignment.projectId}
-                className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-5 shadow-sm space-y-4"
-              >
+                <div
+                  key={assignment.projectId}
+                  className="card p-5 space-y-4 hover:-translate-y-0.5 hover:shadow-[var(--card-shadow-hover)] transition-all duration-200 animate-slideUp"
+                >
                 <div className="flex justify-between items-start gap-4">
                   <div className="min-w-0 flex-1">
                     <h3 className="text-sm font-bold text-[var(--text-primary)] leading-snug break-words">
@@ -192,7 +192,7 @@ export default function AdminAssignmentsPage() {
                     {assignment.disputeId ? (
                       <Link
                         href={`/disputes/${assignment.disputeId}`}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-[var(--accent-light)] hover:bg-[var(--accent)] hover:text-white text-[11px] font-bold text-[var(--accent)] rounded-lg transition-colors border border-[var(--border)]"
+                        className="btn-primary px-3 py-1.5 text-[11px] hover:bg-[var(--accent-hover)] shrink-0"
                       >
                         <span>Review</span>
                         <ArrowRight className="w-3 h-3" />

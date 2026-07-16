@@ -199,7 +199,7 @@ export default function BrowseProjectsPage() {
           detail: `Hired by ${p.client.name || "Client"} for ${p.title}`,
           time: new Date(p.createdAt),
           icon: Briefcase,
-          iconClass: "bg-blue-500/10 text-blue-500",
+          iconClass: "bg-[var(--surface-subtle)] text-[var(--text-primary)] border border-[var(--border)]",
         });
       }
       if (p.status === "COMPLETED") {
@@ -209,7 +209,7 @@ export default function BrowseProjectsPage() {
           detail: `₹${(p.agreedAmount || p.budget).toLocaleString()} released for ${p.title}`,
           time: new Date(p.deadline),
           icon: DollarSign,
-          iconClass: "bg-emerald-500/10 text-emerald-500",
+          iconClass: "bg-[var(--surface-subtle)] text-[var(--text-primary)] border border-[var(--border)]",
         });
       }
       return acts;
@@ -281,14 +281,14 @@ export default function BrowseProjectsPage() {
 
       {/* Status Filter */}
       <div className="mb-5">
-        <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Status</label>
+        <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Status</label>
         <select
           value={statusFilter}
           onChange={(e) => {
             setPage(1);
             setStatusFilter(e.target.value);
           }}
-          className="w-full text-sm px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
+          className="w-full text-sm px-3 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all cursor-pointer"
         >
           <option value="">All Statuses</option>
           <option value="OPEN">Open (Accepting Proposals)</option>
@@ -303,7 +303,7 @@ export default function BrowseProjectsPage() {
 
       {/* Budget range filter */}
       <div className="mb-5">
-        <label className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+        <label className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
           <IndianRupee className="w-3 h-3" />
           Budget Range
         </label>
@@ -316,7 +316,7 @@ export default function BrowseProjectsPage() {
               setPage(1);
               setMinBudget(e.target.value);
             }}
-            className="w-1/2 text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
+            className="w-1/2 text-sm px-3 py-2 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
           />
           <input
             type="number"
@@ -326,14 +326,14 @@ export default function BrowseProjectsPage() {
               setPage(1);
               setMaxBudget(e.target.value);
             }}
-            className="w-1/2 text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
+            className="w-1/2 text-sm px-3 py-2 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
           />
         </div>
       </div>
 
       {/* Deadline filter */}
       <div className="mb-5">
-        <label className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+        <label className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
           <Calendar className="w-3 h-3" />
           Deadline
         </label>
@@ -347,7 +347,7 @@ export default function BrowseProjectsPage() {
                 setPage(1);
                 setDeadlineAfter(e.target.value);
               }}
-              className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
+              className="w-full text-sm px-3 py-2 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all text-[var(--text-secondary)]"
             />
           </div>
           <div>
@@ -359,7 +359,7 @@ export default function BrowseProjectsPage() {
                 setPage(1);
                 setDeadlineBefore(e.target.value);
               }}
-              className="w-full text-sm px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all"
+              className="w-full text-sm px-3 py-2 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-all text-[var(--text-secondary)]"
             />
           </div>
         </div>
@@ -413,8 +413,8 @@ export default function BrowseProjectsPage() {
 
   if (session && session.user && session.user.role === "CLIENT") {
     return (
-      <div className="max-w-xl mx-auto px-4 py-16 text-center">
-        <div className="bg-[var(--surface)] border border-[var(--border)] p-8 rounded-2xl shadow-sm">
+      <div className="max-w-xl mx-auto px-4 py-16 text-center animate-fadeIn">
+        <div className="card p-8">
           <FolderSearch className="w-12 h-12 text-[var(--accent)] mx-auto mb-4" />
           <h1 className="text-xl font-black text-[var(--text-primary)]">Client Accounts Do Not Browse Projects</h1>
           <p className="text-xs text-[var(--text-secondary)] mt-2 mb-6 font-medium">
@@ -423,13 +423,13 @@ export default function BrowseProjectsPage() {
           <div className="flex flex-col sm:flex-row justify-center gap-3">
             <Link
               href="/client/projects"
-              className="px-5 py-3 text-xs font-bold uppercase tracking-wider rounded-lg bg-[var(--brand-primary)] text-white hover:bg-[var(--accent-hover)] transition-colors text-center shadow-sm"
+              className="btn-primary px-5 py-3"
             >
               My Projects
             </Link>
             <Link
               href="/client/projects/new"
-              className="px-5 py-3 text-xs font-bold uppercase tracking-wider rounded-lg border border-[var(--border)] text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] transition-colors text-center"
+              className="btn-ghost px-5 py-3"
             >
               Post a Project
             </Link>
@@ -440,7 +440,7 @@ export default function BrowseProjectsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0 animate-fadeIn">
       {/* Tab Navigation header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[var(--border)] pb-4 mb-6 gap-4">
         <div>
@@ -486,7 +486,7 @@ export default function BrowseProjectsPage() {
       </div>
 
       {errorMsg && (
-        <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg">
+        <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
           <p className="text-sm text-[var(--status-negative-text)] font-semibold">{errorMsg}</p>
         </div>
       )}
@@ -501,44 +501,44 @@ export default function BrowseProjectsPage() {
         ) : (
           <div className="space-y-8">
             {/* Dashboard metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm flex items-center justify-between">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-children">
+              <div className="stat-card flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">Active Contracts</span>
-                  <span className="text-2xl font-black text-[var(--text-primary)] block mt-1">{activeContractsCount}</span>
-                  <span className="text-[10px] font-bold text-emerald-500 block mt-1">✓ Live Engagements</span>
+                  <span className="stat-card-label">Active Contracts</span>
+                  <span className="stat-card-value">{activeContractsCount}</span>
+                  <span className="text-[10px] font-bold text-[var(--text-secondary)] block mt-1">✓ Live Engagements</span>
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-[var(--accent-light)] flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-[var(--accent-light)] flex items-center justify-center">
                   <Briefcase className="w-5 h-5 text-[var(--accent)]" />
                 </div>
               </div>
 
-              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm flex flex-col justify-between">
+              <div className="stat-card flex flex-col justify-between">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">Escrow Secured</span>
-                    <span className="text-2xl font-black text-[var(--text-primary)] block mt-1">₹{escrowSecured.toLocaleString()}</span>
+                    <span className="stat-card-label">Escrow Secured</span>
+                    <span className="stat-card-value">₹{escrowSecured.toLocaleString()}</span>
                   </div>
-                  <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                    <ShieldCheck className="w-5 h-5 text-amber-500" />
+                  <div className="w-10 h-10 rounded-xl bg-[var(--accent-light)] flex items-center justify-center">
+                    <ShieldCheck className="w-5 h-5 text-[var(--accent)]" />
                   </div>
                 </div>
                 <div className="mt-3">
                   <div className="w-full bg-[var(--border)] h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-amber-500 h-full rounded-full" style={{ width: "100%" }} />
+                    <div className="bg-[var(--accent)] h-full rounded-full" style={{ width: "100%" }} />
                   </div>
                   <span className="text-[9px] font-bold text-[var(--text-muted)] block mt-1">100% FUNDED IN ESCROW</span>
                 </div>
               </div>
 
-              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm flex items-center justify-between">
+              <div className="stat-card flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">Total Earned YTD</span>
-                  <span className="text-2xl font-black text-[var(--text-primary)] block mt-1">₹{totalEarnedYTD.toLocaleString()}</span>
+                  <span className="stat-card-label">Total Earned YTD</span>
+                  <span className="stat-card-value">₹{totalEarnedYTD.toLocaleString()}</span>
                   <span className="text-[10px] font-bold text-[var(--text-muted)] block mt-1">Cleared Earnings Ledger</span>
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 text-emerald-500" />
+                <div className="w-10 h-10 rounded-xl bg-[var(--accent-light)] flex items-center justify-center">
+                  <DollarSign className="w-5 h-5 text-[var(--accent)]" />
                 </div>
               </div>
             </div>
@@ -548,18 +548,20 @@ export default function BrowseProjectsPage() {
               <div className="lg:col-span-7">
                 <h3 className="text-xs font-extrabold uppercase tracking-widest text-[var(--text-muted)] mb-4">My Hired Contracts</h3>
                 {hiredProjects.length === 0 ? (
-                  <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-16 text-center shadow-sm">
-                    <Briefcase className="w-10 h-10 text-[var(--text-muted)] mx-auto mb-4" />
-                    <h2 className="text-base font-extrabold text-[var(--text-primary)] mb-1">No Active Contracts</h2>
-                    <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto mb-6 font-medium">
-                      You are not currently hired on any active projects. Switch to the &quot;Find Work&quot; tab to search and submit proposals.
-                    </p>
-                    <button
-                      onClick={() => setCurrentTab("BROWSE")}
-                      className="px-5 py-3 text-xs font-bold uppercase tracking-wider rounded-lg text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-sm transition-all"
-                    >
-                      Browse Job Opportunities
-                    </button>
+                  <div className="card p-16 text-center animate-slideUp">
+                    <div className="empty-state">
+                      <Briefcase className="empty-state-icon" />
+                      <h2 className="empty-state-title">No Active Contracts</h2>
+                      <p className="empty-state-text mb-6">
+                        You are not currently hired on any active projects. Switch to the &quot;Find Work&quot; tab to search and submit proposals.
+                      </p>
+                      <button
+                        onClick={() => setCurrentTab("BROWSE")}
+                        className="btn-primary"
+                      >
+                        Browse Job Opportunities
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-4">
@@ -571,7 +573,7 @@ export default function BrowseProjectsPage() {
                         <Link
                           key={project.id}
                           href={`/projects/${project.id}`}
-                          className={`block bg-[var(--surface)] border border-[var(--border)] border-l-4 ${borderClass} rounded-xl p-5 hover:shadow-md transition-all duration-150`}
+                          className={`block bg-[var(--surface)] border border-[var(--border)] border-l-4 ${borderClass} rounded-2xl p-5 hover:shadow-[var(--card-shadow-hover)] hover:-translate-y-0.5 transition-all duration-200`}
                         >
                           <div>
                             <div className="flex justify-between items-start mb-3">
@@ -585,7 +587,7 @@ export default function BrowseProjectsPage() {
                             
                             {renderStepper(project.status)}
 
-                            <div className="bg-[var(--surface-subtle)] border border-[var(--border)] rounded-lg p-3 mt-4 flex items-center justify-between">
+                            <div className="bg-[var(--surface-subtle)] border border-[var(--border)] rounded-xl p-3 mt-4 flex items-center justify-between">
                               <div>
                                 <span className="block text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Contract Budget</span>
                                 <span className="text-xs font-black text-[var(--text-primary)]">₹{(project.agreedAmount || project.budget).toLocaleString()}</span>
@@ -605,8 +607,8 @@ export default function BrowseProjectsPage() {
 
               {/* Sidebar Activity Feed */}
               <div className="lg:col-span-3">
-                <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm">
-                  <h3 className="text-xs font-extrabold uppercase tracking-widest text-[var(--brand-primary)] mb-4 flex items-center gap-1.5">
+                <div className="card p-5">
+                  <h3 className="text-xs font-extrabold uppercase tracking-widest text-[var(--text-muted)] mb-4 flex items-center gap-1.5">
                     <Activity className="w-4 h-4 text-[var(--accent)] animate-pulse" />
                     <span>Recent activity</span>
                   </h3>
@@ -644,7 +646,7 @@ export default function BrowseProjectsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Desktop Filters Sidebar */}
           <div className="hidden lg:block lg:col-span-1">
-            <div className="bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)] shadow-sm sticky top-20">
+            <div className="card p-5 sticky top-20">
               {filterContent}
             </div>
           </div>
@@ -653,10 +655,10 @@ export default function BrowseProjectsPage() {
           {mobileFiltersOpen && (
             <>
               <div
-                className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm lg:hidden"
+                className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm lg:hidden animate-fadeIn"
                 onClick={() => setMobileFiltersOpen(false)}
               />
-              <div className="fixed inset-y-0 left-0 z-50 w-[85%] max-w-sm bg-[var(--surface)] border-r border-[var(--border)] shadow-xl overflow-y-auto p-5 lg:hidden">
+              <div className="fixed inset-y-0 left-0 z-50 w-[85%] max-w-sm bg-[var(--surface)] border-r border-[var(--border)] shadow-xl overflow-y-auto p-5 lg:hidden animate-slideRight">
                 {filterContent}
               </div>
             </>
@@ -665,7 +667,7 @@ export default function BrowseProjectsPage() {
           {/* Projects List Column */}
           <div className="lg:col-span-3 space-y-4">
             {/* Search Input Box */}
-            <div className="bg-[var(--surface)] p-3 rounded-xl border border-[var(--border)] shadow-sm flex items-center gap-3">
+            <div className="card p-3 flex items-center gap-3">
               <Search className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0" />
               <input
                 type="text"
@@ -686,7 +688,7 @@ export default function BrowseProjectsPage() {
               {/* Mobile Filter toggle button */}
               <button
                 onClick={() => setMobileFiltersOpen(true)}
-                className="lg:hidden inline-flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer"
+                className="lg:hidden inline-flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
                 Filters
@@ -699,25 +701,25 @@ export default function BrowseProjectsPage() {
             </div>
 
             {loading ? (
-              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-16 text-center shadow-sm">
+              <div className="card p-16 text-center">
                 <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin mx-auto mb-3" />
                 <p className="text-[var(--text-muted)] text-xs font-bold uppercase tracking-wider">Scanning marketplace...</p>
               </div>
             ) : filteredProjects.length === 0 ? (
-              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-16 text-center shadow-sm">
-                <div className="w-12 h-12 rounded-xl bg-[var(--surface-subtle)] flex items-center justify-center mx-auto mb-4 border border-[var(--border)]">
-                  <FolderSearch className="w-6 h-6 text-[var(--text-muted)]" />
+              <div className="card p-16 text-center">
+                <div className="empty-state">
+                  <FolderSearch className="empty-state-icon" />
+                  <h2 className="empty-state-title">No Projects Match Your Search</h2>
+                  <p className="empty-state-text mb-4">
+                    Try clearing some filters or using different keywords to explore other opportunities.
+                  </p>
+                  <button
+                    onClick={clearFilters}
+                    className="text-xs font-bold uppercase tracking-wider text-[var(--accent)] hover:text-[var(--accent-hover)] cursor-pointer"
+                  >
+                    Clear all filters
+                  </button>
                 </div>
-                <h2 className="text-base font-extrabold text-[var(--text-primary)] mb-1">No Projects Match Your Search</h2>
-                <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto mb-4 font-medium">
-                  Try clearing some filters or using different keywords to explore other opportunities.
-                </p>
-                <button
-                  onClick={clearFilters}
-                  className="text-xs font-bold uppercase tracking-wider text-[var(--accent)] hover:text-[var(--accent-hover)] cursor-pointer"
-                >
-                  Clear all filters
-                </button>
               </div>
             ) : (
               <div className="space-y-4">
@@ -728,7 +730,7 @@ export default function BrowseProjectsPage() {
                   return (
                     <div
                       key={project.id}
-                      className={`bg-[var(--surface)] border border-[var(--border)] rounded-xl border-l-4 ${borderClass} shadow-sm hover:shadow-md transition-all duration-150 overflow-hidden`}
+                      className={`bg-[var(--surface)] border border-[var(--border)] rounded-2xl border-l-4 ${borderClass} hover:shadow-[var(--card-shadow-hover)] hover:-translate-y-0.5 transition-all duration-200 overflow-hidden`}
                     >
                       <div className="p-5 sm:p-6">
                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
@@ -764,14 +766,14 @@ export default function BrowseProjectsPage() {
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-[var(--border-subtle)]">
                           <div className="flex flex-wrap gap-1.5">
                             {project.skills.map((s) => (
-                              <span key={s} className="bg-[var(--surface-subtle)] text-[var(--text-secondary)] text-[9px] px-2.5 py-1 rounded font-bold border border-[var(--border)] uppercase tracking-wide">
+                              <span key={s} className="bg-[var(--surface-subtle)] text-[var(--text-secondary)] text-[9px] px-2.5 py-1 rounded-lg border border-[var(--border)] uppercase font-bold tracking-wide">
                                 {s}
                               </span>
                             ))}
                           </div>
                           <Link
                             href={`/projects/${project.id}`}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 border border-[var(--border)] hover:border-[var(--accent)] text-[10px] font-bold uppercase tracking-wider rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-[var(--accent-light)] transition-all flex-shrink-0"
+                            className="btn-ghost px-4 py-2 hover:bg-[var(--accent)] hover:text-white hover:border-transparent transition-all flex-shrink-0"
                           >
                             <span>View Details</span>
                             <ArrowRight className="w-3.5 h-3.5" />

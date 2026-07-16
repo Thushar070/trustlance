@@ -238,7 +238,7 @@ export default function DisputeDetailPage() {
       <div className="flex-grow flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
           <div className="w-6 h-6 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
-          <p className="text-[var(--text-muted)] text-sm">Loading case file...</p>
+          <p className="text-[var(--text-muted)] text-xs font-bold uppercase tracking-wider">Loading case file...</p>
         </div>
       </div>
     );
@@ -246,12 +246,12 @@ export default function DisputeDetailPage() {
 
   if (errorMsg || !dispute) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+      <div className="max-w-4xl mx-auto px-4 py-12 text-center animate-fadeIn">
         <div className="bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-6 rounded-xl shadow-sm">
           <p className="text-sm text-[var(--status-negative-text)] font-semibold mb-3">{errorMsg || "Dispute not found"}</p>
           <button
             onClick={() => router.push("/projects")}
-            className="text-xs px-4 py-2 bg-[var(--surface)] hover:bg-[var(--surface-subtle)] text-[var(--status-negative-text)] font-bold rounded-lg border border-[var(--border)] transition-colors cursor-pointer"
+            className="btn-ghost px-4 py-2 text-[var(--status-negative-text)] border-[var(--status-negative-border)]"
           >
             Back to dashboard
           </button>
@@ -275,17 +275,17 @@ export default function DisputeDetailPage() {
   const hasReachedLimit = userEvidenceCount >= 10;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn">
       {/* Dispute Header Case File branding */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-[var(--border)] pb-6 mb-8 gap-4">
         <div>
           <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest block mb-1">
             Escrow Case File #{dispute.id.slice(-6).toUpperCase()}
           </span>
-          <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
+          <h1 className="text-xl font-black text-[var(--text-primary)] tracking-tight">
             {project.title}
           </h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
+          <p className="text-sm text-[var(--text-secondary)] mt-1 font-medium">
             Reviewing escrow dispute for ₹{project.budget.toLocaleString()} contract budget.
           </p>
         </div>
@@ -302,9 +302,9 @@ export default function DisputeDetailPage() {
         {/* Main Case Details (Columns client vs freelancer) */}
         <div className="lg:col-span-2 space-y-6">
           {/* Dispute details reason */}
-          <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
+          <div className="card p-6 sm:p-8">
             <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Initial Dispute Reason</h2>
-            <div className="text-[var(--text-secondary)] text-sm leading-relaxed whitespace-pre-wrap bg-[var(--surface-subtle)] border border-[var(--border)] rounded-lg p-5">
+            <div className="text-[var(--text-secondary)] text-sm leading-relaxed whitespace-pre-wrap bg-[var(--surface-subtle)] border border-[var(--border)] rounded-xl p-5">
               <span className="font-bold text-[var(--text-primary)] block mb-2 text-xs uppercase tracking-wider">
                 Raised by {dispute.raisedBy === project.clientId ? "Client" : "Freelancer"} on {new Date(dispute.createdAt).toLocaleString()}
               </span>
@@ -313,7 +313,7 @@ export default function DisputeDetailPage() {
           </div>
 
           {/* Two Columns Evidence */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 stagger-children">
             {/* Client Column */}
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
@@ -328,7 +328,7 @@ export default function DisputeDetailPage() {
               ) : (
                 <div className="space-y-2.5">
                   {clientEvidence.map((ev) => (
-                    <div key={ev.id} className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div key={ev.id} className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm hover:shadow-[var(--card-shadow-hover)] hover:-translate-y-0.5 transition-all duration-200">
                       <div className="flex items-start gap-3">
                         <span className="text-[var(--text-muted)] mt-0.5">
                           {ev.type === "file" ? <FileText className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
@@ -367,7 +367,7 @@ export default function DisputeDetailPage() {
               ) : (
                 <div className="space-y-2.5">
                   {freelancerEvidence.map((ev) => (
-                    <div key={ev.id} className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div key={ev.id} className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 shadow-sm hover:shadow-[var(--card-shadow-hover)] hover:-translate-y-0.5 transition-all duration-200">
                       <div className="flex items-start gap-3">
                         <span className="text-[var(--text-muted)] mt-0.5">
                           {ev.type === "file" ? <FileText className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
@@ -395,22 +395,22 @@ export default function DisputeDetailPage() {
 
           {/* Evidence Upload Area */}
           {(isClient || isFreelancer) && !isResolved && (
-            <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-8">
+            <div className="card p-6 sm:p-8">
               <div className="mb-4">
-                <h3 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">Upload Supporting Evidence</h3>
-                <p className="text-xs text-[var(--text-muted)] mt-1">
+                <h3 className="text-sm font-black text-[var(--text-primary)] tracking-tight">Upload Supporting Evidence</h3>
+                <p className="text-xs text-[var(--text-muted)] mt-1 font-medium">
                   Upload file logs, screenshots, or link relevant external demos/repos. You have uploaded {userEvidenceCount} of 10 allowed items.
                 </p>
               </div>
 
               {evidenceError && (
-                <div className="mb-4 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-3 rounded-lg">
+                <div className="mb-4 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl">
                   <p className="text-xs text-[var(--status-negative-text)] font-semibold">{evidenceError}</p>
                 </div>
               )}
 
               {hasReachedLimit ? (
-                <div className="bg-[var(--status-progress-bg)] border border-[var(--status-progress-border)] rounded-xl p-4 text-center text-xs text-[var(--status-progress-text)] font-medium flex items-center justify-center gap-1.5">
+                <div className="bg-[var(--status-progress-bg)] border border-[var(--status-progress-border)] rounded-xl p-4 text-center text-xs text-[var(--status-progress-text)] font-bold flex items-center justify-center gap-1.5 uppercase tracking-wide">
                   <Lock className="w-4 h-4" />
                   You have reached the evidence limit of 10 items for this dispute.
                 </div>
@@ -418,12 +418,12 @@ export default function DisputeDetailPage() {
                 <form onSubmit={handleEvidenceUpload} className="space-y-4">
                   {/* File Selector */}
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Deliverable file (ZIP, PDF, PNG, JPG - Max 50MB)</label>
+                    <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Deliverable file (ZIP, PDF, PNG, JPG - Max 50MB)</label>
                     <input
                       type="file"
                       onChange={handleFileChange}
                       disabled={submittingEvidence}
-                      className="w-full text-xs text-[var(--text-secondary)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-[var(--accent-light)] file:text-[var(--accent)] hover:file:opacity-90 cursor-pointer disabled:opacity-50"
+                      className="w-full text-xs text-[var(--text-secondary)] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[11px] file:font-bold file:bg-[var(--accent-light)] file:text-[var(--accent)] hover:file:opacity-90 cursor-pointer disabled:opacity-50"
                     />
                     {selectedFile && (
                       <p className="mt-1.5 text-xs text-[var(--status-success-text)] font-semibold">
@@ -435,20 +435,20 @@ export default function DisputeDetailPage() {
                   {/* Divider */}
                   <div className="flex items-center text-xs text-[var(--text-muted)] font-medium my-4">
                     <div className="flex-grow border-t border-[var(--border-subtle)]" />
-                    <span className="px-3 uppercase text-[10px] tracking-wider text-[var(--text-muted)]">OR</span>
+                    <span className="px-3 uppercase text-[10px] tracking-wider text-[var(--text-muted)] font-bold">OR</span>
                     <div className="flex-grow border-t border-[var(--border-subtle)]" />
                   </div>
 
                   {/* Link Input */}
                   <div>
-                    <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Evidence URL/Link (Alternative to file upload)</label>
+                    <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Evidence URL/Link (Alternative to file upload)</label>
                     <input
                       type="url"
                       placeholder="e.g. https://github.com/username/repo or hosted site link"
                       value={linkUrl}
                       onChange={(e) => setLinkUrl(e.target.value)}
                       disabled={submittingEvidence}
-                      className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all disabled:opacity-50 bg-[var(--input-bg)]"
+                      className="w-full px-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] text-sm transition-all disabled:opacity-50 bg-[var(--input-bg)] text-[var(--text-primary)]"
                     />
                   </div>
 
@@ -456,7 +456,7 @@ export default function DisputeDetailPage() {
                     <button
                       type="submit"
                       disabled={submittingEvidence || uploadingFile}
-                      className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-sm disabled:opacity-50 cursor-pointer transition-colors"
+                      className="btn-primary"
                     >
                       <Upload className="w-3.5 h-3.5" />
                       {uploadingFile ? "Uploading File to Cloud..." : submittingEvidence ? "Adding Evidence..." : "Add Evidence"}
@@ -469,14 +469,14 @@ export default function DisputeDetailPage() {
         </div>
 
         {/* Sidebar details & Admin controls */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-1 space-y-6 animate-slideUp">
           {/* Dispute Contract Specs Card */}
-          <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 text-[var(--text-secondary)]">
+          <div className="card p-6 text-[var(--text-secondary)]">
             <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Project Contract Information</h3>
             <div className="space-y-3.5 text-sm">
               <div className="flex justify-between items-center">
                 <span className="text-[var(--text-secondary)]">Escrow Value</span>
-                <span className="font-bold text-[var(--text-primary)]">₹{project.budget.toLocaleString()}</span>
+                <span className="font-black text-[var(--text-primary)]">₹{project.budget.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[var(--text-secondary)]">Client User</span>
@@ -495,11 +495,11 @@ export default function DisputeDetailPage() {
 
           {/* Admin Adjudication Card */}
           {isAdmin && !isResolved && (
-            <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6">
+            <div className="card p-6">
               <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-4">Adjudicate Dispute</h3>
 
               {resolveError && (
-                <div className="mb-4 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-3 rounded-lg">
+                <div className="mb-4 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl">
                   <p className="text-xs text-[var(--status-negative-text)] font-semibold">{resolveError}</p>
                 </div>
               )}
@@ -508,7 +508,7 @@ export default function DisputeDetailPage() {
                 {confirmAction === null ? (
                   <>
                     <div>
-                      <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Resolution Notes (Required)</label>
+                      <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Resolution Notes (Required)</label>
                       <textarea
                         placeholder="Provide details and justification explaining the resolution decision..."
                         rows={4}
@@ -516,7 +516,7 @@ export default function DisputeDetailPage() {
                         value={resolutionNotes}
                         onChange={(e) => setResolutionNotes(e.target.value)}
                         disabled={resolvingAction !== null}
-                        className="w-full px-3 py-2 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-xs transition-all leading-relaxed bg-[var(--input-bg)]"
+                        className="w-full px-3 py-2 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] text-xs transition-all leading-relaxed bg-[var(--input-bg)] text-[var(--text-primary)]"
                       />
                     </div>
 
@@ -524,7 +524,7 @@ export default function DisputeDetailPage() {
                       <button
                         onClick={() => setConfirmAction("RELEASE")}
                         disabled={!resolutionNotes.trim()}
-                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white bg-[var(--status-success-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
+                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-[var(--status-success-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
                       >
                         <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
                         Release to Freelancer
@@ -532,7 +532,7 @@ export default function DisputeDetailPage() {
                       <button
                         onClick={() => setConfirmAction("REFUND")}
                         disabled={!resolutionNotes.trim()}
-                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white bg-[var(--status-negative-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
+                        className="w-full inline-flex justify-center items-center py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-[var(--status-negative-text)] hover:opacity-90 disabled:opacity-50 cursor-pointer transition-colors shadow-sm"
                       >
                         <XCircle className="w-3.5 h-3.5 mr-1.5" />
                         Refund to Client
@@ -540,7 +540,7 @@ export default function DisputeDetailPage() {
                     </div>
                   </>
                 ) : (
-                  <div className={`p-5 rounded-lg border text-xs leading-relaxed space-y-4 ${
+                  <div className={`p-5 rounded-xl border text-xs leading-relaxed space-y-4 ${
                     confirmAction === "RELEASE"
                       ? "bg-[var(--status-success-bg)] border-[var(--status-success-border)] text-[var(--status-success-text)]"
                       : "bg-[var(--status-negative-bg)] border-[var(--status-negative-border)] text-[var(--status-negative-text)]"
@@ -565,7 +565,7 @@ export default function DisputeDetailPage() {
                       <button
                         onClick={() => handleResolve(confirmAction)}
                         disabled={resolvingAction !== null}
-                        className={`flex-grow inline-flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white transition-all cursor-pointer ${
+                        className={`flex-grow inline-flex justify-center items-center py-2.5 px-4 rounded-xl text-xs font-bold text-white transition-all cursor-pointer ${
                           confirmAction === "RELEASE"
                             ? "bg-[var(--status-success-text)] hover:brightness-110"
                             : "bg-[var(--status-negative-text)] hover:brightness-110"
@@ -576,7 +576,7 @@ export default function DisputeDetailPage() {
                       <button
                         onClick={() => setConfirmAction(null)}
                         disabled={resolvingAction !== null}
-                        className="px-4 py-2.5 bg-[var(--surface-subtle)] border border-[var(--border)] hover:bg-[var(--border-subtle)] text-[var(--text-primary)] font-semibold rounded-lg text-xs transition-all cursor-pointer"
+                        className="px-4 py-2.5 bg-[var(--surface-subtle)] border border-[var(--border)] hover:bg-[var(--border-subtle)] text-[var(--text-primary)] font-bold rounded-xl text-xs transition-all cursor-pointer"
                       >
                         Cancel
                       </button>
@@ -589,12 +589,12 @@ export default function DisputeDetailPage() {
 
           {/* Resolution Outcome Display Card */}
           {isResolved && (
-            <div className="bg-[var(--surface-subtle)] border border-[var(--border)] rounded-xl p-6">
+            <div className="card p-6 bg-[var(--surface-subtle)]">
               <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Resolution Outcome</h3>
               <div className="space-y-4 text-xs text-[var(--text-secondary)] leading-relaxed">
                 <div>
                   <span className="font-bold text-[var(--text-muted)] block uppercase tracking-wider mb-1">Decision</span>
-                  <span className={`font-bold uppercase tracking-wider text-sm ${
+                  <span className={`font-black uppercase tracking-wider text-sm ${
                     dispute.escrow?.status === EscrowStatus.RELEASED ? "text-[var(--status-success-text)]" : "text-[var(--status-negative-text)]"
                   }`}>
                     {dispute.escrow?.status === EscrowStatus.RELEASED ? "Released to Freelancer" : "Refunded to Client"}
@@ -602,7 +602,7 @@ export default function DisputeDetailPage() {
                 </div>
                 <div className="border-t border-[var(--border-subtle)] pt-3">
                   <span className="font-bold text-[var(--text-muted)] block uppercase tracking-wider mb-1.5">Resolution Notes</span>
-                  <p className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-3.5 font-medium text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed">
+                  <p className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5 font-medium text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed">
                     {dispute.resolution || "No notes recorded."}
                   </p>
                 </div>

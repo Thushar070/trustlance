@@ -21,7 +21,7 @@ export default function RootLayout({
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#4338ca" />
+        <meta name="theme-color" content="#000000" />
         <link rel="apple-touch-icon" href="/pwa-icon-192.png" />
         {/* Prevent flash of wrong theme on initial load */}
         <script
@@ -35,12 +35,19 @@ export default function RootLayout({
           <Navbar />
           <main className="flex-1 flex flex-col">{children}</main>
           <footer className="border-t border-[var(--border)] bg-[var(--surface)]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-2">
-              <p className="text-xs text-[var(--text-muted)] tracking-wide">
-                © 2026 TrustLance. Secure escrow-powered freelance marketplace.
-              </p>
-              <div className="flex items-center gap-4 text-xs text-[var(--text-muted)]">
-                <span>Secure · Verified · Escrow-Backed</span>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <img src="/logo-mark.png" alt="" width={18} height={18} className="w-[18px] h-[18px] rounded opacity-50" />
+                <p className="text-xs text-[var(--text-muted)] font-medium tracking-wide">
+                  © 2026 TrustLance. All rights reserved.
+                </p>
+              </div>
+              <div className="flex items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+                <span>Secure</span>
+                <span className="w-1 h-1 rounded-full bg-[var(--text-muted)] opacity-40" />
+                <span>Verified</span>
+                <span className="w-1 h-1 rounded-full bg-[var(--text-muted)] opacity-40" />
+                <span>Escrow-Backed</span>
               </div>
             </div>
           </footer>

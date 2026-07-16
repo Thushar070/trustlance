@@ -3,8 +3,32 @@ import { PrismaClient, Role } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("Seeding database with default user overrides...");
+  console.log("Clearing all existing database tables...");
+  await prisma.evidence.deleteMany({});
+  await prisma.dispute.deleteMany({});
+  await prisma.escrow.deleteMany({});
+  await prisma.submission.deleteMany({});
+  await prisma.payment.deleteMany({});
+  await prisma.proposal.deleteMany({});
+  await prisma.message.deleteMany({});
+  await prisma.rating.deleteMany({});
+  await prisma.project.deleteMany({});
+  await prisma.connection.deleteMany({});
+  await prisma.report.deleteMany({});
+  await prisma.webhookEvent.deleteMany({});
+  await prisma.auditLog.deleteMany({});
 
+  // Remove all users except the Admin
+  await prisma.user.deleteMany({
+    where: {
+      email: {
+        not: "thusharyyy@gmail.com",
+      },
+    },
+  });
+  console.log("Database cleared successfully.");
+
+  console.log("Seeding database with ADMIN user...");
   const admin = await prisma.user.upsert({
     where: { email: "thusharyyy@gmail.com" },
     update: {
@@ -25,50 +49,6 @@ async function main() {
     },
   });
   console.log(`Upserted ADMIN user: ${admin.email} (Role: ${admin.role})`);
-
-  const client = await prisma.user.upsert({
-    where: { email: "thushar2410612@ssn.edu.in" },
-    update: {
-      role: Role.CLIENT,
-      profileCompleted: true,
-      phone: "+919876543210",
-      location: "Chennai, India",
-      businessName: "Thushar Enterprise Ltd",
-      bio: "High-growth enterprise logistics and security systems provider.",
-    },
-    create: {
-      email: "thushar2410612@ssn.edu.in",
-      name: "Thushar Client",
-      role: Role.CLIENT,
-      profileCompleted: true,
-      phone: "+919876543210",
-      location: "Chennai, India",
-      businessName: "Thushar Enterprise Ltd",
-      bio: "High-growth enterprise logistics and security systems provider.",
-    },
-  });
-  console.log(`Upserted CLIENT user: ${client.email} (Role: ${client.role})`);
-
-  const freelancer = await prisma.user.upsert({
-    where: { email: "thushar.tl.dev@gmail.com" },
-    update: {
-      role: Role.FREELANCER,
-      profileCompleted: true,
-      phone: "+918765432109",
-      location: "Bangalore, India",
-      bio: "Senior Full-Stack Architect specializing in Next.js, Node.js, and secure escrow systems.",
-    },
-    create: {
-      email: "thushar.tl.dev@gmail.com",
-      name: "Thushar Freelancer",
-      role: Role.FREELANCER,
-      profileCompleted: true,
-      phone: "+918765432109",
-      location: "Bangalore, India",
-      bio: "Senior Full-Stack Architect specializing in Next.js, Node.js, and secure escrow systems.",
-    },
-  });
-  console.log(`Upserted FREELANCER user: ${freelancer.email} (Role: ${freelancer.role})`);
 
   console.log("Database seeding completed successfully.");
 }

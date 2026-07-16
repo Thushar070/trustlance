@@ -147,7 +147,7 @@ export default function ClientProjectsPage() {
           detail: p.title,
           time: new Date(p.createdAt),
           icon: FileText,
-          iconClass: "bg-blue-500/10 text-blue-500",
+          iconClass: "bg-[var(--surface-subtle)] text-[var(--text-primary)] border border-[var(--border)]",
         },
       ];
       if (p.status !== "OPEN") {
@@ -157,7 +157,7 @@ export default function ClientProjectsPage() {
           detail: `${p.freelancer?.name || "Freelancer"} hired for ${p.title}`,
           time: new Date(p.createdAt), // Approximate assigned time
           icon: ShieldCheck,
-          iconClass: "bg-emerald-500/10 text-emerald-500",
+          iconClass: "bg-[var(--surface-subtle)] text-[var(--text-primary)] border border-[var(--border)]",
         });
       }
       if (p.status === "COMPLETED") {
@@ -167,7 +167,7 @@ export default function ClientProjectsPage() {
           detail: `₹${(p.agreedAmount || p.budget).toLocaleString()} released for ${p.title}`,
           time: new Date(p.deadline),
           icon: DollarSign,
-          iconClass: "bg-emerald-500/10 text-emerald-500",
+          iconClass: "bg-[var(--surface-subtle)] text-[var(--text-primary)] border border-[var(--border)]",
         });
       }
       return acts;
@@ -222,7 +222,7 @@ export default function ClientProjectsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-w-0 animate-fadeIn">
       {/* Title & Actions Row */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
@@ -231,7 +231,7 @@ export default function ClientProjectsPage() {
         </div>
         <Link
           href="/client/projects/new"
-          className="inline-flex items-center gap-1.5 px-5 py-3 text-xs font-bold uppercase tracking-wider rounded-lg text-white bg-[var(--brand-primary)] hover:bg-[var(--accent-hover)] shadow-sm cursor-pointer transition-colors"
+          className="btn-primary px-5 py-3"
         >
           <Plus className="w-4 h-4" />
           Post New Project
@@ -239,51 +239,51 @@ export default function ClientProjectsPage() {
       </div>
 
       {errorMsg && (
-        <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg flex items-start gap-3">
+        <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
           <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
           <p className="text-sm text-[var(--status-negative-text)] font-semibold">{errorMsg}</p>
         </div>
       )}
 
       {/* Metrics Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm flex items-center justify-between">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 stagger-children">
+        <div className="stat-card flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">Active Contracts</span>
-            <span className="text-2xl font-black text-[var(--text-primary)] block mt-1">{activeProjectsCount}</span>
-            <span className="text-[10px] font-bold text-emerald-500 block mt-1">✓ Verified Status</span>
+            <span className="stat-card-label">Active Contracts</span>
+            <span className="stat-card-value">{activeProjectsCount}</span>
+            <span className="text-[10px] font-bold text-[var(--text-secondary)] block mt-1">✓ Verified Status</span>
           </div>
-          <div className="w-10 h-10 rounded-lg bg-[var(--accent-light)] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-[var(--accent-light)] flex items-center justify-center">
             <Briefcase className="w-5 h-5 text-[var(--accent)]" />
           </div>
         </div>
 
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm flex flex-col justify-between">
+        <div className="stat-card flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <div>
-              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">Funds in Escrow</span>
-              <span className="text-2xl font-black text-[var(--text-primary)] block mt-1">₹{fundsInEscrow.toLocaleString()}</span>
+              <span className="stat-card-label">Funds in Escrow</span>
+              <span className="stat-card-value">₹{fundsInEscrow.toLocaleString()}</span>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5 text-amber-500" />
+            <div className="w-10 h-10 rounded-xl bg-[var(--accent-light)] flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-[var(--accent)]" />
             </div>
           </div>
           <div className="mt-3">
             <div className="w-full bg-[var(--border)] h-1.5 rounded-full overflow-hidden">
-              <div className="bg-amber-500 h-full rounded-full" style={{ width: "100%" }} />
+              <div className="bg-[var(--accent)] h-full rounded-full" style={{ width: "100%" }} />
             </div>
             <span className="text-[9px] font-bold text-[var(--text-muted)] block mt-1">100% SECURELY ALLOCATED</span>
           </div>
         </div>
 
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm flex items-center justify-between">
+        <div className="stat-card flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">Total Spent YTD</span>
-            <span className="text-2xl font-black text-[var(--text-primary)] block mt-1">₹{totalSpentYTD.toLocaleString()}</span>
+            <span className="stat-card-label">Total Spent YTD</span>
+            <span className="stat-card-value">₹{totalSpentYTD.toLocaleString()}</span>
             <span className="text-[10px] font-bold text-[var(--text-muted)] block mt-1">Released Milestone Payments</span>
           </div>
-          <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-            <DollarSign className="w-5 h-5 text-emerald-500" />
+          <div className="w-10 h-10 rounded-xl bg-[var(--accent-light)] flex items-center justify-center">
+            <DollarSign className="w-5 h-5 text-[var(--accent)]" />
           </div>
         </div>
       </div>
@@ -310,24 +310,24 @@ export default function ClientProjectsPage() {
           </div>
 
           {filteredProjects.length === 0 ? (
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-16 text-center shadow-sm">
-              <div className="w-12 h-12 rounded-xl bg-[var(--surface-subtle)] flex items-center justify-center mx-auto mb-4 border border-[var(--border)]">
-                <Briefcase className="w-6 h-6 text-[var(--text-muted)]" />
+            <div className="card p-16 text-center">
+              <div className="empty-state">
+                <Briefcase className="empty-state-icon" />
+                <h2 className="empty-state-title">No Projects Found</h2>
+                <p className="empty-state-text mb-6">
+                  {activeTab === "ALL"
+                    ? "You haven't posted any freelance project listings yet. Click below to create your first."
+                    : `No projects match the "${TABS.find((t) => t.key === activeTab)?.label}" filter.`}
+                </p>
+                {activeTab === "ALL" && (
+                  <Link
+                    href="/client/projects/new"
+                    className="btn-primary"
+                  >
+                    Post Your First Project
+                  </Link>
+                )}
               </div>
-              <h2 className="text-base font-extrabold text-[var(--text-primary)] mb-1">No Projects Found</h2>
-              <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto mb-6">
-                {activeTab === "ALL"
-                  ? "You haven't posted any freelance project listings yet. Click below to create your first."
-                  : `No projects match the "${TABS.find((t) => t.key === activeTab)?.label}" filter.`}
-              </p>
-              {activeTab === "ALL" && (
-                <Link
-                  href="/client/projects/new"
-                  className="inline-flex items-center gap-1.5 px-5 py-3 text-xs font-bold uppercase tracking-wider rounded-lg text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-sm transition-colors"
-                >
-                  Post Your First Project
-                </Link>
-              )}
             </div>
           ) : (
             <div className="flex flex-col gap-4">
@@ -340,7 +340,7 @@ export default function ClientProjectsPage() {
                   <Link
                     key={project.id}
                     href={`/projects/${project.id}`}
-                    className={`block bg-[var(--surface)] border border-[var(--border)] border-l-4 ${cfg.borderColor} rounded-xl p-5 hover:shadow-md transition-all duration-150`}
+                    className={`block bg-[var(--surface)] border border-[var(--border)] border-l-4 ${cfg.borderColor} rounded-2xl p-5 hover:shadow-[var(--card-shadow-hover)] transition-all duration-200`}
                   >
                     <div>
                       {/* Title + Status Badge */}
@@ -362,7 +362,7 @@ export default function ClientProjectsPage() {
                       {renderStepper(project.status)}
 
                       {/* Statistics box */}
-                      <div className="bg-[var(--surface-subtle)] rounded-lg p-3 flex flex-wrap items-center justify-between gap-4 mt-4 border border-[var(--border)]">
+                      <div className="bg-[var(--surface-subtle)] rounded-xl p-3 flex flex-wrap items-center justify-between gap-4 mt-4 border border-[var(--border)]">
                         {terminal ? (
                           <>
                             <div>
@@ -440,7 +440,7 @@ export default function ClientProjectsPage() {
 
         {/* Right Column: Activity Feed */}
         <div className="lg:col-span-3">
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5 shadow-sm">
+          <div className="card p-5">
             <h3 className="text-xs font-extrabold uppercase tracking-widest text-[var(--brand-primary)] mb-4 flex items-center gap-1.5">
               <Activity className="w-4 h-4 text-[var(--accent)] animate-pulse" />
               <span>Recent activity</span>

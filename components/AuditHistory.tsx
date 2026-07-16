@@ -57,7 +57,7 @@ export default function AuditHistory({ entityId, entityType }: AuditHistoryProps
   if (!isAdmin) return null;
 
   return (
-    <div className="mt-8 border border-[var(--border)] rounded-xl bg-[var(--surface-subtle)] p-4">
+    <div className="card mt-8 p-4 bg-[var(--surface-subtle)]">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider hover:text-[var(--text-primary)] transition-colors focus:outline-none cursor-pointer"
@@ -128,7 +128,7 @@ export default function AuditHistory({ entityId, entityType }: AuditHistoryProps
                     </div>
 
                     {isExpanded && (
-                      <div className="mt-1 ml-4 p-3 bg-[var(--surface-elevated)] rounded-lg text-[10px] text-[var(--text-secondary)] overflow-x-auto border border-[var(--border)]">
+                      <div className="mt-1 ml-4 p-3 bg-[var(--surface-elevated)] rounded-xl text-[10px] text-[var(--text-secondary)] overflow-x-auto border border-[var(--border)]">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 max-w-lg">
                           <div><span className="text-[var(--text-muted)]">Log ID:</span> {log.id}</div>
                           <div><span className="text-[var(--text-muted)]">Entity:</span> {log.entityType} ({log.entityId})</div>

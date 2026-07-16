@@ -69,19 +69,19 @@ export default function NewProjectPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="bg-[var(--surface)] rounded-xl shadow-sm border border-[var(--border)] p-6 sm:p-10 relative overflow-hidden">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn">
+      <div className="card p-6 sm:p-10 relative overflow-hidden">
         <div className="relative">
           <div className="flex items-center gap-2 mb-2">
             <Briefcase className="w-5 h-5 text-[var(--accent)]" />
-            <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">Post a New Project</h1>
+            <h1 className="text-xl font-black text-[var(--text-primary)] tracking-tight">Post a New Project</h1>
           </div>
           <p className="text-sm text-[var(--text-secondary)] mb-8 leading-relaxed">
             Provide clear details to attract the best freelancers. Escrow funding is required upon assignment.
           </p>
 
           {errorMsg && (
-            <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-lg flex items-start gap-3">
+            <div className="mb-6 bg-[var(--status-negative-bg)] border border-[var(--status-negative-border)] p-4 rounded-xl flex items-start gap-3 animate-fadeIn">
               <AlertCircle className="w-4 h-4 text-[var(--status-negative-text)] mt-0.5 flex-shrink-0" />
               <p className="text-sm text-[var(--status-negative-text)] font-medium">{errorMsg}</p>
             </div>
@@ -90,14 +90,14 @@ export default function NewProjectPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Project Title */}
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Title</label>
+              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Project Title</label>
               <input
                 type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Build a secure escrow payment module for web application"
-                className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all"
+                className="w-full px-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm transition-all"
               />
               {errors.title && (
                 <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{errors.title[0]}</p>
@@ -113,7 +113,7 @@ export default function NewProjectPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Provide a detailed description of the tasks, project scope, and deliverables..."
-                className="w-full px-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all leading-relaxed"
+                className="w-full px-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm transition-all leading-relaxed"
               />
               {errors.description && (
                 <p className="mt-1.5 text-xs text-[var(--status-negative-text)] font-medium">{errors.description[0]}</p>
@@ -135,7 +135,7 @@ export default function NewProjectPage() {
                     value={budget}
                     onChange={(e) => setBudget(e.target.value)}
                     placeholder="5000"
-                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 focus:border-[var(--accent)] text-sm transition-all"
+                    className="w-full pl-8 pr-4 py-2.5 border border-[var(--input-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--input-focus-ring)] focus:border-[var(--accent)] text-sm transition-all"
                   />
                 </div>
                 {errors.budget && (
@@ -185,7 +185,7 @@ export default function NewProjectPage() {
               )}
 
               {skillsOpen && (
-                <div className="space-y-4 border border-[var(--border)] rounded-lg p-4 bg-[var(--surface-subtle)] max-h-80 overflow-y-auto mt-2 transition-all">
+                <div className="space-y-4 border border-[var(--border)] rounded-xl p-4 bg-[var(--surface-subtle)] max-h-80 overflow-y-auto mt-2 transition-all">
                   {SKILL_GROUPS.map((group) => (
                     <div key={group.category}>
                       <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">{group.category}</h3>
@@ -219,7 +219,7 @@ export default function NewProjectPage() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="inline-flex items-center gap-1 px-4 py-2.5 border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] cursor-pointer transition-colors"
+                className="btn-ghost px-4 py-2.5"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 Cancel
@@ -227,7 +227,7 @@ export default function NewProjectPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center gap-1 px-5 py-2.5 rounded-lg text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-sm disabled:opacity-50 cursor-pointer transition-colors"
+                className="btn-primary px-5 py-2.5 disabled:opacity-50"
               >
                 <Plus className="w-3.5 h-3.5" />
                 {loading ? "Posting Project..." : "Post Project"}
