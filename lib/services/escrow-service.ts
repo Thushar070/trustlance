@@ -4,9 +4,9 @@ import { SYSTEM_ACTORS } from "../constants/actors";
 
 const ALLOWED_TRANSITIONS: Record<EscrowStatus, EscrowStatus[]> = {
   [EscrowStatus.CREATED]: [EscrowStatus.HOLDING],
-  [EscrowStatus.HOLDING]: [EscrowStatus.WORK_SUBMITTED],
+  [EscrowStatus.HOLDING]: [EscrowStatus.WORK_SUBMITTED, EscrowStatus.REFUNDED],
   [EscrowStatus.WORK_SUBMITTED]: [EscrowStatus.UNDER_REVIEW],
-  [EscrowStatus.UNDER_REVIEW]: [EscrowStatus.RELEASED, EscrowStatus.DISPUTED, EscrowStatus.HOLDING],
+  [EscrowStatus.UNDER_REVIEW]: [EscrowStatus.RELEASED, EscrowStatus.DISPUTED, EscrowStatus.HOLDING, EscrowStatus.REFUNDED],
   [EscrowStatus.DISPUTED]: [EscrowStatus.RELEASED, EscrowStatus.REFUNDED],
   [EscrowStatus.RELEASED]: [],
   [EscrowStatus.REFUNDED]: [],

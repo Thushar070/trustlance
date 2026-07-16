@@ -1,6 +1,5 @@
 import sgMail from "@sendgrid/mail";
-
-const APP_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
+import { getBaseUrl } from "../utils/url";
 
 // Sane retry policy for transient errors (429, 5xx, or network timeouts)
 async function retryWithBackoff<T>(
@@ -46,7 +45,9 @@ async function sendMailHelper(
   triggerName: string,
   to: string,
   subject: string,
-  text: string
+  text: string,
+  buttonText?: string,
+  buttonUrl?: string
 ): Promise<boolean> {
   const apiKey = process.env.SENDGRID_API_KEY;
   const fromAddress = process.env.EMAIL_FROM_ADDRESS;
@@ -65,6 +66,12 @@ async function sendMailHelper(
   // 2. Set API Key
   sgMail.setApiKey(apiKey);
 
+  const buttonHtml = buttonText && buttonUrl
+    ? `<div style="margin-top: 24px;">
+         <a href="${buttonUrl}" style="display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: #ffffff; text-decoration: none; font-weight: 600; border-radius: 6px; font-size: 14px;">${buttonText}</a>
+       </div>`
+    : "";
+
   const msg = {
     to,
     from: {
@@ -75,7 +82,7 @@ async function sendMailHelper(
     text,
     // Add simple HTML styling wrapper to match professional enterprise trust design system
     html: `
-      <div style="font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; rounded: 12px; background-color: #ffffff;">
+      <div style="font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
         <div style="margin-bottom: 24px;">
           <span style="font-size: 18px; font-weight: bold; color: #1e1b4b; letter-spacing: -0.025em;">
             Trust<span style="color: #4f46e5;">Lance</span>
@@ -84,7 +91,8 @@ async function sendMailHelper(
         <div style="font-size: 14px; line-height: 1.6; color: #334155; white-space: pre-line;">
           ${text}
         </div>
-        <div style="margin-top: 32px; padding-top: 16px; border-t: 1px solid #e2e8f0; font-size: 11px; color: #64748b; text-align: center;">
+        ${buttonHtml}
+        <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; text-align: center;">
           © 2026 TrustLance. Secure Escrow Freelance Workspace. All rights reserved.
         </div>
       </div>
@@ -132,14 +140,35 @@ export const SendGridService = {
     recipientName: string,
     projectTitle: string,
     projectLink: string,
-    isClient: boolean
+    isClient: boolean,
+    amount?: number,
+    paymentStatus?: string,
+    escrowStatus?: string,
+    clientName?: string
   ): Promise<boolean> {
-    const subject = `[TrustLance] Payment received for project: ${projectTitle}`;
-    const text = isClient
-      ? `Hello ${recipientName},\n\nPayment has been successfully received and is now held in escrow for project: ${projectTitle}.\n\nView details: ${projectLink}`
-      : `Hello ${recipientName},\n\nPayment has been received and held in escrow for project: ${projectTitle}. You can start working on the deliverables now.\n\nView details: ${projectLink}`;
+    if (isClient) {
+      const subject = "Payment Received Successfully";
+      const text = `Hello ${recipientName},\n\n` +
+        `We have successfully received your payment for the project: ${projectTitle}.\n\n` +
+        `Details:\n` +
+        `- Project Name: ${projectTitle}\n` +
+        `- Amount: INR ${amount || "N/A"}\n` +
+        `- Payment Status: ${paymentStatus || "SUCCESS"}\n` +
+        `- Escrow Status: ${escrowStatus || "HOLDING"}`;
 
-    return sendMailHelper("PAYMENT_RECEIVED", to, subject, text);
+      return sendMailHelper("PAYMENT_RECEIVED", to, subject, text, "View Project", projectLink);
+    } else {
+      const subject = "Project Funded — You Can Start Working";
+      const text = `Hello ${recipientName},\n\n` +
+        `Great news! The client (${clientName || "Client"}) has funded the escrow container for project: ${projectTitle}.\n\n` +
+        `Details:\n` +
+        `- Project Name: ${projectTitle}\n` +
+        `- Client Name: ${clientName || "Client"}\n` +
+        `- Escrow Status: ${escrowStatus || "HOLDING"}\n\n` +
+        `You are cleared to start working on the deliverables now.`;
+
+      return sendMailHelper("PROJECT_FUNDED", to, subject, text, "Start Working", projectLink);
+    }
   },
 
   async sendFreelancerAssigned(
@@ -266,7 +295,7 @@ export const SendGridService = {
     requesterName: string
   ): Promise<boolean> {
     const subject = `[TrustLance] New connection request from ${requesterName}`;
-    const text = `Hello ${recipientName},\n\n${requesterName} has sent you a connection request on TrustLance.\n\nView pending requests: ${APP_URL}/connections`;
+    const text = `Hello ${recipientName},\n\n${requesterName} has sent you a connection request on TrustLance.\n\nView pending requests: ${getBaseUrl()}/connections`;
 
     return sendMailHelper("CONNECTION_REQUEST_RECEIVED", to, subject, text);
   },
@@ -277,7 +306,7 @@ export const SendGridService = {
     addresseeName: string
   ): Promise<boolean> {
     const subject = `[TrustLance] Connection request accepted by ${addresseeName}`;
-    const text = `Hello ${recipientName},\n\nGood news! ${addresseeName} has accepted your connection request on TrustLance.\n\nView your connections: ${APP_URL}/connections`;
+    const text = `Hello ${recipientName},\n\nGood news! ${addresseeName} has accepted your connection request on TrustLance.\n\nView your connections: ${getBaseUrl()}/connections`;
 
     return sendMailHelper("CONNECTION_ACCEPTED", to, subject, text);
   },
@@ -302,8 +331,8 @@ export const SendGridService = {
   ): Promise<boolean> {
     const subject = `Welcome to TrustLance, ${recipientName}!`;
     const text = role === "CLIENT"
-      ? `Hello ${recipientName},\n\nWelcome to TrustLance! We are thrilled to have you onboard.\n\nAs a Client, you can now post open projects, review freelancer bids, secure your funds safely in escrow milestone containers, and connect with top-tier talent with institutional-grade security.\n\nGet started by posting your first project: ${APP_URL}/client/projects/new`
-      : `Hello ${recipientName},\n\nWelcome to TrustLance! We are thrilled to have you onboard.\n\nAs a Freelancer, you can now build your professional reputation profile, browse premium client contracts, submit proposals, protect your work via milestone escrow agreements, and build trust-based connections.\n\nGet started by finding work opportunities: ${APP_URL}/projects`;
+      ? `Hello ${recipientName},\n\nWelcome to TrustLance! We are thrilled to have you onboard.\n\nAs a Client, you can now post open projects, review freelancer bids, secure your funds safely in escrow milestone containers, and connect with top-tier talent with institutional-grade security.\n\nGet started by posting your first project: ${getBaseUrl()}/client/projects/new`
+      : `Hello ${recipientName},\n\nWelcome to TrustLance! We are thrilled to have you onboard.\n\nAs a Freelancer, you can now build your professional reputation profile, browse premium client contracts, submit proposals, protect your work via milestone escrow agreements, and build trust-based connections.\n\nGet started by finding work opportunities: ${getBaseUrl()}/projects`;
 
     return sendMailHelper("WELCOME_ONBOARDING", to, subject, text);
   },

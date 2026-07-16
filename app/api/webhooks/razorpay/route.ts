@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { EscrowService } from "@/lib/services/escrow-service";
 import { NotificationService } from "@/lib/services/notification-service";
-import { PaymentStatus, EscrowStatus } from "@prisma/client";
+import { PaymentStatus, EscrowStatus, ProjectStatus } from "@prisma/client";
 import { SYSTEM_ACTORS } from "@/lib/constants/actors";
-import crypto from "crypto";
+import Razorpay from "razorpay";
 
 export async function POST(request: Request) {
   try {
@@ -22,12 +22,10 @@ export async function POST(request: Request) {
     }
 
     const rawBody = await request.text();
-    const expectedSignature = crypto
-      .createHmac("sha256", secret)
-      .update(rawBody)
-      .digest("hex");
-
-    if (expectedSignature !== signature) {
+    
+    // Verify signature using official Razorpay SDK
+    const isValid = Razorpay.validateWebhookSignature(rawBody, signature, secret);
+    if (!isValid) {
       return NextResponse.json({ error: "Invalid webhook signature." }, { status: 400 });
     }
 
@@ -40,6 +38,14 @@ export async function POST(request: Request) {
             id?: string;
             order_id?: string;
             amount?: number;
+          };
+        };
+        refund?: {
+          entity?: {
+            id?: string;
+            payment_id?: string;
+            amount?: number;
+            status?: string;
           };
         };
       };
@@ -74,45 +80,80 @@ export async function POST(request: Request) {
     }
 
     const eventName = payload.event;
-    const paymentEntity = payload.payload?.payment?.entity;
-    const orderId = paymentEntity?.order_id;
-    const paymentId = paymentEntity?.id;
-    const paymentAmount = paymentEntity?.amount;
 
-    if (!orderId) {
-      return NextResponse.json({ message: "Event ignored: missing order_id." }, { status: 200 });
-    }
+    // Handle payment events
+    if (eventName === "payment.captured" || eventName === "payment.failed") {
+      const paymentEntity = payload.payload?.payment?.entity;
+      const orderId = paymentEntity?.order_id;
+      const paymentId = paymentEntity?.id;
+      const paymentAmount = paymentEntity?.amount;
 
-    const dbPayment = await prisma.payment.findFirst({
-      where: { razorpayOrderId: orderId },
-    });
-
-    if (!dbPayment) {
-      return NextResponse.json({ error: `Payment not found for order_id: ${orderId}` }, { status: 404 });
-    }
-
-    if (eventName === "payment.captured") {
-      if (paymentAmount === undefined || paymentAmount === null) {
-        return NextResponse.json({ error: "Missing amount in webhook payload." }, { status: 400 });
-      }
-      const expectedAmountInPaise = dbPayment.amount * 100;
-      if (paymentAmount !== expectedAmountInPaise) {
-        console.error(
-          `[FRAUD WARNING] Payment amount mismatch for Order ID ${orderId}. Webhook paid amount: ${paymentAmount} paise, DB expected amount: ${expectedAmountInPaise} paise.`
-        );
-        return NextResponse.json(
-          { error: "Payment verification failed: Amount mismatch." },
-          { status: 400 }
-        );
+      if (!orderId) {
+        return NextResponse.json({ message: "Event ignored: missing order_id." }, { status: 200 });
       }
 
-      await prisma.$transaction(async (tx) => {
-        // Update Payment to SUCCESS if it's not already
-        if (dbPayment.status !== PaymentStatus.SUCCESS) {
+      const dbPayment = await prisma.payment.findFirst({
+        where: { razorpayOrderId: orderId },
+      });
+
+      if (!dbPayment) {
+        return NextResponse.json({ error: `Payment not found for order_id: ${orderId}` }, { status: 404 });
+      }
+
+      if (eventName === "payment.captured") {
+        if (paymentAmount === undefined || paymentAmount === null) {
+          return NextResponse.json({ error: "Missing amount in webhook payload." }, { status: 400 });
+        }
+        const expectedAmountInPaise = dbPayment.amount * 100;
+        if (paymentAmount !== expectedAmountInPaise) {
+          console.error(
+            `[FRAUD WARNING] Payment amount mismatch for Order ID ${orderId}. Webhook paid amount: ${paymentAmount} paise, DB expected amount: ${expectedAmountInPaise} paise.`
+          );
+          return NextResponse.json(
+            { error: "Payment verification failed: Amount mismatch." },
+            { status: 400 }
+          );
+        }
+
+        await prisma.$transaction(async (tx) => {
+          // Update Payment to SUCCESS if it's not already
+          if (dbPayment.status !== PaymentStatus.SUCCESS) {
+            await tx.payment.update({
+              where: { id: dbPayment.id },
+              data: {
+                status: PaymentStatus.SUCCESS,
+                razorpayPaymentId: paymentId,
+              },
+            });
+
+            await tx.auditLog.create({
+              data: {
+                entityType: "Payment",
+                entityId: dbPayment.id,
+                action: "PAYMENT_SUCCESS",
+                actorId: SYSTEM_ACTORS.SYSTEM_WEBHOOK,
+                prevState: dbPayment.status,
+                newState: PaymentStatus.SUCCESS,
+              },
+            });
+          }
+
+          // Create Escrow
+          const escrow = await EscrowService.createEscrowForProject(dbPayment.projectId, tx);
+
+          // Transition if status is CREATED
+          if (escrow.status === EscrowStatus.CREATED) {
+            await EscrowService.transition(escrow.id, EscrowStatus.HOLDING, SYSTEM_ACTORS.SYSTEM_WEBHOOK, tx);
+          }
+        });
+
+        await NotificationService.notify("PAYMENT_RECEIVED", { projectId: dbPayment.projectId });
+      } else if (eventName === "payment.failed") {
+        await prisma.$transaction(async (tx) => {
           await tx.payment.update({
             where: { id: dbPayment.id },
             data: {
-              status: PaymentStatus.SUCCESS,
+              status: PaymentStatus.FAILED,
               razorpayPaymentId: paymentId,
             },
           });
@@ -121,46 +162,84 @@ export async function POST(request: Request) {
             data: {
               entityType: "Payment",
               entityId: dbPayment.id,
-              action: "PAYMENT_SUCCESS",
+              action: "PAYMENT_FAILED",
               actorId: SYSTEM_ACTORS.SYSTEM_WEBHOOK,
               prevState: dbPayment.status,
-              newState: PaymentStatus.SUCCESS,
+              newState: PaymentStatus.FAILED,
             },
+          });
+        });
+      }
+    }
+
+    // Handle refund events
+    else if (eventName === "refund.processed" || eventName === "refund.failed") {
+      const refundEntity = payload.payload?.refund?.entity;
+      const paymentId = refundEntity?.payment_id;
+
+      if (!paymentId) {
+        return NextResponse.json({ message: "Event ignored: missing payment_id." }, { status: 200 });
+      }
+
+      const dbPayment = await prisma.payment.findFirst({
+        where: { razorpayPaymentId: paymentId },
+      });
+
+      if (!dbPayment) {
+        return NextResponse.json({ error: `Payment not found for payment_id: ${paymentId}` }, { status: 404 });
+      }
+
+      if (eventName === "refund.processed") {
+        const escrow = await prisma.escrow.findUnique({
+          where: { projectId: dbPayment.projectId },
+        });
+
+        if (escrow) {
+          await prisma.$transaction(async (tx) => {
+            // Transition Escrow status to REFUNDED (creates audit log internally)
+            await EscrowService.transition(escrow.id, EscrowStatus.REFUNDED, SYSTEM_ACTORS.SYSTEM_WEBHOOK, tx);
+
+            // Update associated project status to CANCELLED
+            const project = await tx.project.findUnique({
+              where: { id: dbPayment.projectId },
+            });
+
+            if (project && project.status !== ProjectStatus.CANCELLED) {
+              await tx.project.update({
+                where: { id: dbPayment.projectId },
+                data: { status: ProjectStatus.CANCELLED },
+              });
+
+              await tx.auditLog.create({
+                data: {
+                  entityType: "Project",
+                  entityId: dbPayment.projectId,
+                  action: "TRANSITION_CANCELLED",
+                  actorId: SYSTEM_ACTORS.SYSTEM_WEBHOOK,
+                  prevState: project.status,
+                  newState: ProjectStatus.CANCELLED,
+                },
+              });
+            }
           });
         }
 
-        // Create Escrow
-        const escrow = await EscrowService.createEscrowForProject(dbPayment.projectId, tx);
-
-        // Transition if status is CREATED
-        if (escrow.status === EscrowStatus.CREATED) {
-          await EscrowService.transition(escrow.id, EscrowStatus.HOLDING, SYSTEM_ACTORS.SYSTEM_WEBHOOK, tx);
-        }
-      });
-
-      await NotificationService.notify("PAYMENT_RECEIVED", { projectId: dbPayment.projectId });
-    } else if (eventName === "payment.failed") {
-      await prisma.$transaction(async (tx) => {
-        // Update Payment to FAILED
-        await tx.payment.update({
-          where: { id: dbPayment.id },
-          data: {
-            status: PaymentStatus.FAILED,
-            razorpayPaymentId: paymentId,
-          },
-        });
-
-        await tx.auditLog.create({
+        // Notify client that refund has been issued
+        await NotificationService.notify("REFUND_ISSUED", { projectId: dbPayment.projectId });
+      } else if (eventName === "refund.failed") {
+        // Log refund failure inside AuditLog, do NOT transition escrow
+        await prisma.auditLog.create({
           data: {
             entityType: "Payment",
             entityId: dbPayment.id,
-            action: "PAYMENT_FAILED",
+            action: "REFUND_FAILED",
             actorId: SYSTEM_ACTORS.SYSTEM_WEBHOOK,
             prevState: dbPayment.status,
-            newState: PaymentStatus.FAILED,
+            newState: dbPayment.status,
+            createdAt: new Date(),
           },
         });
-      });
+      }
     }
 
     return NextResponse.json({ success: true }, { status: 200 });

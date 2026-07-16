@@ -1,7 +1,6 @@
 import { prisma } from "../prisma";
 import { SendGridService } from "../email/sendgrid";
-
-const APP_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
+import { getBaseUrl } from "../utils/url";
 
 export type NotificationEvent =
   | "PAYMENT_RECEIVED"
@@ -62,7 +61,7 @@ export const NotificationService = {
           clientName = project.client?.name || "Client";
           freelancerName = project.freelancer?.name || "Freelancer";
           projectTitle = project.title;
-          projectLink = `${APP_URL}/projects/${project.id}`;
+          projectLink = `${getBaseUrl()}/projects/${project.id}`;
         } else {
           console.warn(`[Notification WARNING] Project ${projectId} not found.`);
         }
@@ -70,11 +69,41 @@ export const NotificationService = {
 
       switch (event) {
         case "PAYMENT_RECEIVED": {
+          const payment = await prisma.payment.findUnique({
+            where: { projectId: projectId }
+          });
+          const escrow = await prisma.escrow.findUnique({
+            where: { projectId: projectId }
+          });
+          const paymentStatus = payment?.status || "SUCCESS";
+          const escrowStatus = escrow?.status || "HOLDING";
+          const amount = payment?.amount || project?.agreedAmount || project?.budget || 0;
+
           if (clientEmail) {
-            await SendGridService.sendPaymentReceived(clientEmail, clientName, projectTitle, projectLink, true);
+            await SendGridService.sendPaymentReceived(
+              clientEmail,
+              clientName,
+              projectTitle,
+              projectLink,
+              true,
+              amount,
+              paymentStatus,
+              escrowStatus,
+              clientName
+            );
           }
           if (freelancerEmail) {
-            await SendGridService.sendPaymentReceived(freelancerEmail, freelancerName, projectTitle, projectLink, false);
+            await SendGridService.sendPaymentReceived(
+              freelancerEmail,
+              freelancerName,
+              projectTitle,
+              projectLink,
+              false,
+              amount,
+              paymentStatus,
+              escrowStatus,
+              clientName
+            );
           }
           break;
         }
