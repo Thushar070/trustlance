@@ -43,7 +43,7 @@ TrustLance operates with three primary, distinct user roles:
 
 The platform uses a high-contrast Indigo-based theme, featuring a strict black-and-white color layout to ensure visual clarity.
 
-*   **Background (Light/Dark)**: `#F8FAFC` (Slate Tint) / `#000000` (True Black)
+*   **Background **: `#000000` (True Black)
 *   **Surface**: `#FFFFFF` / `#111111` (Near Black)
 *   **Surface Elevated**: `#FFFFFF` / `#1a1a1a` (Dark Gray)
 *   **Accent Primary**: `#4F46E5` (Indigo) / `#6366F1` (Light Indigo)
