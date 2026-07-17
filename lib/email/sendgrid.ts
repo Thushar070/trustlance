@@ -51,6 +51,13 @@ async function sendMailHelper(
   buttonUrl?: string
 ): Promise<boolean> {
   const apiKey = process.env.SENDGRID_API_KEY;
+  if (!apiKey) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("[SendGrid ERROR] SENDGRID_API_KEY is missing");
+      return false;
+    }
+    throw new Error("SENDGRID_API_KEY is missing");
+  }
   const fromAddress = process.env.EMAIL_FROM_ADDRESS || "trustlance.noreply@gmail.com";
   const fromName = process.env.EMAIL_FROM_NAME || "TrustLance";
 
@@ -107,14 +114,29 @@ async function sendMailHelper(
         `[SendGrid ERROR] Delivery failed for trigger "${triggerName}" to recipient "${to}" via SendGrid (Status: ${statusCode || "unknown"}). ` +
         `Attempting SMTP fallback...`
       );
+
+      // SMTP Fallback inside SendGrid catch
+      const smtpSent = await Mailer.sendEmail(to, subject, text, htmlContent);
+      if (smtpSent) {
+        console.info(`[Mailer INFO] Fallback SMTP email successfully sent to ${to} for trigger "${triggerName}".`);
+        return true;
+      }
+
+      console.error(`[Mailer ERROR] Final delivery failure for trigger "${triggerName}" to recipient "${to}". Both SendGrid and SMTP fallbacks failed.`);
+      return false;
     }
   }
 
-  // Fallback 1: SMTP Nodemailer
+  // Fallback 1: SMTP Nodemailer (Only called if API key was missing)
   const smtpSent = await Mailer.sendEmail(to, subject, text, htmlContent);
   if (smtpSent) {
     console.info(`[Mailer INFO] Fallback SMTP email successfully sent to ${to} for trigger "${triggerName}".`);
     return true;
+  }
+
+  if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test") {
+    console.error(`[Mailer ERROR] Final delivery failure for trigger "${triggerName}" to recipient "${to}". Both SendGrid and SMTP fallbacks failed.`);
+    return false;
   }
 
   // Fallback 2: Console simulation log (so it is workable in local environment/sandbox without key constraints)

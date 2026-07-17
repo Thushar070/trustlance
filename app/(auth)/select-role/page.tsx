@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { Briefcase, Wrench, AlertCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 export default function SelectRolePage() {
   const { update } = useSession();
@@ -41,12 +42,15 @@ export default function SelectRolePage() {
   };
 
   return (
-    <div className="flex-grow flex flex-col items-center justify-center py-20 px-4 sm:px-6 lg:px-8 bg-[var(--background)] text-[var(--foreground)] min-h-screen">
-      <div className="w-full max-w-xl space-y-8 animate-slideUp">
+    <div className="flex-grow flex flex-col items-center justify-center py-20 px-4 sm:px-6 lg:px-8 bg-[var(--background)] text-[var(--foreground)] min-h-screen relative overflow-hidden">
+      {/* Decorative Grid Lines to match landing page */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border-subtle)_1px,transparent_1px),linear-gradient(to_bottom,var(--border-subtle)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
+
+      <div className="w-full max-w-xl space-y-8 animate-slideUp relative z-10">
         {/* Brand Header */}
         <div className="text-center">
           <div className="flex justify-center items-center gap-2 mb-2">
-            <img src="/logo-mark.png" alt="TrustLance" className="w-6 h-6 rounded" />
+            <Logo className="w-6 h-6" />
             <span className="text-lg font-bold tracking-tight text-[var(--text-primary)]">TrustLance</span>
           </div>
           <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold">Account Setup Phase 1</p>

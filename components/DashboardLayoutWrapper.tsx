@@ -4,7 +4,8 @@ import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import React, { useState, useEffect, useRef } from "react";
-import ThemeToggle from "@/components/ThemeToggle";
+import ThemeToggle from "@/components/ThemeToggle"; // keep compile import safe if needed, but we will comment out
+import Logo from "@/components/Logo";
 import Navbar from "./Navbar";
 import {
   Shield,
@@ -72,7 +73,7 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
           <footer className="border-t border-[var(--border)] bg-[var(--surface)]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-2.5">
-                <img src="/logo-mark.png" alt="" width={18} height={18} className="w-[18px] h-[18px] rounded opacity-50" />
+                <Logo className="w-[18px] h-[18px] opacity-50" />
                 <p className="text-xs text-[var(--text-muted)] font-medium tracking-wide">
                   © 2026 TrustLance. All rights reserved.
                 </p>
@@ -142,7 +143,7 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
           {/* Logo / Brand Header */}
           <div className="p-6 border-b border-[var(--border)] flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 group">
-              <img src="/logo-mark.png" alt="TrustLance" className="w-6 h-6 rounded" />
+              <Logo className="w-6 h-6" />
               <div className="flex flex-col text-left">
                 <span className="text-sm font-bold tracking-tight text-[var(--text-primary)] leading-tight">TrustLance</span>
                 <span className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-widest leading-tight">Escrow Division</span>
@@ -211,12 +212,11 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
       {/* 2. Mobile / Tablet Header Navigation */}
       <header className="lg:hidden w-full h-16 border-b border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] flex items-center justify-between px-6 sticky top-0 z-40">
         <Link href="/" className="flex items-center gap-2 text-[var(--text-primary)]">
-          <img src="/logo-mark.png" alt="TrustLance" className="w-6 h-6 rounded" />
+          <Logo className="w-6 h-6" />
           <span className="text-sm font-bold tracking-tight">TrustLance</span>
         </Link>
 
         <div className="flex items-center gap-4">
-          <ThemeToggle />
           <button
             onClick={() => setMobileMenuOpen(true)}
             aria-label="Open navigation drawer"
@@ -231,7 +231,7 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
         <div className="fixed inset-0 z-50 lg:hidden flex flex-col bg-[var(--surface)] text-[var(--text-primary)] animate-in slide-in-from-right duration-200">
           <div className="flex items-center justify-between px-6 h-16 border-b border-[var(--border)]">
             <Link href="/" className="flex items-center gap-2 text-[var(--text-primary)]">
-              <img src="/logo-mark.png" alt="TrustLance" className="w-6 h-6 rounded" />
+              <Logo className="w-6 h-6" />
               <span className="text-sm font-bold tracking-tight">TrustLance</span>
             </Link>
             <button

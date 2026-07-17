@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import ThemeToggle from "@/components/ThemeToggle";
+import Logo from "@/components/Logo";
 import {
   Shield,
   Briefcase,
@@ -162,13 +162,7 @@ export default function Navbar() {
             {/* Left side brand name & logo */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center gap-2 group mr-6 shrink-0">
-                <img
-                  src="/logo-mark.png"
-                  alt="TrustLance"
-                  width={32}
-                  height={32}
-                  className="w-8 h-8 rounded-lg shadow-sm"
-                />
+                <Logo className="w-8 h-8" />
                 <span className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
                   Trust<span className="text-[var(--accent)]">Lance</span>
                 </span>
@@ -247,9 +241,8 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Right side controls (Theme Toggle, User Profile) */}
+            {/* Right side controls (User Profile) */}
             <div className="flex items-center gap-3">
-              <ThemeToggle />
 
               {status === "loading" ? (
                 <div className="flex items-center justify-center w-8 h-8">
@@ -315,19 +308,23 @@ export default function Navbar() {
                 </>
               ) : (
                 <div className="flex items-center gap-4">
-                  <Link
-                    href="/login"
-                    className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors px-3 py-1.5"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/login"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--btn-primary-text)] bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-lg transition-all shadow-[var(--card-shadow)]"
-                  >
-                    <Shield className="w-3.5 h-3.5" />
-                    Sign Up
-                  </Link>
+                  {pathname !== "/login" && (
+                    <>
+                      <Link
+                        href="/login"
+                        className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors px-3 py-1.5"
+                      >
+                        Login
+                      </Link>
+                      <Link
+                        href="/login"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--btn-primary-text)] bg-[var(--accent)] hover:bg-[var(--accent-hover)] rounded-lg transition-all shadow-[var(--card-shadow)]"
+                      >
+                        <Shield className="w-3.5 h-3.5" />
+                        Sign Up
+                      </Link>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -341,13 +338,7 @@ export default function Navbar() {
           {/* Header Row */}
           <div className="flex items-center justify-between px-6 h-16 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
-              <img
-                src="/logo-mark.png"
-                alt="TrustLance"
-                width={32}
-                height={32}
-                className="w-8 h-8 rounded-lg"
-              />
+              <Logo className="w-8 h-8" />
               <span className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
                 Trust<span className="text-[var(--accent)]">Lance</span>
               </span>

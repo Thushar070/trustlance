@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import React, { Suspense } from "react";
 import { AlertCircle } from "lucide-react";
+import Logo from "@/components/Logo";
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -15,12 +16,15 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex-grow flex flex-col justify-center items-center py-20 px-4 sm:px-6 lg:px-8 bg-[var(--background)] text-[var(--foreground)]">
-      <div className="w-full max-w-sm space-y-8 animate-slideUp">
+    <div className="flex-grow flex flex-col justify-center items-center py-20 px-4 sm:px-6 lg:px-8 bg-[var(--background)] text-[var(--foreground)] relative overflow-hidden">
+      {/* Decorative Grid Lines to match landing page */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border-subtle)_1px,transparent_1px),linear-gradient(to_bottom,var(--border-subtle)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
+
+      <div className="w-full max-w-sm space-y-8 animate-slideUp relative z-10">
         {/* Logo Header */}
         <div className="text-center">
           <div className="flex justify-center items-center gap-2 mb-2">
-            <img src="/logo-mark.png" alt="TrustLance" className="w-6 h-6 rounded" />
+            <Logo className="w-6 h-6" />
             <span className="text-lg font-bold tracking-tight text-[var(--text-primary)]">TrustLance</span>
           </div>
         </div>
