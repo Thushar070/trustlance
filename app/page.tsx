@@ -61,13 +61,13 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto relative z-10 space-y-6">
           {/* Status Badge Pill */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-800 bg-zinc-950 text-zinc-400 text-[10px] font-mono uppercase tracking-widest">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>System Status: Active</span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-white leading-[1.05]">
             Secure payments for <br />
-            <span className="text-indigo-400">freelance milestones.</span>
+            <span className="text-zinc-200">freelance milestones.</span>
           </h1>
 
           <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto leading-relaxed tracking-wide font-normal">
@@ -120,7 +120,7 @@ export default function LandingPage() {
           {/* Card 1: Milestone Workflow */}
           <div className="border border-zinc-900 bg-zinc-950/40 hover:border-zinc-800 rounded-xl p-6 flex flex-col justify-between space-y-6 transition-colors shadow-sm text-left">
             <div className="space-y-3">
-              <div className="w-8 h-8 rounded border border-zinc-800 bg-zinc-900 flex items-center justify-center text-indigo-400">
+              <div className="w-8 h-8 rounded border border-zinc-800 bg-zinc-900 flex items-center justify-center text-white">
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">Milestone Escrow Workflow</h3>
@@ -136,7 +136,7 @@ export default function LandingPage() {
               </div>
               <div className="flex justify-between">
                 <span>Verification State</span>
-                <span className="text-indigo-400">EscrowService Enforced</span>
+                <span className="text-white">EscrowService Enforced</span>
               </div>
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function LandingPage() {
           {/* Card 2: Neutral Arbitration */}
           <div className="border border-zinc-900 bg-zinc-950/40 hover:border-zinc-800 rounded-xl p-6 flex flex-col justify-between space-y-6 transition-colors shadow-sm text-left">
             <div className="space-y-3">
-              <div className="w-8 h-8 rounded border border-zinc-800 bg-zinc-900 flex items-center justify-center text-indigo-400">
+              <div className="w-8 h-8 rounded border border-zinc-800 bg-zinc-900 flex items-center justify-center text-white">
                 <AlertTriangle className="w-4 h-4" />
               </div>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">Evidence-Based Disputes</h3>
@@ -160,7 +160,7 @@ export default function LandingPage() {
               </div>
               <div className="flex justify-between">
                 <span>Mediation Console</span>
-                <span className="text-indigo-400">Manual Admin Intervention</span>
+                <span className="text-white">Manual Admin Intervention</span>
               </div>
             </div>
           </div>
@@ -168,7 +168,7 @@ export default function LandingPage() {
           {/* Card 3: Social Discovery */}
           <div className="border border-zinc-900 bg-zinc-950/40 hover:border-zinc-800 rounded-xl p-6 flex flex-col justify-between space-y-6 transition-colors shadow-sm text-left">
             <div className="space-y-3">
-              <div className="w-8 h-8 rounded border border-zinc-800 bg-zinc-900 flex items-center justify-center text-indigo-400">
+              <div className="w-8 h-8 rounded border border-zinc-800 bg-zinc-900 flex items-center justify-center text-white">
                 <Award className="w-4 h-4" />
               </div>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">Discovery & Reputation</h3>
@@ -184,7 +184,7 @@ export default function LandingPage() {
               </div>
               <div className="flex justify-between">
                 <span>Security Layer</span>
-                <span className="text-indigo-400">Session Gated Inbox</span>
+                <span className="text-white">Session Gated Inbox</span>
               </div>
             </div>
           </div>
